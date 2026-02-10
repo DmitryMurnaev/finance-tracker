@@ -2,119 +2,99 @@ import { useState, useEffect } from 'react';
 import { Wallet, TrendingUp, History, Plus } from 'lucide-react';
 import TransactionForm from './components/Transactions/TransactionForm';
 import TransactionItem from './components/Transactions/TransactionItem';
+import { transactionAPI } from './services/api';
 import './index.css';
 
 function App() {
     const [transactions, setTransactions] = useState([]);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('home');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    // Загрузка из localStorage при монтировании компонента
+    // Загрузка данных с API при монтировании компонента
     useEffect(() => {
-        console.log('🔄 Инициализация приложения...');
-
-        try {
-            // Получаем данные из localStorage
-            const savedData = localStorage.getItem('finance-transactions');
-            console.log('📥 Получено из localStorage:', savedData);
-
-            // Проверяем, что данные существуют и корректны
-            if (savedData && savedData !== 'undefined' && savedData !== 'null') {
-                // Парсим JSON
-                const parsedData = JSON.parse(savedData);
-                console.log('✅ Данные распарсены:', parsedData);
-
-                // Проверяем, что это массив
-                if (Array.isArray(parsedData)) {
-                    setTransactions(parsedData);
-                    console.log(`📊 Загружено ${parsedData.length} операций`);
-                } else {
-                    console.warn('⚠️ Данные не являются массивом, устанавливаю пустой массив');
-                    setTransactions([]);
-                    localStorage.setItem('finance-transactions', JSON.stringify([]));
-                }
-            } else {
-                // Если данных нет или они некорректны, инициализируем пустым массивом
-                console.log('📭 localStorage пуст, инициализирую пустым массивом');
-                setTransactions([]);
-                localStorage.setItem('finance-transactions', JSON.stringify([]));
-            }
-        } catch (error) {
-            console.error('❌ Ошибка при загрузке из localStorage:', error);
-            // При ошибке инициализируем пустым массивом
-            setTransactions([]);
-            localStorage.setItem('finance-transactions', JSON.stringify([]));
-        }
+        fetchTransactions();
     }, []);
 
-    // Автосохранение при изменении транзакций
-    useEffect(() => {
-        // Сохраняем только если есть транзакции
-        if (transactions.length > 0) {
-            console.log(`💾 Сохраняю ${transactions.length} операций в localStorage...`);
+    const fetchTransactions = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            console.log('🔄 Загружаю транзакции с API...');
+            const data = await transactionAPI.getTransactions();
 
-            try {
-                const dataString = JSON.stringify(transactions);
-                localStorage.setItem('finance-transactions', dataString);
-                console.log('✅ Данные успешно сохранены');
-            } catch (error) {
-                console.error('❌ Ошибка при сохранении в localStorage:', error);
-            }
-        } else {
-            // Если массив пуст, сохраняем пустой массив
-            localStorage.setItem('finance-transactions', JSON.stringify([]));
+            // Отладочный вывод
+            console.log('📥 Полученные данные:', data);
+            console.log('📊 Тип данных:', typeof data);
+            console.log('🔢 Это массив?', Array.isArray(data));
+
+            setTransactions(data);
+            console.log(`✅ Загружено ${data.length} транзакций`);
+        } catch (error) {
+            console.error('❌ Ошибка загрузки транзакций:', error);
+            setError('Не удалось загрузить данные. Проверьте подключение к серверу.');
+            setTransactions([]);
+        } finally {
+            setLoading(false);
         }
-    }, [transactions]);
+    };
 
     // Функция добавления новой операции
-    const addTransaction = (newTransaction) => {
-        console.log('➕ Добавляю операцию:', newTransaction);
+    const addTransaction = async (newTransaction) => {
+        try {
+            console.log('➕ Отправляю новую операцию на API...');
 
-        // Создаем копию массива и добавляем новую операцию в начало
-        const updatedTransactions = [newTransaction, ...transactions];
-        setTransactions(updatedTransactions);
+            await transactionAPI.createTransaction(newTransaction);
+            await fetchTransactions();
 
-        console.log(`📊 Теперь ${updatedTransactions.length} операций`);
+            console.log('✅ Операция успешно добавлена');
+            setIsFormOpen(false);
+        } catch (error) {
+            console.error('❌ Ошибка при добавлении операции:', error);
+            alert('Не удалось добавить операцию. Проверьте подключение к серверу.');
+        }
     };
 
     // Функция удаления операции
-    const deleteTransaction = (id) => {
-        console.log('🗑️ Пытаюсь удалить операцию ID:', id);
-
-        // Подтверждение удаления
+    const deleteTransaction = async (id) => {
         if (window.confirm('Вы уверены, что хотите удалить эту операцию?')) {
-            // Фильтруем массив, оставляя все кроме удаляемой
-            const filteredTransactions = transactions.filter(
-                transaction => transaction.id !== id
-            );
+            try {
+                console.log(`🗑️ Удаляю операцию ${id}...`);
 
-            setTransactions(filteredTransactions);
-            console.log(`✅ Операция удалена. Осталось ${filteredTransactions.length} операций`);
+                await transactionAPI.deleteTransaction(id);
+                await fetchTransactions();
+
+                console.log('✅ Операция удалена');
+            } catch (error) {
+                console.error('❌ Ошибка при удалении операции:', error);
+                alert('Не удалось удалить операцию. Проверьте подключение к серверу.');
+            }
         }
     };
 
     // Расчет статистики
     const calculateStatistics = () => {
-        // Доходы (type === 'income')
+        // Проверяем что transactions - массив
+        if (!Array.isArray(transactions)) {
+            console.error('transactions is not an array:', transactions);
+            return { totalIncome: 0, totalExpenses: 0, balance: 0 };
+        }
+
         const totalIncome = transactions
-            .filter(transaction => transaction.type === 'income')
-            .reduce((total, transaction) => total + transaction.amount, 0);
+            .filter(transaction => transaction && transaction.type === 'income')
+            .reduce((total, transaction) => total + (parseFloat(transaction.amount) || 0), 0);
 
-        // Расходы (type === 'expense')
         const totalExpenses = transactions
-            .filter(transaction => transaction.type === 'expense')
-            .reduce((total, transaction) => total + transaction.amount, 0);
+            .filter(transaction => transaction && transaction.type === 'expense')
+            .reduce((total, transaction) => total + (parseFloat(transaction.amount) || 0), 0);
 
-        // Баланс
         const balance = totalIncome - totalExpenses;
 
         return { totalIncome, totalExpenses, balance };
     };
 
-    // Получаем статистику
     const { totalIncome, totalExpenses, balance } = calculateStatistics();
-
-    // Получаем последние 5 операций для отображения
     const recentTransactions = transactions.slice(0, 5);
 
     return (
@@ -149,45 +129,53 @@ function App() {
                     </div>
                 </div>
 
-                {/* Статистика доходов/расходов */}
+                {/* Статистика */}
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-white p-5 rounded-xl shadow border border-gray-100 hover:shadow-md transition-shadow">
+                    <div className="bg-white p-5 rounded-xl shadow border border-gray-100">
                         <div className="text-green-500 font-bold text-2xl">
                             + {totalIncome.toLocaleString('ru-RU')} ₽
                         </div>
-                        <div className="text-gray-700 text-sm mt-1">Общие доходы</div>
-                        <div className="text-gray-400 text-xs mt-1">
-                            {transactions.filter(t => t.type === 'income').length} операций
-                        </div>
+                        <div className="text-gray-700 text-sm">Доходы</div>
                     </div>
 
-                    <div className="bg-white p-5 rounded-xl shadow border border-gray-100 hover:shadow-md transition-shadow">
+                    <div className="bg-white p-5 rounded-xl shadow border border-gray-100">
                         <div className="text-red-500 font-bold text-2xl">
                             - {totalExpenses.toLocaleString('ru-RU')} ₽
                         </div>
-                        <div className="text-gray-700 text-sm mt-1">Общие расходы</div>
-                        <div className="text-gray-400 text-xs mt-1">
-                            {transactions.filter(t => t.type === 'expense').length} операций
-                        </div>
+                        <div className="text-gray-700 text-sm">Расходы</div>
                     </div>
                 </div>
 
-                {/* Список последних операций */}
-                <div className="bg-white rounded-xl shadow border border-gray-100 p-4 mb-6">
+                {/* Список операций */}
+                <div className="bg-white rounded-xl shadow border border-gray-100 p-4">
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center">
                             <History className="mr-2 text-gray-600" size={20} />
-                            <h2 className="font-semibold text-gray-800">Последние операции</h2>
+                            <h2 className="font-semibold">Последние операции</h2>
                         </div>
-
                         {transactions.length > 0 && (
-                            <div className="text-gray-500 text-sm">
-                                Всего: {transactions.length}
-                            </div>
+                            <div className="text-gray-500 text-sm">Всего: {transactions.length}</div>
                         )}
                     </div>
 
-                    {recentTransactions.length > 0 ? (
+                    {loading ? (
+                        <div className="text-center py-10">
+                            <div className="inline-flex items-center justify-center">
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                            </div>
+                            <p className="text-gray-500 mt-4">Загрузка данных...</p>
+                        </div>
+                    ) : error ? (
+                        <div className="text-center py-10">
+                            <div className="text-red-500 text-lg mb-2">⚠️ {error}</div>
+                            <button
+                                onClick={fetchTransactions}
+                                className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                            >
+                                Повторить
+                            </button>
+                        </div>
+                    ) : recentTransactions.length > 0 ? (
                         <div>
                             {recentTransactions.map((transaction) => (
                                 <TransactionItem
@@ -196,20 +184,8 @@ function App() {
                                     onDelete={deleteTransaction}
                                 />
                             ))}
-
-                            {transactions.length > 5 && (
-                                <div className="text-center pt-4">
-                                    <button
-                                        onClick={() => console.log('Показать все операции')}
-                                        className="text-blue-500 text-sm font-medium hover:text-blue-600"
-                                    >
-                                        Показать все {transactions.length} операций →
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     ) : (
-                        // Состояние "нет операций"
                         <div className="text-center py-10">
                             <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-4">
                                 <History className="text-gray-400" size={32} />
@@ -218,42 +194,31 @@ function App() {
                             <p className="text-gray-400 text-sm mt-2">
                                 Нажмите "+" чтобы добавить первую запись
                             </p>
-                            <button
-                                onClick={() => setIsFormOpen(true)}
-                                className="mt-4 bg-blue-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors"
-                            >
-                                Добавить операцию
-                            </button>
                         </div>
                     )}
                 </div>
             </main>
 
-            {/* Модальное окно формы добавления операции */}
+            {/* Форма */}
             <TransactionForm
                 isOpen={isFormOpen}
                 onClose={() => setIsFormOpen(false)}
                 onAddTransaction={addTransaction}
             />
 
-            {/* Плавающая кнопка добавления */}
+            {/* Кнопка добавления */}
             <button
                 onClick={() => setIsFormOpen(true)}
-                className="fixed bottom-24 right-6 w-16 h-16 bg-blue-500 text-white rounded-full shadow-xl flex items-center justify-center hover:bg-blue-600 transition-colors active:scale-95"
-                aria-label="Добавить операцию"
+                className="fixed bottom-24 right-6 w-16 h-16 bg-blue-500 text-white rounded-full shadow-xl flex items-center justify-center hover:bg-blue-600"
             >
                 <Plus size={28} />
             </button>
 
-            {/* Нижняя панель навигации */}
-            <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 pt-3 pb-6 flex justify-around shadow-inner">
+            {/* Навигация */}
+            <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 pt-3 pb-6 flex justify-around">
                 <button
                     onClick={() => setActiveTab('home')}
-                    className={`flex flex-col items-center transition-colors ${
-                        activeTab === 'home'
-                            ? 'text-blue-500'
-                            : 'text-gray-400 hover:text-gray-600'
-                    }`}
+                    className={`flex flex-col items-center ${activeTab === 'home' ? 'text-blue-500' : 'text-gray-400'}`}
                 >
                     <Wallet size={24} />
                     <span className="text-xs mt-1">Главная</span>
@@ -261,21 +226,17 @@ function App() {
 
                 <button
                     onClick={() => setIsFormOpen(true)}
-                    className="flex flex-col items-center -mt-6"
+                    className="flex flex-col items-center -mt-8"
                 >
-                    <div className="bg-blue-500 text-white rounded-full p-4 shadow-lg shadow-blue-500/30 hover:bg-blue-600 transition-colors">
-                        <Plus size={26} />
+                    <div className="bg-blue-500 text-white rounded-full p-4 shadow-lg shadow-blue-500/30">
+                        <Plus size={28} />
                     </div>
-                    <span className="text-xs mt-2 text-gray-700 font-medium">Добавить</span>
+                    <span className="text-xs mt-2 text-gray-700">Добавить</span>
                 </button>
 
                 <button
                     onClick={() => setActiveTab('stats')}
-                    className={`flex flex-col items-center transition-colors ${
-                        activeTab === 'stats'
-                            ? 'text-blue-500'
-                            : 'text-gray-400 hover:text-gray-600'
-                    }`}
+                    className={`flex flex-col items-center ${activeTab === 'stats' ? 'text-blue-500' : 'text-gray-400'}`}
                 >
                     <TrendingUp size={24} />
                     <span className="text-xs mt-1">Статистика</span>
