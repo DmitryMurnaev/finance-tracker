@@ -1,139 +1,137 @@
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { Pool } = require('pg');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-console.log('🚀 Запуск Finance Tracker API');
+console.log('🚀 Запуск Finance Tracker API для Render');
 console.log('📡 Порт:', PORT);
 
-// ВАЖНО: CORS для фронтенда на Render
-app.use(cors({
-    origin: [
-        'https://finance-tracker-frontend-nxmx.onrender.com',
-        'https://finance-tracker-frontend.onrender.com',
-        'http://localhost:5173',
-        'http://localhost:3000'
-    ],
-    credentials: true
-}));
+// ВАЖНО: Правильный CORS - явно указываем фронтенд
+const allowedOrigins = [
+    'https://finance-tracker-frontend-nxmx.onrender.com',
+    'https://finance-tracker-frontend.onrender.com',
+    'http://localhost:5173'
+];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Разрешаем запросы без origin (Postman, curl) и из списка
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            console.log(`❌ CORS заблокирован: ${origin}`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
+
+// Обработка preflight запросов
+app.options('*', cors(corsOptions));
 
 app.use(express.json());
 
-// 1. ПОДКЛЮЧЕНИЕ К БАЗЕ ДАННЫХ RENDER
-console.log('🔗 Подключаюсь к PostgreSQL на Render...');
+// Мок-данные
+let transactions = [
+    { id: 1, amount: 500, type: 'expense', category: 'food', description: 'Обед в кафе', date: '2024-02-10' },
+    { id: 2, amount: 250, type: 'expense', category: 'transport', description: 'Такси на работу', date: '2024-02-10' },
+    { id: 3, amount: 30000, type: 'income', category: 'salary', description: 'Зарплата за январь', date: '2024-02-10' },
+    { id: 4, amount: 1200, type: 'expense', category: 'shopping', description: 'Покупка в магазине', date: '2024-02-10' },
+    { id: 5, amount: 5000, type: 'income', category: 'freelance', description: 'Проект для клиента', date: '2024-02-10' }
+];
 
-let pool;
-
-try {
-    // ОБРАТИТЕ ВНИМАНИЕ: правильный connection string
-    const connectionString = 'postgresql://finance_tracker_jm5c_user:dNwYoVlWRsKrudOp8gsOGwoxwx6Lkh7x@dpg-d6626fmr433s73d8dcq0-a.oregon-postgres.render.com:5432/finance_tracker_jm5c';
-
-    pool = new Pool({
-        connectionString: connectionString,
-        ssl: {
-            rejectUnauthorized: false
-        },
-        // Настройки для бесплатного тарифа
-        max: 5,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 2000
-    });
-
-    console.log('✅ Пул подключений создан');
-} catch (error) {
-    console.error('❌ Ошибка создания пула БД:', error.message);
-    console.log('⚠️ Буду использовать мок-данные');
-}
-
-// 2. Проверка подключения (асинхронно)
-async function checkDatabase() {
-    if (!pool) return false;
-
-    try {
-        const client = await pool.connect();
-        console.log('✅ Подключение к PostgreSQL установлено!');
-
-        // Проверяем/создаем таблицу
-        await client.query(`
-            CREATE TABLE IF NOT EXISTS transactions (
-                id SERIAL PRIMARY KEY,
-                amount DECIMAL(10,2) NOT NULL,
-                type VARCHAR(20) NOT NULL CHECK (type IN ('income', 'expense')),
-                category VARCHAR(50) NOT NULL,
-                description TEXT,
-                date DATE DEFAULT CURRENT_DATE,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        const result = await client.query('SELECT COUNT(*) FROM transactions');
-        console.log(`📊 Записей в БД: ${result.rows[0].count}`);
-
-        client.release();
-        return true;
-    } catch (error) {
-        console.error('❌ Ошибка подключения к БД:', error.message);
-        return false;
-    }
-}
-
-// Запускаем проверку (но не блокируем старт сервера)
-checkDatabase().then(success => {
-    if (success) {
-        console.log('✅ База данных готова к работе');
-    } else {
-        console.log('⚠️ База данных недоступна, API будет использовать мок-данные');
-    }
-});
-
-// 3. МАРШРУТЫ API
-
+// Маршруты API
 app.get('/api/health', (req, res) => {
-    console.log(`🏥 Health check от: ${req.headers.origin || 'unknown'}`);
+    console.log(`✅ Health check от: ${req.headers.origin || 'unknown'}`);
     res.json({
         status: 'OK',
-        message: 'Finance Tracker API работает',
+        message: 'Finance Tracker API работает на Render',
         timestamp: new Date().toISOString(),
-        database: pool ? 'configured' : 'mock'
+        version: '1.0.0',
+        cors: 'enabled',
+        data: 'mock (база данных временно недоступна)'
     });
 });
 
-// Получить все транзакции
-app.get('/api/transactions', async (req, res) => {
+app.get('/api/transactions', (req, res) => {
     console.log(`📡 GET /transactions от: ${req.headers.origin || 'unknown'}`);
 
-    // Если БД не доступна, возвращаем мок-данные
-    if (!pool) {
-        console.log('🔄 Возвращаю мок-данные (БД недоступна)');
-        return res.json([
-            { id: 1, amount: 500, type: 'expense', category: 'food', description: 'Обед в кафе', date: '2024-02-10' },
-            { id: 2, amount: 250, type: 'expense', category: 'transport', description: 'Такси на работу', date: '2024-02-10' },
-            { id: 3, amount: 30000, type: 'income', category: 'salary', description: 'Зарплата за январь', date: '2024-02-10' }
-        ]);
-    }
+    // Сортируем по дате (новые сверху)
+    const sortedTransactions = [...transactions].sort((a, b) =>
+        new Date(b.date) - new Date(a.date) || b.id - a.id
+    );
 
-    try {
-        const result = await pool.query(
-            'SELECT * FROM transactions ORDER BY date DESC, id DESC'
-        );
-        console.log(`✅ Отправляю ${result.rows.length} транзакций`);
-        res.json(result.rows);
-    } catch (error) {
-        console.error('❌ Ошибка при получении транзакций:', error.message);
-        res.status(500).json({
-            error: 'Database error',
-            message: error.message
-        });
-    }
+    console.log(`✅ Отправляю ${sortedTransactions.length} транзакций`);
+    res.json(sortedTransactions);
 });
 
-// [Остальные маршруты остаются как были...]
+app.post('/api/transactions', (req, res) => {
+    console.log(`📝 POST /transactions от: ${req.headers.origin || 'unknown'}`);
+    console.log('📦 Данные:', req.body);
 
-// 4. ЗАПУСК СЕРВЕРА
+    const newTransaction = {
+        id: transactions.length > 0 ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
+        ...req.body,
+        date: req.body.date || new Date().toISOString().split('T')[0]
+    };
+
+    transactions.unshift(newTransaction);
+
+    console.log(`✅ Транзакция добавлена. ID: ${newTransaction.id}`);
+    res.status(201).json(newTransaction);
+});
+
+app.delete('/api/transactions/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    console.log(`🗑️ DELETE /transactions/${id} от: ${req.headers.origin || 'unknown'}`);
+
+    const initialLength = transactions.length;
+    transactions = transactions.filter(t => t.id !== id);
+
+    if (transactions.length === initialLength) {
+        return res.status(404).json({
+            error: 'Transaction not found',
+            message: `Transaction with ID ${id} does not exist`
+        });
+    }
+
+    console.log(`✅ Транзакция ${id} удалена`);
+    res.json({
+        success: true,
+        message: `Transaction ${id} deleted successfully`,
+        remaining: transactions.length
+    });
+});
+
+app.get('/api/transactions/stats', (req, res) => {
+    console.log(`📊 GET /stats от: ${req.headers.origin || 'unknown'}`);
+
+    const incomeTotal = transactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+
+    const expenseTotal = transactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+
+    const stats = {
+        income: { total: incomeTotal },
+        expense: { total: expenseTotal }
+    };
+
+    console.log(`📈 Статистика: Доходы=${incomeTotal} руб., Расходы=${expenseTotal} руб.`);
+    res.json(stats);
+});
+
+// Запуск сервера
 app.listen(PORT, () => {
-    console.log(`✅ Сервер запущен на порту ${PORT}`);
-    console.log(`🌐 Health check: https://finance-tracker-api.onrender.com/api/health`);
+    console.log(`✅ API сервер запущен на порту ${PORT}`);
+    console.log(`🌐 Доступен по адресу: https://finance-tracker-api.onrender.com`);
+    console.log(`🏥 Health check: https://finance-tracker-api.onrender.com/api/health`);
+    console.log(`📊 Transactions: https://finance-tracker-api.onrender.com/api/transactions`);
 });
