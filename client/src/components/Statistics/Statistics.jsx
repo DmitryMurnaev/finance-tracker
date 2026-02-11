@@ -1,25 +1,43 @@
-import React, { useState, useMemo } from 'react';
-import { TrendingUp, TrendingDown, PieChart as PieChartIcon, Calendar } from 'lucide-react';
-
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import {
+    TrendingUp,
+    TrendingDown,
+    PieChart as PieChartIcon,
+    Calendar,
+    ChevronDown
+} from 'lucide-react';
 
 const Statistics = ({ transactions }) => {
     const [activeType, setActiveType] = useState('expense');
     const [selectedPeriod, setSelectedPeriod] = useState('all');
+    const [isPeriodOpen, setIsPeriodOpen] = useState(false);
+    const periodRef = useRef(null);
 
-    // --- 1. Получаем все доступные периоды (YYYY-MM) ---
+    // Закрытие селекта при клике вне
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (periodRef.current && !periodRef.current.contains(event.target)) {
+                setIsPeriodOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    // --- Все доступные периоды (YYYY-MM) ---
     const periods = useMemo(() => {
         const dates = transactions.map(t => t.date).filter(Boolean);
         const unique = [...new Set(dates.map(d => d.slice(0, 7)))];
         return unique.sort().reverse();
     }, [transactions]);
 
-    // --- 2. Фильтруем транзакции по выбранному периоду ---
+    // --- Фильтрация по периоду ---
     const filteredTransactions = useMemo(() => {
         if (selectedPeriod === 'all') return transactions;
         return transactions.filter(t => t.date && t.date.startsWith(selectedPeriod));
     }, [transactions, selectedPeriod]);
 
-    // --- 3. Суммарные доходы/расходы/баланс за период ---
+    // --- Суммарные доходы/расходы/баланс за период ---
     const periodStats = useMemo(() => {
         const income = filteredTransactions
             .filter(t => t.type === 'income')
@@ -30,7 +48,7 @@ const Statistics = ({ transactions }) => {
         return { income, expense, balance: income - expense };
     }, [filteredTransactions]);
 
-    // --- 4. Группировка по категориям для выбранного типа (доход/расход) ---
+    // --- Группировка по категориям (для активного типа) ---
     const categoryStats = useMemo(() => {
         const filtered = filteredTransactions.filter(t => t.type === activeType);
         const stats = {};
@@ -43,7 +61,7 @@ const Statistics = ({ transactions }) => {
             .sort((a, b) => b.total - a.total);
     }, [filteredTransactions, activeType]);
 
-    // --- 5. Словарь категорий (названия, цвета) ---
+    // --- Словарь категорий (с цветами) ---
     const categoryLabels = {
         food: { name: '🍕 Еда', color: 'bg-red-100 text-red-800', chartColor: '#F87171' },
         transport: { name: '🚕 Транспорт', color: 'bg-blue-100 text-blue-800', chartColor: '#60A5FA' },
@@ -60,7 +78,7 @@ const Statistics = ({ transactions }) => {
         other: { name: '📝 Другое', color: 'bg-gray-100 text-gray-800', chartColor: '#9CA3AF' }
     };
 
-    // --- 6. Данные для круговой диаграммы ---
+    // --- Данные для круговой диаграммы ---
     const pieData = useMemo(() => {
         return categoryStats.map(({ category, total }) => ({
             name: categoryLabels[category]?.name || 'Другое',
@@ -71,11 +89,67 @@ const Statistics = ({ transactions }) => {
 
     const totalAmount = categoryStats.reduce((sum, item) => sum + item.total, 0);
 
-    // --- 7. Форматирование периода для отображения ---
+    // --- Форматирование периода для отображения ---
+    const getPeriodLabel = (period) => {
+        if (period === 'all') return '📅 За всё время';
+        const [year, month] = period.split('-');
+        return new Date(year, month - 1).toLocaleDateString('ru-RU', {
+            year: 'numeric',
+            month: 'long'
+        });
+    };
+
     const formatPeriod = (period) => {
         if (period === 'all') return 'За всё время';
         const [year, month] = period.split('-');
-        return new Date(year, month - 1).toLocaleDateString('ru-RU', { year: 'numeric', month: 'long' });
+        return new Date(year, month - 1).toLocaleDateString('ru-RU', {
+            year: 'numeric',
+            month: 'long'
+        });
+    };
+
+    // --- Кастомная SVG-круговая диаграмма ---
+    const CustomPieChart = ({ data }) => {
+        const total = data.reduce((sum, item) => sum + item.value, 0);
+        if (total === 0) return null;
+
+        let cumulativeAngle = 0;
+        const colors = data.map(d => d.color);
+
+        return (
+            <svg viewBox="0 0 100 100" className="w-full h-full">
+                {data.map((item, index) => {
+                    const percentage = item.value / total;
+                    const angle = percentage * 360;
+                    const startAngle = cumulativeAngle;
+                    const endAngle = cumulativeAngle + angle;
+                    cumulativeAngle += angle;
+
+                    const startRad = (startAngle - 90) * Math.PI / 180;
+                    const endRad = (endAngle - 90) * Math.PI / 180;
+
+                    const x1 = 50 + 40 * Math.cos(startRad);
+                    const y1 = 50 + 40 * Math.sin(startRad);
+                    const x2 = 50 + 40 * Math.cos(endRad);
+                    const y2 = 50 + 40 * Math.sin(endRad);
+
+                    const largeArcFlag = angle > 180 ? 1 : 0;
+
+                    return (
+                        <path
+                            key={index}
+                            d={`M 50 50 L ${x1} ${y1} A 40 40 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
+                            fill={colors[index % colors.length]}
+                            stroke="white"
+                            strokeWidth="0.5"
+                        >
+                            <title>{`${item.name}: ${((item.value / total) * 100).toFixed(1)}%`}</title>
+                        </path>
+                    );
+                })}
+                <circle cx="50" cy="50" r="20" fill="white" />
+            </svg>
+        );
     };
 
     return (
@@ -88,39 +162,84 @@ const Statistics = ({ transactions }) => {
                         <h2 className="font-semibold">Статистика</h2>
                     </div>
 
-                    {/* Селект периода */}
-                    <select
-                        value={selectedPeriod}
-                        onChange={(e) => setSelectedPeriod(e.target.value)}
-                        className="px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        <option value="all">📅 За всё время</option>
-                        {periods.map(period => (
-                            <option key={period} value={period}>
-                                {new Date(period + '-01').toLocaleDateString('ru-RU', { year: 'numeric', month: 'long' })}
-                            </option>
-                        ))}
-                    </select>
+                    {/* Кастомный селект периода */}
+                    <div className="relative" ref={periodRef}>
+                        <button
+                            type="button"
+                            onClick={() => setIsPeriodOpen(!isPeriodOpen)}
+                            className="w-full sm:w-auto px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm flex items-center justify-between gap-2 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                        >
+                            <span>{getPeriodLabel(selectedPeriod)}</span>
+                            <ChevronDown
+                                size={16}
+                                className={`text-gray-500 transition-transform ${
+                                    isPeriodOpen ? 'rotate-180' : ''
+                                }`}
+                            />
+                        </button>
+
+                        {/* Выпадающий список */}
+                        {isPeriodOpen && (
+                            <div className="absolute z-30 mt-1 w-full sm:w-64 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                <button
+                                    onClick={() => {
+                                        setSelectedPeriod('all');
+                                        setIsPeriodOpen(false);
+                                    }}
+                                    className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors ${
+                                        selectedPeriod === 'all'
+                                            ? 'bg-blue-50 text-blue-600 font-medium'
+                                            : 'text-gray-700'
+                                    }`}
+                                >
+                                    📅 За всё время
+                                </button>
+                                {periods.map((period) => (
+                                    <button
+                                        key={period}
+                                        onClick={() => {
+                                            setSelectedPeriod(period);
+                                            setIsPeriodOpen(false);
+                                        }}
+                                        className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors ${
+                                            selectedPeriod === period
+                                                ? 'bg-blue-50 text-blue-600 font-medium'
+                                                : 'text-gray-700'
+                                        }`}
+                                    >
+                                        {getPeriodLabel(period)}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Карточки итогов за период */}
                 <div className="grid grid-cols-3 gap-3">
                     <div className="bg-green-50 p-3 rounded-lg">
                         <div className="text-green-600 text-xs">Доходы</div>
-                        <div className="font-bold text-green-700">+{periodStats.income.toLocaleString('ru-RU')} ₽</div>
+                        <div className="font-bold text-green-700">
+                            +{periodStats.income.toLocaleString('ru-RU')} ₽
+                        </div>
                     </div>
                     <div className="bg-red-50 p-3 rounded-lg">
                         <div className="text-red-600 text-xs">Расходы</div>
-                        <div className="font-bold text-red-700">-{periodStats.expense.toLocaleString('ru-RU')} ₽</div>
+                        <div className="font-bold text-red-700">
+                            -{periodStats.expense.toLocaleString('ru-RU')} ₽
+                        </div>
                     </div>
                     <div className="bg-blue-50 p-3 rounded-lg">
                         <div className="text-blue-600 text-xs">Баланс</div>
-                        <div className={`font-bold ${periodStats.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <div
+                            className={`font-bold ${
+                                periodStats.balance >= 0 ? 'text-green-600' : 'text-red-600'
+                            }`}
+                        >
                             {periodStats.balance.toLocaleString('ru-RU')} ₽
                         </div>
                     </div>
                 </div>
-
                 <div className="text-xs text-gray-500 mt-2 text-right">
                     {formatPeriod(selectedPeriod)}
                 </div>
@@ -156,7 +275,10 @@ const Statistics = ({ transactions }) => {
             {categoryStats.length === 0 ? (
                 <div className="bg-white rounded-xl shadow border border-gray-100 p-8 text-center text-gray-500">
                     <PieChartIcon size={32} className="mx-auto mb-2 text-gray-400" />
-                    <p>Нет операций по {activeType === 'expense' ? 'расходам' : 'доходам'} за выбранный период</p>
+                    <p>
+                        Нет операций по {activeType === 'expense' ? 'расходам' : 'доходам'} за
+                        выбранный период
+                    </p>
                 </div>
             ) : (
                 <div className="bg-white rounded-xl shadow border border-gray-100 p-4">
@@ -165,43 +287,26 @@ const Statistics = ({ transactions }) => {
                         <h3 className="font-medium">Распределение по категориям</h3>
                     </div>
 
-                    {/* Адаптивный контейнер: на десктопе диаграмма и список в ряд */}
                     <div className="flex flex-col lg:flex-row lg:items-center gap-6">
                         {/* Круговая диаграмма */}
-                        <div className="w-full lg:w-1/2 h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={pieData}
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={80}
-                                        paddingAngle={2}
-                                        dataKey="value"
-                                        label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
-                                        labelLine={false}
-                                    >
-                                        {pieData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip
-                                        formatter={(value) => `${value.toLocaleString('ru-RU')} ₽`}
-                                    />
-                                    <Legend />
-                                </PieChart>
-                            </ResponsiveContainer>
+                        <div className="w-full lg:w-1/2 h-64 flex items-center justify-center">
+                            <div className="w-64 h-64">
+                                <CustomPieChart data={pieData} />
+                            </div>
                         </div>
 
-                        {/* Список категорий (такой же, как был) */}
+                        {/* Список категорий */}
                         <div className="w-full lg:w-1/2 space-y-3">
                             {categoryStats.map(({ category, total }) => {
                                 const info = categoryLabels[category] || categoryLabels.other;
-                                const percentage = totalAmount ? ((total / totalAmount) * 100).toFixed(1) : 0;
+                                const percentage = totalAmount
+                                    ? ((total / totalAmount) * 100).toFixed(1)
+                                    : 0;
                                 return (
                                     <div key={category} className="flex items-center">
-                                        <div className={`w-24 sm:w-32 px-2 py-1 rounded-full text-xs font-medium ${info.color} truncate`}>
+                                        <div
+                                            className={`w-24 sm:w-32 px-2 py-1 rounded-full text-xs font-medium ${info.color} truncate`}
+                                        >
                                             {info.name}
                                         </div>
                                         <div className="flex-1 mx-3">
@@ -221,7 +326,6 @@ const Statistics = ({ transactions }) => {
                                     </div>
                                 );
                             })}
-                            {/* Итог */}
                             <div className="pt-3 mt-3 border-t border-gray-100 flex justify-between font-bold">
                                 <span>Итого:</span>
                                 <span>{totalAmount.toLocaleString('ru-RU')} ₽</span>

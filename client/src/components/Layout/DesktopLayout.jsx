@@ -19,32 +19,40 @@ const DesktopLayout = ({
                            setActiveTab,
                            setIsFormOpen
                        }) => (
-    <div className="hidden md:block bg-gray-50 h-screen overflow-hidden">
-        <div className="h-full flex flex-col">
-            <div className="flex-shrink-0">
-                <Header />
-                <div className="p-4">
-                    <BalanceCard balance={balance} totalIncome={totalIncome} />
-                    <StatsBlocks totalIncome={totalIncome} totalExpenses={totalExpenses} />
-                    <ListHeader
-                        title={activeTab === 'home' ? 'Последние операции' : 'Аналитика'}
-                        count={activeTab === 'home' ? transactions.length : 0}
-                    />
-                </div>
-            </div>
-            <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4">
-                {activeTab === 'home' ? (
-                    <TransactionList
-                        transactions={transactions}
-                        loading={loading}
-                        error={error}
-                        onDelete={deleteTransaction}
-                        onRetry={fetchTransactions}
-                    />
-                ) : (
-                    <Statistics transactions={transactions} />
-                )}
-            </div>
+    <div className="hidden md:block bg-gray-50 min-h-screen pb-32">
+        {/* Шапка — прилипает при скролле */}
+        <Header />
+
+        <div className="p-4">
+            <BalanceCard balance={balance} totalIncome={totalIncome} />
+            <StatsBlocks totalIncome={totalIncome} totalExpenses={totalExpenses} />
+
+            {/* Заголовок списка — только для главной, для статистики убираем */}
+            {activeTab === 'home' && (
+                <ListHeader
+                    title="Последние операции"
+                    count={transactions.length}
+                />
+            )}
+        </div>
+
+        {/* Контент — в потоке, без внутреннего скролла */}
+        <div className="px-4 pb-4">
+            {activeTab === 'home' ? (
+                <TransactionList
+                    transactions={transactions}
+                    loading={loading}
+                    error={error}
+                    onDelete={deleteTransaction}
+                    onRetry={fetchTransactions}
+                />
+            ) : (
+                <Statistics transactions={transactions} />
+            )}
+        </div>
+
+        {/* Навигация — фиксированная снизу, как на мобилке */}
+        <div className="fixed bottom-0 left-0 right-0">
             <DesktopNavigation
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
@@ -53,4 +61,5 @@ const DesktopLayout = ({
         </div>
     </div>
 );
+
 export default DesktopLayout;

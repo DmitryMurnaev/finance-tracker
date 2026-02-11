@@ -24,10 +24,12 @@ const MobileLayout = ({
         <div className="p-4">
             <BalanceCard balance={balance} totalIncome={totalIncome} />
             <StatsBlocks totalIncome={totalIncome} totalExpenses={totalExpenses} />
-            <ListHeader
-                title={activeTab === 'home' ? 'Последние операции' : 'Аналитика'}
-                count={activeTab === 'home' ? transactions.length : 0}
-            />
+            {activeTab === 'home' && (
+                <ListHeader
+                    title="Последние операции"
+                    count={transactions.length}
+                />
+            )}
             {activeTab === 'home' ? (
                 <TransactionList
                     transactions={transactions}
