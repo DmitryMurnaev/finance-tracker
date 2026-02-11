@@ -1,19 +1,44 @@
 import axios from 'axios';
 
-// Указываем правильный URL нового API
-const API_URL = 'https://finance-tracker-api.onrender.com/api';
+// 🔥 ВАЖНО: Новый URL API!
+const API_URL = 'https://finance-tracker-api-hjcz.onrender.com/api';
 
-console.log(`📡 API URL: ${API_URL}`);
+console.log(`🌍 Подключаюсь к API: ${API_URL}`);
+console.log(`📍 Фронтенд: ${window.location.origin}`);
+
+const api = axios.create({
+    baseURL: API_URL,
+    timeout: 10000,
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
+
+// Для отладки
+api.interceptors.request.use(config => {
+    console.log(`📡 ${config.method?.toUpperCase()} ${config.url}`);
+    return config;
+});
+
+api.interceptors.response.use(
+    response => {
+        console.log(`✅ Ответ ${response.status}:`, response.data?.length ? `${response.data.length} записей` : 'OK');
+        return response;
+    },
+    error => {
+        console.error('❌ Ошибка API:', error.message);
+        return Promise.reject(error);
+    }
+);
 
 export const transactionAPI = {
     getTransactions: async () => {
         try {
-            console.log('🔄 Загружаю данные...');
-            const { data } = await axios.get(`${API_URL}/transactions`);
-            console.log(`✅ Получено ${data?.length || 0} транзакций`);
-            return data || [];
+            const response = await api.get('/transactions');
+            return response.data || [];
         } catch (error) {
-            console.log('⚠️ API не доступен, использую мок-данные');
+            console.error('Ошибка загрузки транзакций:', error.message);
+            // Fallback на локальные данные
             return [
                 { id: 1, amount: 500, type: 'expense', category: 'food', description: 'Обед в кафе', date: '2024-02-10' },
                 { id: 2, amount: 250, type: 'expense', category: 'transport', description: 'Такси на работу', date: '2024-02-10' },
@@ -24,10 +49,11 @@ export const transactionAPI = {
 
     createTransaction: async (transactionData) => {
         try {
-            const { data } = await axios.post(`${API_URL}/transactions`, transactionData);
-            return data;
+            const response = await api.post('/transactions', transactionData);
+            return response.data;
         } catch (error) {
-            console.log('⚠️ API не доступен, создаю локально');
+            console.error('Ошибка создания транзакции:', error.message);
+            // Локальный fallback
             return {
                 id: Date.now(),
                 ...transactionData,
@@ -38,11 +64,23 @@ export const transactionAPI = {
 
     deleteTransaction: async (id) => {
         try {
-            await axios.delete(`${API_URL}/transactions/${id}`);
-            return { success: true };
+            const response = await api.delete(`/transactions/${id}`);
+            return response.data;
         } catch (error) {
-            console.log('⚠️ API не доступен, удаляю локально');
+            console.error('Ошибка удаления транзакции:', error.message);
             return { success: true };
+        }
+    },
+
+    getStatistics: async () => {
+        try {
+            const response = await api.get('/transactions/stats');
+            return response.data;
+        } catch (error) {
+            console.error('Ошибка загрузки статистики:', error.message);
+            return { income: { total: 0 }, expense: { total: 0 } };
         }
     }
 };
+
+export { API_URL };
