@@ -98,7 +98,7 @@ function App() {
     const recentTransactions = transactions.slice(0, 5);
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
             {/* Вся верхняя часть - фиксированная */}
             <div className="flex-shrink-0">
                 {/* Шапка приложения */}
@@ -110,10 +110,11 @@ function App() {
                 {/* Весь основной контент ВЕРХНЕЙ части */}
                 <div className="p-4">
                     {/* Карточка баланса */}
-                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white mb-6 shadow-lg">
+                    <div
+                        className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white mb-6 shadow-lg">
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center">
-                                <Wallet className="mr-3" size={24} />
+                                <Wallet className="mr-3" size={24}/>
                                 <h2 className="text-lg font-semibold">Текущий баланс</h2>
                             </div>
                             <div className="text-blue-100 text-sm bg-white/20 px-3 py-1 rounded-full">
@@ -152,7 +153,7 @@ function App() {
                     <div className="bg-white rounded-xl shadow border border-gray-100 p-4">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center">
-                                <History className="mr-2 text-gray-600" size={20} />
+                                <History className="mr-2 text-gray-600" size={20}/>
                                 <h2 className="font-semibold">Последние операции</h2>
                             </div>
                             {transactions.length > 0 && (
@@ -164,7 +165,7 @@ function App() {
             </div>
 
             {/* ТОЛЬКО список транзакций прокручивается */}
-            <div className="flex-1 overflow-y-auto px-4 pb-4">
+            <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide px-4 pb-4">
                 {loading ? (
                     <div className="text-center py-10">
                         <div className="inline-flex items-center justify-center">
@@ -194,8 +195,9 @@ function App() {
                     </div>
                 ) : (
                     <div className="text-center py-10">
-                        <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-4">
-                            <History className="text-gray-400" size={32} />
+                        <div
+                            className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-4">
+                            <History className="text-gray-400" size={32}/>
                         </div>
                         <p className="text-gray-500 font-medium text-lg">Операций пока нет</p>
                         <p className="text-gray-400 text-sm mt-2">
@@ -212,21 +214,14 @@ function App() {
                 onAddTransaction={addTransaction}
             />
 
-            {/* Кнопка добавления */}
-            <button
-                onClick={() => setIsFormOpen(true)}
-                className="fixed bottom-24 right-6 w-16 h-16 bg-blue-500 text-white rounded-full shadow-xl flex items-center justify-center hover:bg-blue-600 z-10"
-            >
-                <Plus size={28} />
-            </button>
-
             {/* Навигация */}
-            <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 pt-3 pb-6 flex justify-around z-20">
+            <nav
+                className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 pt-3 pb-6 flex justify-around z-20">
                 <button
                     onClick={() => setActiveTab('home')}
                     className={`flex flex-col items-center ${activeTab === 'home' ? 'text-blue-500' : 'text-gray-400'}`}
                 >
-                    <Wallet size={24} />
+                    <Wallet size={24}/>
                     <span className="text-xs mt-1">Главная</span>
                 </button>
 
@@ -235,7 +230,7 @@ function App() {
                     className="flex flex-col items-center -mt-8"
                 >
                     <div className="bg-blue-500 text-white rounded-full p-4 shadow-lg shadow-blue-500/30">
-                        <Plus size={28} />
+                        <Plus size={28}/>
                     </div>
                     <span className="text-xs mt-2 text-gray-700">Добавить</span>
                 </button>
@@ -244,7 +239,7 @@ function App() {
                     onClick={() => setActiveTab('stats')}
                     className={`flex flex-col items-center ${activeTab === 'stats' ? 'text-blue-500' : 'text-gray-400'}`}
                 >
-                    <TrendingUp size={24} />
+                    <TrendingUp size={24}/>
                     <span className="text-xs mt-1">Статистика</span>
                 </button>
             </nav>
