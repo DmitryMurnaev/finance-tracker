@@ -65,66 +65,66 @@ function App() {
     const { totalIncome, totalExpenses, balance } = calculateStatistics();
 
     return (
-        <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
-            {/* Верхняя фиксированная часть */}
-            <div className="flex-shrink-0">
-                <header className="sticky top-0 z-20 p-4 bg-white shadow-sm border-b border-gray-100">
-                    <h1 className="text-2xl font-bold text-gray-900">💰 Финансовый трекер</h1>
-                    <p className="text-gray-500 text-sm mt-1">Учет доходов и расходов</p>
-                </header>
+        <div className="bg-gray-50 min-h-screen pb-32">
+            {/* Шапка */}
+            <header className="sticky top-0 z-20 p-4 bg-white shadow-sm border-b border-gray-100">
+                <h1 className="text-2xl font-bold text-gray-900">💰 Финансовый трекер</h1>
+                <p className="text-gray-500 text-sm mt-1">Учет доходов и расходов</p>
+            </header>
 
-                <div className="p-4">
-                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white mb-6 shadow-lg">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center">
-                                <Wallet className="mr-3" size={24} />
-                                <h2 className="text-lg font-semibold">Текущий баланс</h2>
-                            </div>
-                            <div className="text-blue-100 text-sm bg-white/20 px-3 py-1 rounded-full">
-                                {balance >= 0 ? '+' : ''}{balance.toLocaleString('ru-RU')} ₽
-                            </div>
+            {/* Основной контент */}
+            <div className="p-4">
+                {/* Карточка баланса */}
+                <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white mb-6 shadow-lg">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center">
+                            <Wallet className="mr-3" size={24} />
+                            <h2 className="text-lg font-semibold">Текущий баланс</h2>
                         </div>
-                        <div className="text-center">
-                            <div className="text-5xl font-bold mb-2">
-                                {balance.toLocaleString('ru-RU')} ₽
-                            </div>
-                            <div className="text-blue-100">
-                                Доходы: +{totalIncome.toLocaleString('ru-RU')} ₽
-                            </div>
+                        <div className="text-blue-100 text-sm bg-white/20 px-3 py-1 rounded-full">
+                            {balance >= 0 ? '+' : ''}{balance.toLocaleString('ru-RU')} ₽
                         </div>
                     </div>
-
-                    <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
-                        <div className="bg-white p-3 sm:p-5 rounded-xl shadow border border-gray-100 overflow-hidden">
-                            <div className="text-green-500 font-bold text-lg sm:text-xl md:text-2xl truncate">
-                                + {totalIncome.toLocaleString('ru-RU')} ₽
-                            </div>
-                            <div className="text-gray-700 text-xs sm:text-sm mt-1">Доходы</div>
+                    <div className="text-center">
+                        <div className="text-5xl font-bold mb-2">
+                            {balance.toLocaleString('ru-RU')} ₽
                         </div>
-                        <div className="bg-white p-3 sm:p-5 rounded-xl shadow border border-gray-100 overflow-hidden">
-                            <div className="text-red-500 font-bold text-lg sm:text-xl md:text-2xl truncate">
-                                - {totalExpenses.toLocaleString('ru-RU')} ₽
-                            </div>
-                            <div className="text-gray-700 text-xs sm:text-sm mt-1">Расходы</div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-xl shadow border border-gray-100 p-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center">
-                                <History className="mr-2 text-gray-600" size={20} />
-                                <h2 className="font-semibold">Последние операции</h2>
-                            </div>
-                            {transactions.length > 0 && (
-                                <div className="text-gray-500 text-sm">Всего: {transactions.length}</div>
-                            )}
+                        <div className="text-blue-100">
+                            Доходы: +{totalIncome.toLocaleString('ru-RU')} ₽
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Список ВСЕХ транзакций — большой отступ снизу для safe area */}
-            <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-36">
+                {/* Блоки доходов/расходов */}
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
+                    <div className="bg-white p-3 sm:p-5 rounded-xl shadow border border-gray-100 overflow-hidden">
+                        <div className="text-green-500 font-bold text-lg sm:text-xl md:text-2xl truncate">
+                            + {totalIncome.toLocaleString('ru-RU')} ₽
+                        </div>
+                        <div className="text-gray-700 text-xs sm:text-sm mt-1">Доходы</div>
+                    </div>
+                    <div className="bg-white p-3 sm:p-5 rounded-xl shadow border border-gray-100 overflow-hidden">
+                        <div className="text-red-500 font-bold text-lg sm:text-xl md:text-2xl truncate">
+                            - {totalExpenses.toLocaleString('ru-RU')} ₽
+                        </div>
+                        <div className="text-gray-700 text-xs sm:text-sm mt-1">Расходы</div>
+                    </div>
+                </div>
+
+                {/* Заголовок списка операций */}
+                <div className="bg-white rounded-xl shadow border border-gray-100 p-4 mb-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                            <History className="mr-2 text-gray-600" size={20} />
+                            <h2 className="font-semibold">Последние операции</h2>
+                        </div>
+                        {transactions.length > 0 && (
+                            <div className="text-gray-500 text-sm">Всего: {transactions.length}</div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Список транзакций */}
                 {loading ? (
                     <div className="text-center py-10">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
@@ -141,7 +141,7 @@ function App() {
                         </button>
                     </div>
                 ) : transactions.length > 0 ? (
-                    <div className="space-y-2 mt-4">
+                    <div className="space-y-2">
                         {transactions.map((transaction) => (
                             <TransactionItem
                                 key={transaction.id}
@@ -170,7 +170,7 @@ function App() {
                 onAddTransaction={addTransaction}
             />
 
-            {/* Нижняя навигация — прижата к низу с учётом safe area */}
+            {/* Нижняя навигация — фиксированная, прижата к низу */}
             <nav className="
                 fixed bottom-0 left-0 right-0
                 bg-white border-t border-gray-200
