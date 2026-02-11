@@ -1,8 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { TrendingUp, TrendingDown, PieChart as PieChartIcon, Calendar } from 'lucide-react';
-import {
-    PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer
-} from 'recharts';
+
 
 const Statistics = ({ transactions }) => {
     const [activeType, setActiveType] = useState('expense');
