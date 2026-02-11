@@ -3,7 +3,6 @@ import {
     TrendingUp,
     TrendingDown,
     PieChart as PieChartIcon,
-    Calendar,
     ChevronDown
 } from 'lucide-react';
 
@@ -158,7 +157,7 @@ const Statistics = ({ transactions }) => {
             <div className="bg-white rounded-xl shadow border border-gray-100 p-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                     <div className="flex items-center gap-2">
-                        <Calendar size={20} className="text-gray-600" />
+                        <PieChartIcon size={20} className="text-gray-600" />
                         <h2 className="font-semibold">Статистика</h2>
                     </div>
 
@@ -215,31 +214,41 @@ const Statistics = ({ transactions }) => {
                     </div>
                 </div>
 
-                {/* Карточки итогов за период */}
-                <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-green-50 p-3 rounded-lg">
-                        <div className="text-green-600 text-xs">Доходы</div>
-                        <div className="font-bold text-green-700">
+                {/* Адаптивные карточки итогов за период */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                    {/* Доходы */}
+                    <div className="bg-green-50 rounded-lg p-3">
+                        <div className="text-green-600 text-xs uppercase tracking-wider mb-1">
+                            Доходы
+                        </div>
+                        <div className="font-bold text-green-700 text-sm sm:text-base lg:text-lg truncate">
                             +{periodStats.income.toLocaleString('ru-RU')} ₽
                         </div>
                     </div>
-                    <div className="bg-red-50 p-3 rounded-lg">
-                        <div className="text-red-600 text-xs">Расходы</div>
-                        <div className="font-bold text-red-700">
+
+                    {/* Расходы */}
+                    <div className="bg-red-50 rounded-lg p-3">
+                        <div className="text-red-600 text-xs uppercase tracking-wider mb-1">
+                            Расходы
+                        </div>
+                        <div className="font-bold text-red-700 text-sm sm:text-base lg:text-lg truncate">
                             -{periodStats.expense.toLocaleString('ru-RU')} ₽
                         </div>
                     </div>
-                    <div className="bg-blue-50 p-3 rounded-lg">
-                        <div className="text-blue-600 text-xs">Баланс</div>
+
+                    {/* Баланс — на мобилке во всю ширину, на sm+ треть колонки */}
+                    <div className="col-span-2 sm:col-span-1 bg-blue-50 rounded-lg p-3">
+                        <div className="text-blue-600 text-xs uppercase tracking-wider mb-1">
+                            Баланс
+                        </div>
                         <div
-                            className={`font-bold ${
-                                periodStats.balance >= 0 ? 'text-green-600' : 'text-red-600'
-                            }`}
+                            className={`font-bold text-sm sm:text-base lg:text-lg truncate text-blue-600`}
                         >
                             {periodStats.balance.toLocaleString('ru-RU')} ₽
                         </div>
                     </div>
                 </div>
+
                 <div className="text-xs text-gray-500 mt-2 text-right">
                     {formatPeriod(selectedPeriod)}
                 </div>
