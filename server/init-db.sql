@@ -38,12 +38,16 @@ app.use(cors());
 app.use(express.json());
 
 // Настройка подключения к PostgreSQL
-// Render предоставляет DATABASE_URL в переменных окружения
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL || process.env.DB_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    host: process.env.DB_HOST || 'dpg-d6626fmr433s73d8dcq0-a.oregon-postgres.render.com',
+    port: process.env.DB_PORT || 5432,
+    database: process.env.DB_NAME || 'finance_tracker_jm5c',
+    user: process.env.DB_USER || 'finance_tracker_jm5c_user',
+    password: process.env.DB_PASSWORD || 'dNwYoVlWRsKrudOp8gsOGwoxwx6Lkh7x',
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
-
 // Логирование подключения
 pool.on('connect', () => {
     console.log('✅ Подключение к PostgreSQL установлено');
