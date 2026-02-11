@@ -123,8 +123,8 @@ function App() {
                 </div>
             </div>
 
-            {/* Список ВСЕХ транзакций — только он прокручивается */}
-            <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-24">
+            {/* Список ВСЕХ транзакций — большой отступ снизу для safe area */}
+            <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-36">
                 {loading ? (
                     <div className="text-center py-10">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
@@ -157,7 +157,7 @@ function App() {
                         </div>
                         <p className="text-gray-500 font-medium text-lg">Операций пока нет</p>
                         <p className="text-gray-400 text-sm mt-2">
-                            Нажмите «+» в меню, чтобы добавить первую запись
+                            Нажмите «Добавить» в меню
                         </p>
                     </div>
                 )}
@@ -170,8 +170,15 @@ function App() {
                 onAddTransaction={addTransaction}
             />
 
-            {/* Нижняя навигация — всегда видна */}
-            <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 pb-1 pt-3 flex justify-around z-20">
+            {/* Нижняя навигация — прижата к низу с учётом safe area */}
+            <nav className="
+                fixed bottom-0 left-0 right-0
+                bg-white border-t border-gray-200
+                px-4 pt-3
+                pb-[max(0.75rem,env(safe-area-inset-bottom,0.75rem))]
+                flex justify-around
+                z-20
+            ">
                 <button
                     onClick={() => setActiveTab('home')}
                     className={`flex flex-col items-center ${activeTab === 'home' ? 'text-blue-500' : 'text-gray-400'}`}
@@ -182,7 +189,7 @@ function App() {
 
                 <button
                     onClick={() => setIsFormOpen(true)}
-                    className="flex flex-col items-center -mt-8"
+                    className="flex flex-col items-center"
                 >
                     <div className="bg-blue-500 text-white rounded-full p-4 shadow-lg shadow-blue-500/30">
                         <Plus size={28} />
