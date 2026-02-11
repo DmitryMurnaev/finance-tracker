@@ -3,6 +3,7 @@ const cors = require('cors');
 const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -168,6 +169,7 @@ app.post('/api/auth/register', async (req, res) => {
     }
 });
 
+app.use('/api/auth', authRoutes);
 // Вход
 app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
@@ -269,6 +271,41 @@ app.delete('/api/transactions/:id', authMiddleware, async (req, res) => {
     } catch (error) {
         console.error('❌ Ошибка:', error.message);
         res.status(500).json({ error: error.message });
+    }
+});
+
+// Смена пароля (защищённый маршрут)
+app.post('/api/auth/change-password', authMiddleware, async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    if (!oldPassword || !newPassword) {
+        return res.status(400).json({ error: 'Все поля обязательны' });
+    }
+    if (newPassword.length < 6) {
+        return res.status(400).json({ error: 'Пароль должен быть не менее 6 символов' });
+    }
+
+    try {
+        // Получаем пользователя из БД
+        const userResult = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Пользователь не найден' });
+        }
+        const user = userResult.rows[0];
+
+        // Проверяем старый пароль
+        const valid = await bcrypt.compare(oldPassword, user.password_hash);
+        if (!valid) {
+            return res.status(401).json({ error: 'Неверный текущий пароль' });
+        }
+
+        // Хэшируем новый пароль
+        const newHash = await bcrypt.hash(newPassword, 10);
+        await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [newHash, req.user.id]);
+
+        res.json({ success: true, message: 'Пароль успешно изменён' });
+    } catch (error) {
+        console.error('❌ Ошибка смены пароля:', error.message);
+        res.status(500).json({ error: 'Ошибка сервера' });
     }
 });
 

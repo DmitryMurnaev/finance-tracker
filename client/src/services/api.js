@@ -15,6 +15,7 @@ const api = axios.create({
     }
 });
 
+
 // ============================================
 // 1. ПЕРЕХВАТЧИК ЗАПРОСОВ — добавляем токен
 // ============================================
@@ -78,6 +79,11 @@ export const authAPI = {
     getMe: async () => {
         const response = await api.get('/auth/me');
         return response.data; // { id, email, name, created_at }
+    },
+
+    changePassword: async (oldPassword, newPassword) => {
+        const response = await api.post('/auth/change-password', { oldPassword, newPassword });
+        return response.data;
     }
 };
 

@@ -1,3 +1,4 @@
+import React from 'react';
 import Header from './Header';
 import BalanceCard from './BalanceCard';
 import StatsBlocks from './StatsBlocks';
@@ -5,6 +6,7 @@ import ListHeader from './ListHeader';
 import TransactionList from '../Transactions/TransactionList';
 import Statistics from '../Statistics/Statistics';
 import DesktopNavigation from './DesktopNavigation';
+import UserMenu from '../UI/UserMenu'; // ✅ импорт отдельного компонента
 
 const DesktopLayout = ({
                            transactions,
@@ -20,14 +22,16 @@ const DesktopLayout = ({
                            setIsFormOpen
                        }) => (
     <div className="hidden md:block bg-gray-50 min-h-screen pb-32">
-        {/* Шапка — прилипает при скролле */}
-        <Header />
+        {/* Шапка с меню пользователя */}
+        <div className="flex justify-between items-center p-4">
+            <Header />
+            <UserMenu /> {/* ✅ меню справа */}
+        </div>
 
         <div className="p-4">
             <BalanceCard balance={balance} totalIncome={totalIncome} />
             <StatsBlocks totalIncome={totalIncome} totalExpenses={totalExpenses} />
 
-            {/* Заголовок списка — только для главной, для статистики убираем */}
             {activeTab === 'home' && (
                 <ListHeader
                     title="Последние операции"
@@ -36,7 +40,6 @@ const DesktopLayout = ({
             )}
         </div>
 
-        {/* Контент — в потоке, без внутреннего скролла */}
         <div className="px-4 pb-4">
             {activeTab === 'home' ? (
                 <TransactionList
@@ -51,7 +54,6 @@ const DesktopLayout = ({
             )}
         </div>
 
-        {/* Навигация — фиксированная снизу, как на мобилке */}
         <div className="fixed bottom-0 left-0 right-0">
             <DesktopNavigation
                 activeTab={activeTab}

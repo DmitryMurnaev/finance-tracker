@@ -7,6 +7,7 @@ import TransactionList from '../Transactions/TransactionList';
 import Statistics from '../Statistics/Statistics';
 import MobileNavigation from './MobileNavigation';
 import PeriodSelector from '../UI/PeriodSelector';
+import UserMenu from '../UI/UserMenu'; // ✅ импорт отдельного компонента
 
 const MobileLayout = ({
                           // Отфильтрованные транзакции для списка
@@ -29,31 +30,26 @@ const MobileLayout = ({
                           setSelectedPeriod
                       }) => (
     <div className="block md:hidden bg-gray-50 min-h-screen pb-32">
-        <Header />
+        {/* Шапка с меню пользователя */}
+        <div className="flex justify-between items-center p-4">
+            <Header />
+            <UserMenu /> {/* ✅ меню справа */}
+        </div>
 
         <div className="p-4">
-            {/* Баланс и блоки доходов/расходов всегда отображаются */}
             <BalanceCard balance={balance} totalIncome={totalIncome} />
             <StatsBlocks totalIncome={totalIncome} totalExpenses={totalExpenses} />
 
-            {/* Контент в зависимости от вкладки */}
             {activeTab === 'home' ? (
                 <>
-                    {/* Заголовок списка + PeriodSelector */}
                     <div className="bg-white rounded-xl shadow border border-gray-100 p-3 sm:p-4 mb-4">
-                        {/* На экранах <380px — колонка, на >=380px — строка */}
-                        <div
-                            className="flex flex-col min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between gap-3">
-
-                            {/* Заголовок с иконкой — не сжимается */}
+                        <div className="flex flex-col min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between gap-3">
                             <div className="flex items-center gap-1 flex-shrink-0">
-                                <HistoryIcon size={20} className="text-gray-600 flex-shrink-0"/>
+                                <HistoryIcon size={20} className="text-gray-600 flex-shrink-0" />
                                 <h2 className="font-semibold text-sm sm:text-base whitespace-nowrap">
                                     Последние операции
                                 </h2>
                             </div>
-
-                            {/* Селектор периода — может переноситься, но не давит на заголовок */}
                             <PeriodSelector
                                 periods={periods}
                                 selectedPeriod={selectedPeriod}
@@ -63,7 +59,6 @@ const MobileLayout = ({
                         </div>
                     </div>
 
-                    {/* Список транзакций (отфильтрованные) */}
                     <TransactionList
                         transactions={transactions}
                         loading={loading}
@@ -73,12 +68,10 @@ const MobileLayout = ({
                     />
                 </>
             ) : (
-                // Вкладка статистики
-                <Statistics transactions={allTransactions}/>
+                <Statistics transactions={allTransactions} />
             )}
         </div>
 
-        {/* Нижняя навигация */}
         <MobileNavigation
             activeTab={activeTab}
             setActiveTab={setActiveTab}
