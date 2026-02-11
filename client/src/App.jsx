@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import TransactionForm from './components/Transactions/TransactionForm';
 import MobileLayout from './components/Layout/MobileLayout';
 import DesktopLayout from './components/Layout/DesktopLayout';
+import ScrollToTopButton from './components/UI/ScrollToTopButton';
 import { transactionAPI } from './services/api';
 import './index.css';
 
@@ -12,9 +13,11 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        fetchTransactions();
-    }, []);
+    // --- Фильтр периода для главной ---
+    const [selectedPeriod, setSelectedPeriod] = useState('all');
+
+    // --- Загрузка данных ---
+    useEffect(() => { fetchTransactions(); }, []);
 
     const fetchTransactions = async () => {
         setLoading(true);
@@ -22,53 +25,60 @@ function App() {
         try {
             const data = await transactionAPI.getTransactions();
             setTransactions(data);
-        } catch (error) {
-            setError('Не удалось загрузить данные. Проверьте подключение к серверу.');
+        } catch {
+            setError('Не удалось загрузить данные');
             setTransactions([]);
-        } finally {
-            setLoading(false);
-        }
+        } finally { setLoading(false); }
     };
 
+    // --- CRUD ---
     const addTransaction = async (newTransaction) => {
         try {
             await transactionAPI.createTransaction(newTransaction);
             await fetchTransactions();
             setIsFormOpen(false);
-        } catch (error) {
-            alert('Не удалось добавить операцию. Проверьте подключение к серверу.');
-        }
+        } catch { alert('Не удалось добавить операцию'); }
     };
 
     const deleteTransaction = async (id) => {
-        if (window.confirm('Вы уверены, что хотите удалить эту операцию?')) {
-            try {
-                await transactionAPI.deleteTransaction(id);
-                await fetchTransactions();
-            } catch (error) {
-                alert('Не удалось удалить операцию. Проверьте подключение к серверу.');
-            }
-        }
+        if (!window.confirm('Удалить операцию?')) return;
+        try {
+            await transactionAPI.deleteTransaction(id);
+            await fetchTransactions();
+        } catch { alert('Не удалось удалить операцию'); }
     };
 
-    const calculateStatistics = () => {
+    // --- Статистика для баланса ---
+    const calculateStats = () => {
         if (!Array.isArray(transactions)) return { totalIncome: 0, totalExpenses: 0, balance: 0 };
         const totalIncome = transactions
             .filter(t => t?.type === 'income')
-            .reduce((total, t) => total + (parseFloat(t.amount) || 0), 0);
+            .reduce((sum, t) => sum + parseFloat(t.amount), 0);
         const totalExpenses = transactions
             .filter(t => t?.type === 'expense')
-            .reduce((total, t) => total + (parseFloat(t.amount) || 0), 0);
+            .reduce((sum, t) => sum + parseFloat(t.amount), 0);
         return { totalIncome, totalExpenses, balance: totalIncome - totalExpenses };
     };
+    const { totalIncome, totalExpenses, balance } = calculateStats();
 
-    const { totalIncome, totalExpenses, balance } = calculateStatistics();
+    // --- Доступные периоды (YYYY-MM) ---
+    const periods = useMemo(() => {
+        const dates = transactions.map(t => t.date).filter(Boolean);
+        const unique = [...new Set(dates.map(d => d.slice(0, 7)))];
+        return unique.sort().reverse();
+    }, [transactions]);
+
+    // --- Фильтрованные транзакции для главной ---
+    const filteredTransactions = useMemo(() => {
+        if (selectedPeriod === 'all') return transactions;
+        return transactions.filter(t => t.date && t.date.startsWith(selectedPeriod));
+    }, [transactions, selectedPeriod]);
 
     return (
         <>
-            {/* Мобильная версия */}
             <MobileLayout
-                transactions={transactions}
+                transactions={filteredTransactions}       // ← фильтрованные для списка
+                allTransactions={transactions}           // ← все для баланса (не фильтруем!)
                 loading={loading}
                 error={error}
                 fetchTransactions={fetchTransactions}
@@ -79,11 +89,13 @@ function App() {
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
                 setIsFormOpen={setIsFormOpen}
+                periods={periods}                       // ← для PeriodSelector
+                selectedPeriod={selectedPeriod}
+                setSelectedPeriod={setSelectedPeriod}
             />
-
-            {/* Десктопная версия */}
             <DesktopLayout
-                transactions={transactions}
+                transactions={filteredTransactions}
+                allTransactions={transactions}
                 loading={loading}
                 error={error}
                 fetchTransactions={fetchTransactions}
@@ -94,14 +106,16 @@ function App() {
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
                 setIsFormOpen={setIsFormOpen}
+                periods={periods}
+                selectedPeriod={selectedPeriod}
+                setSelectedPeriod={setSelectedPeriod}
             />
-
-            {/* Форма добавления — один раз для всех */}
             <TransactionForm
                 isOpen={isFormOpen}
                 onClose={() => setIsFormOpen(false)}
                 onAddTransaction={addTransaction}
             />
+            <ScrollToTopButton />   {/* ← плавающая кнопка */}
         </>
     );
 }

@@ -12,7 +12,6 @@ const Statistics = ({ transactions }) => {
     const [isPeriodOpen, setIsPeriodOpen] = useState(false);
     const periodRef = useRef(null);
 
-    // Закрытие селекта при клике вне
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (periodRef.current && !periodRef.current.contains(event.target)) {
@@ -23,20 +22,17 @@ const Statistics = ({ transactions }) => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // --- Все доступные периоды (YYYY-MM) ---
     const periods = useMemo(() => {
         const dates = transactions.map(t => t.date).filter(Boolean);
         const unique = [...new Set(dates.map(d => d.slice(0, 7)))];
         return unique.sort().reverse();
     }, [transactions]);
 
-    // --- Фильтрация по периоду ---
     const filteredTransactions = useMemo(() => {
         if (selectedPeriod === 'all') return transactions;
         return transactions.filter(t => t.date && t.date.startsWith(selectedPeriod));
     }, [transactions, selectedPeriod]);
 
-    // --- Суммарные доходы/расходы/баланс за период ---
     const periodStats = useMemo(() => {
         const income = filteredTransactions
             .filter(t => t.type === 'income')
@@ -47,7 +43,6 @@ const Statistics = ({ transactions }) => {
         return { income, expense, balance: income - expense };
     }, [filteredTransactions]);
 
-    // --- Группировка по категориям (для активного типа) ---
     const categoryStats = useMemo(() => {
         const filtered = filteredTransactions.filter(t => t.type === activeType);
         const stats = {};
@@ -60,7 +55,6 @@ const Statistics = ({ transactions }) => {
             .sort((a, b) => b.total - a.total);
     }, [filteredTransactions, activeType]);
 
-    // --- Словарь категорий (с цветами) ---
     const categoryLabels = {
         food: { name: '🍕 Еда', color: 'bg-red-100 text-red-800', chartColor: '#F87171' },
         transport: { name: '🚕 Транспорт', color: 'bg-blue-100 text-blue-800', chartColor: '#60A5FA' },
@@ -77,7 +71,6 @@ const Statistics = ({ transactions }) => {
         other: { name: '📝 Другое', color: 'bg-gray-100 text-gray-800', chartColor: '#9CA3AF' }
     };
 
-    // --- Данные для круговой диаграммы ---
     const pieData = useMemo(() => {
         return categoryStats.map(({ category, total }) => ({
             name: categoryLabels[category]?.name || 'Другое',
@@ -88,7 +81,6 @@ const Statistics = ({ transactions }) => {
 
     const totalAmount = categoryStats.reduce((sum, item) => sum + item.total, 0);
 
-    // --- Форматирование периода для отображения ---
     const getPeriodLabel = (period) => {
         if (period === 'all') return '📅 За всё время';
         const [year, month] = period.split('-');
@@ -107,7 +99,6 @@ const Statistics = ({ transactions }) => {
         });
     };
 
-    // --- Кастомная SVG-круговая диаграмма ---
     const CustomPieChart = ({ data }) => {
         const total = data.reduce((sum, item) => sum + item.value, 0);
         if (total === 0) return null;
@@ -152,16 +143,15 @@ const Statistics = ({ transactions }) => {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             {/* Шапка с выбором периода и итогами */}
             <div className="bg-white rounded-xl shadow border border-gray-100 p-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-3">
                     <div className="flex items-center gap-2">
                         <PieChartIcon size={20} className="text-gray-600" />
                         <h2 className="font-semibold">Статистика</h2>
                     </div>
 
-                    {/* Кастомный селект периода */}
                     <div className="relative" ref={periodRef}>
                         <button
                             type="button"
@@ -177,7 +167,6 @@ const Statistics = ({ transactions }) => {
                             />
                         </button>
 
-                        {/* Выпадающий список */}
                         {isPeriodOpen && (
                             <div className="absolute z-30 mt-1 w-full sm:w-64 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                                 <button
@@ -216,7 +205,6 @@ const Statistics = ({ transactions }) => {
 
                 {/* Адаптивные карточки итогов за период */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
-                    {/* Доходы */}
                     <div className="bg-green-50 rounded-lg p-3">
                         <div className="text-green-600 text-xs uppercase tracking-wider mb-1">
                             Доходы
@@ -225,8 +213,6 @@ const Statistics = ({ transactions }) => {
                             +{periodStats.income.toLocaleString('ru-RU')} ₽
                         </div>
                     </div>
-
-                    {/* Расходы */}
                     <div className="bg-red-50 rounded-lg p-3">
                         <div className="text-red-600 text-xs uppercase tracking-wider mb-1">
                             Расходы
@@ -235,14 +221,12 @@ const Statistics = ({ transactions }) => {
                             -{periodStats.expense.toLocaleString('ru-RU')} ₽
                         </div>
                     </div>
-
-                    {/* Баланс — на мобилке во всю ширину, на sm+ треть колонки */}
                     <div className="col-span-2 sm:col-span-1 bg-blue-50 rounded-lg p-3">
                         <div className="text-blue-600 text-xs uppercase tracking-wider mb-1">
                             Баланс
                         </div>
                         <div
-                            className={`font-bold text-sm sm:text-base lg:text-lg truncate text-blue-600`}
+                            className={`font-bold text-blue-600 text-sm sm:text-base lg:text-lg truncate`}
                         >
                             {periodStats.balance.toLocaleString('ru-RU')} ₽
                         </div>
@@ -304,8 +288,8 @@ const Statistics = ({ transactions }) => {
                             </div>
                         </div>
 
-                        {/* Список категорий */}
-                        <div className="w-full lg:w-1/2 space-y-3">
+                        {/* ✅ ИСПРАВЛЕНО: список категорий прижат к верху */}
+                        <div className="w-full lg:w-1/2 space-y-3 flex flex-col justify-start">
                             {categoryStats.map(({ category, total }) => {
                                 const info = categoryLabels[category] || categoryLabels.other;
                                 const percentage = totalAmount
