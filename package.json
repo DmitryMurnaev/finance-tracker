@@ -12,6 +12,7 @@
     "concurrently": "^8.2.2"
   },
   "dependencies": {
+    "recharts": "^3.7.0",
     "tailwind-scrollbar-hide": "^4.0.0"
   }
 }
