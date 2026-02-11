@@ -2,17 +2,34 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 const TransactionForm = ({ isOpen, onClose, onAddTransaction }) => {
-  // Состояние формы
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
-  const [type, setType] = useState('expense'); // 'expense' или 'income'
+  const [type, setType] = useState('expense');
   const [category, setCategory] = useState('food');
   const [date, setDate] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // Массив категорий с метаданными (оригинальные размеры)
+  // Сокращенные категории для мобильных (чтобы поместились без прокрутки)
   const categories = {
+    expense: [
+      { value: 'food', label: '🍕 Еда', color: 'bg-red-100 text-red-800' },
+      { value: 'transport', label: '🚕 Транспорт', color: 'bg-blue-100 text-blue-800' },
+      { value: 'shopping', label: '🛍️ Покупки', color: 'bg-purple-100 text-purple-800' },
+      { value: 'entertainment', label: '🎬 Кино', color: 'bg-pink-100 text-pink-800' },
+      { value: 'bills', label: '🏠 Счета', color: 'bg-orange-100 text-orange-800' },
+      { value: 'other', label: '📝 Другое', color: 'bg-gray-100 text-gray-800' }
+    ],
+    income: [
+      { value: 'salary', label: '💰 Зарплата', color: 'bg-green-100 text-green-800' },
+      { value: 'freelance', label: '💼 Фриланс', color: 'bg-yellow-100 text-yellow-800' },
+      { value: 'gift', label: '🎁 Подарок', color: 'bg-rose-100 text-rose-800' },
+      { value: 'other', label: '📝 Другое', color: 'bg-gray-100 text-gray-800' }
+    ]
+  };
+
+  // Полные категории для десктопа
+  const desktopCategories = {
     expense: [
       { value: 'food', label: '🍕 Еда', color: 'bg-red-100 text-red-800' },
       { value: 'transport', label: '🚕 Транспорт', color: 'bg-blue-100 text-blue-800' },
@@ -33,7 +50,9 @@ const TransactionForm = ({ isOpen, onClose, onAddTransaction }) => {
     ]
   };
 
-  // Инициализация категории при изменении типа
+  // Выбираем категории в зависимости от устройства
+  const currentCategories = window.innerWidth >= 768 ? desktopCategories : categories;
+
   useEffect(() => {
     if (type === 'expense') {
       setCategory('food');
@@ -42,7 +61,6 @@ const TransactionForm = ({ isOpen, onClose, onAddTransaction }) => {
     }
   }, [type]);
 
-  // Инициализация даты при открытии формы
   useEffect(() => {
     if (isOpen) {
       const today = new Date().toISOString().split('T')[0];
@@ -51,14 +69,12 @@ const TransactionForm = ({ isOpen, onClose, onAddTransaction }) => {
     }
   }, [isOpen]);
 
-  // Обработчик отправки формы
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
 
     try {
-      // Валидация
       if (!amount || isNaN(amount) || Number(amount) <= 0) {
         throw new Error('Введите корректную сумму (больше 0)');
       }
@@ -67,11 +83,6 @@ const TransactionForm = ({ isOpen, onClose, onAddTransaction }) => {
         throw new Error('Введите описание операции');
       }
 
-      if (!date) {
-        throw new Error('Выберите дату');
-      }
-
-      // Создание объекта операции для БД
       const transactionData = {
         amount: parseFloat(amount),
         description: description.trim(),
@@ -80,24 +91,17 @@ const TransactionForm = ({ isOpen, onClose, onAddTransaction }) => {
         date
       };
 
-      console.log('📝 Отправляю транзакцию в БД:', transactionData);
-
-      // Вызов callback-функции (которая отправит на сервер)
       await onAddTransaction(transactionData);
-
-      // Сброс формы
       resetForm();
       onClose();
 
     } catch (error) {
-      console.error('❌ Ошибка при добавлении транзакции:', error);
-      setError(error.message || 'Не удалось добавить операцию. Попробуйте еще раз.');
+      setError(error.message || 'Не удалось добавить операцию');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Сброс формы
   const resetForm = () => {
     setAmount('');
     setDescription('');
@@ -107,164 +111,183 @@ const TransactionForm = ({ isOpen, onClose, onAddTransaction }) => {
     setError('');
   };
 
-  // Обработчик закрытия формы
   const handleClose = () => {
     resetForm();
     onClose();
   };
 
-  // Если форма закрыта - не рендерим
   if (!isOpen) return null;
 
   return (
-      // Модальное окно с полупрозрачным фоном
-      <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50 md:items-center">
-        {/* Форма - адаптивная ширина */}
+      <div className="fixed inset-0 z-50">
+        {/* Затемнение */}
+        <div
+            className="fixed inset-0 bg-black/50"
+            onClick={handleClose}
+        />
+
+        {/* Форма - адаптивная без прокрутки */}
         <div className="
-        bg-white rounded-t-3xl w-full max-w-md
-        md:rounded-2xl md:max-w-lg md:w-full
-        max-h-[90vh] overflow-y-auto
+        fixed
+        bottom-0 left-0 right-0
+        md:bottom-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2
       ">
-          {/* Заголовок с кнопкой закрытия */}
-          <div className="sticky top-0 bg-white shadow-sm border-b border-gray-100 p-4 flex justify-between items-center">
-            <h2 className="text-xl font-bold text-gray-900">Новая операция</h2>
-            <button onClick={handleClose} className="p-2 text-gray-500 hover:text-gray-700" disabled={isSubmitting}>
-              <X size={24} />
-            </button>
-          </div>
-
-          {/* Основная форма */}
-          <form onSubmit={handleSubmit} className="p-4 md:p-6">
-            {/* Поле суммы с акцентом */}
-            <div className="mb-6">
-              <label className="block text-gray-700 mb-2 font-medium">Сумма (₽)</label>
-              <input
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="0"
-                  className="w-full text-4xl font-bold border-0 focus:outline-none"
-                  autoFocus
+          {/* Контейнер - высота определяется содержимым */}
+          <div className="
+          bg-white
+          rounded-t-3xl md:rounded-2xl
+          w-full max-w-md md:max-w-lg
+          mx-auto
+          flex flex-col
+          md:shadow-xl
+        ">
+            {/* Заголовок */}
+            <div className="
+            bg-white border-b border-gray-100
+            p-4
+            flex justify-between items-center
+          ">
+              <h2 className="text-xl font-bold text-gray-900">Новая операция</h2>
+              <button
+                  onClick={handleClose}
+                  className="p-2 text-gray-500 hover:text-gray-700"
                   disabled={isSubmitting}
-                  step="0.01"
-                  min="0.01"
-              />
-              <div className="h-1 bg-gray-200 rounded-full"></div>
+              >
+                <X size={24} />
+              </button>
             </div>
 
-            {/* Поле описания */}
-            <div className="mb-6">
-              <label className="block text-gray-700 mb-2 font-medium">Описание</label>
-              <input
-                  type="text"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="На что потратили или откуда деньги?"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                  disabled={isSubmitting}
-                  maxLength={100}
-              />
-              <div className="text-right text-sm text-gray-500 mt-1">
-                {description.length}/100
-              </div>
-            </div>
+            {/* Форма без прокрутки */}
+            <form onSubmit={handleSubmit} className="p-4">
 
-            {/* Селектор типа операции */}
-            <div className="mb-6">
-              <label className="block text-gray-700 mb-2 font-medium">Тип операции</label>
-              <div className="flex gap-2">
-                <button
-                    type="button"
-                    onClick={() => setType('expense')}
+              {/* Сумма */}
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2 font-medium">Сумма (₽)</label>
+                <input
+                    type="number"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="0"
+                    className="w-full text-3xl font-bold border-0 focus:outline-none p-0"
+                    autoFocus
                     disabled={isSubmitting}
-                    className={`flex-1 py-3 rounded-xl font-medium ${
-                        type === 'expense'
-                            ? 'bg-red-500 text-white'
-                            : 'bg-gray-100 text-gray-700'
-                    }`}
-                >
-                  Расход
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setType('income')}
+                    step="0.01"
+                    min="0.01"
+                />
+                <div className="h-1 bg-gray-200 rounded-full mt-1"></div>
+              </div>
+
+              {/* Описание */}
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2 font-medium">Описание</label>
+                <input
+                    type="text"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Краткое описание"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                     disabled={isSubmitting}
-                    className={`flex-1 py-3 rounded-xl font-medium ${
-                        type === 'income'
-                            ? 'bg-green-500 text-white'
-                            : 'bg-gray-100 text-gray-700'
-                    }`}
-                >
-                  Доход
-                </button>
+                    maxLength={50}
+                />
               </div>
-            </div>
 
-            {/* Выбор категории с сеткой иконок - больше на десктопе */}
-            <div className="mb-6">
-              <label className="block text-gray-700 mb-2 font-medium">Категория</label>
-              <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
-                {categories[type].map((cat) => (
-                    <button
-                        key={cat.value}
-                        type="button"
-                        onClick={() => setCategory(cat.value)}
-                        disabled={isSubmitting}
-                        className={`p-3 rounded-xl flex flex-col items-center ${
-                            category === cat.value
-                                ? 'ring-2 ring-blue-500 ' + cat.color
-                                : 'bg-gray-100'
-                        }`}
-                    >
-                      <span className="text-lg md:text-xl">{cat.label.split(' ')[0]}</span>
-                      <span className="text-xs md:text-sm mt-1">{cat.label.split(' ')[1]}</span>
-                    </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Поле даты */}
-            <div className="mb-6">
-              <label className="block text-gray-700 mb-2 font-medium">Дата</label>
-              <input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                  disabled={isSubmitting}
-                  max={new Date().toISOString().split('T')[0]}
-              />
-            </div>
-
-            {/* Сообщение об ошибке */}
-            {error && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-                  <div className="flex items-center">
-                    <span className="mr-2">⚠️</span>
-                    <span>{error}</span>
-                  </div>
+              {/* Тип операции */}
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2 font-medium">Тип операции</label>
+                <div className="flex gap-2">
+                  <button
+                      type="button"
+                      onClick={() => setType('expense')}
+                      disabled={isSubmitting}
+                      className={`flex-1 py-3 rounded-xl font-medium ${
+                          type === 'expense'
+                              ? 'bg-red-500 text-white'
+                              : 'bg-gray-100 text-gray-700'
+                      }`}
+                  >
+                    Расход
+                  </button>
+                  <button
+                      type="button"
+                      onClick={() => setType('income')}
+                      disabled={isSubmitting}
+                      className={`flex-1 py-3 rounded-xl font-medium ${
+                          type === 'income'
+                              ? 'bg-green-500 text-white'
+                              : 'bg-gray-100 text-gray-700'
+                      }`}
+                  >
+                    Доход
+                  </button>
                 </div>
-            )}
+              </div>
 
-            {/* Кнопка отправки */}
-            <button
-                type="submit"
-                disabled={isSubmitting}
-                className={`w-full bg-blue-500 text-white py-4 rounded-xl font-bold text-lg ${
-                    isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'
-                }`}
-            >
-              {isSubmitting ? (
-                  <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                    Добавление...
+              {/* Категория - на мобиле меньше категорий */}
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2 font-medium">Категория</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {currentCategories[type].map((cat) => (
+                      <button
+                          key={cat.value}
+                          type="button"
+                          onClick={() => setCategory(cat.value)}
+                          disabled={isSubmitting}
+                          className={`p-3 rounded-xl flex flex-col items-center ${
+                              category === cat.value
+                                  ? 'ring-2 ring-blue-500 ' + cat.color
+                                  : 'bg-gray-100'
+                          }`}
+                      >
+                        <span className="text-lg">{cat.label.split(' ')[0]}</span>
+                        <span className="text-xs mt-1">{cat.label.split(' ')[1]}</span>
+                      </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Дата */}
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2 font-medium">Дата</label>
+                <input
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                    disabled={isSubmitting}
+                    max={new Date().toISOString().split('T')[0]}
+                />
+              </div>
+
+              {/* Ошибка */}
+              {error && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+                    <div className="flex items-center">
+                      <span className="mr-2">⚠️</span>
+                      <span>{error}</span>
+                    </div>
                   </div>
-              ) : (
-                  'Добавить операцию'
               )}
-            </button>
 
-          </form>
+              {/* Кнопка */}
+              <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`w-full bg-blue-500 text-white py-4 rounded-xl font-bold text-lg ${
+                      isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'
+                  }`}
+              >
+                {isSubmitting ? (
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                      Добавление...
+                    </div>
+                ) : (
+                    'Добавить операцию'
+                )}
+              </button>
+
+            </form>
+          </div>
         </div>
       </div>
   );

@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: finance-tracker-api
+    env: node
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST
+        value: your_postgres_host
+      - key: DB_PORT
+        value: 5432
+      - key: DB_NAME
+        generateValue: true
+      - key: DB_USER
+        generateValue: true
+      - key: DB_PASSWORD
+        generateValue: true
+    disk:
+      name: postgres-data
+      mountPath: /data
+      sizeGB: 1

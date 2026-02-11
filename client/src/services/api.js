@@ -1,40 +1,35 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+// Автоматически определяем окружение
+const isProduction = process.env.NODE_ENV === 'production';
+const API_URL = isProduction
+    ? 'https://finance-tracker-api.onrender.com/api'  // Будет ваш URL
+    : 'http://localhost:5000/api';
+
+console.log(`🌍 API URL: ${API_URL} (${isProduction ? 'production' : 'development'})`);
 
 const api = axios.create({
     baseURL: API_URL,
     timeout: 10000,
+    headers: {
+        'Content-Type': 'application/json'
+    }
 });
 
 export const transactionAPI = {
-    // Получить все транзакции
     getTransactions: async () => {
         try {
             const response = await api.get('/transactions');
-            console.log('API Response:', response.data);
-
-            // Проверяем разные форматы ответа
-            if (Array.isArray(response.data)) {
-                return response.data; // Если API возвращает массив напрямую
-            } else if (response.data.data && Array.isArray(response.data.data)) {
-                return response.data.data; // Если { data: [...] }
-            } else if (response.data.success && Array.isArray(response.data.data)) {
-                return response.data.data; // Если { success: true, data: [...] }
-            } else {
-                console.warn('Unexpected API response format:', response.data);
-                return [];
-            }
+            return Array.isArray(response.data) ? response.data : [];
         } catch (error) {
             console.error('Error fetching transactions:', error);
             return [];
         }
     },
 
-    // Создать транзакцию
-    createTransaction: async (transaction) => {
+    createTransaction: async (transactionData) => {
         try {
-            const response = await api.post('/transactions', transaction);
+            const response = await api.post('/transactions', transactionData);
             return response.data;
         } catch (error) {
             console.error('Error creating transaction:', error);
@@ -42,7 +37,6 @@ export const transactionAPI = {
         }
     },
 
-    // Удалить транзакцию
     deleteTransaction: async (id) => {
         try {
             const response = await api.delete(`/transactions/${id}`);
@@ -53,7 +47,6 @@ export const transactionAPI = {
         }
     },
 
-    // Получить статистику
     getStatistics: async () => {
         try {
             const response = await api.get('/transactions/stats');
@@ -64,5 +57,3 @@ export const transactionAPI = {
         }
     }
 };
-
-export default api;

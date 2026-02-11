@@ -16,11 +16,9 @@ const TransactionItem = ({ transaction, onDelete }) => {
             other: { emoji: '📝', label: 'Другое', color: 'bg-gray-100 text-gray-800' }
         };
 
-        // Возвращаем информацию по категории или "other" если не найдено
         return categories[transaction.category] || categories.other;
     };
 
-    // Защита от undefined
     if (!transaction) {
         console.warn('TransactionItem: transaction is undefined');
         return null;
@@ -29,7 +27,7 @@ const TransactionItem = ({ transaction, onDelete }) => {
     const categoryInfo = getCategoryInfo();
     const isExpense = transaction.type === 'expense';
 
-    // Форматирование даты с защитой от ошибок
+    // Форматирование даты
     let formattedDate = 'Дата не указана';
     try {
         if (transaction.date) {
@@ -42,7 +40,7 @@ const TransactionItem = ({ transaction, onDelete }) => {
         console.warn('Ошибка форматирования даты:', error);
     }
 
-    // Форматирование суммы с защитой
+    // Форматирование суммы
     const formattedAmount = transaction.amount
         ? transaction.amount.toLocaleString('ru-RU', {
             minimumFractionDigits: 2,
@@ -51,38 +49,38 @@ const TransactionItem = ({ transaction, onDelete }) => {
         : '0.00';
 
     return (
-        <div className="flex items-center justify-between p-4 bg-white rounded-xl shadow-sm mb-2 hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between p-3 sm:p-4 bg-white rounded-xl shadow-sm mb-2 hover:shadow-md transition-shadow">
             {/* Левая часть: иконка и информация */}
-            <div className="flex items-center">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mr-4 ${categoryInfo.color}`}>
-                    <span className="text-2xl">{categoryInfo.emoji}</span>
+            <div className="flex items-center min-w-0 flex-1">
+                <div className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mr-3 sm:mr-4 ${categoryInfo.color}`}>
+                    <span className="text-xl sm:text-2xl">{categoryInfo.emoji}</span>
                 </div>
-                <div>
-                    <h4 className="font-medium text-gray-800">
+                <div className="min-w-0 flex-1">
+                    <h4 className="font-medium text-gray-800 text-sm sm:text-base truncate">
                         {transaction.description || 'Без описания'}
                     </h4>
-                    <div className="flex items-center gap-2 mt-1">
-                        <span className={`px-2 py-1 rounded-full text-xs ${categoryInfo.color}`}>
+                    <div className="flex items-center gap-2 mt-0.5 sm:mt-1 flex-wrap">
+                        <span className={`px-2 py-0.5 rounded-full text-xs ${categoryInfo.color} flex-shrink-0`}>
                             {categoryInfo.label}
                         </span>
-                        <span className="text-gray-500 text-sm">{formattedDate}</span>
+                        <span className="text-gray-500 text-xs sm:text-sm flex-shrink-0">{formattedDate}</span>
                     </div>
                 </div>
             </div>
 
             {/* Правая часть: сумма и кнопка удаления */}
-            <div className="flex items-center gap-3">
-                <span className={`text-lg font-bold ${
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-2">
+                <span className={`text-sm sm:text-lg font-bold whitespace-nowrap ${
                     isExpense ? 'text-red-600' : 'text-green-600'
                 }`}>
                     {isExpense ? '-' : '+'} {formattedAmount} ₽
                 </span>
                 <button
                     onClick={() => onDelete(transaction.id)}
-                    className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                    className="p-1 sm:p-2 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
                     aria-label="Удалить операцию"
                 >
-                    <Trash2 size={18} />
+                    <Trash2 size={16} className="sm:w-4 sm:h-4" />
                 </button>
             </div>
         </div>
