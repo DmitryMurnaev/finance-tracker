@@ -40,16 +40,25 @@ const MobileLayout = ({
             {activeTab === 'home' ? (
                 <>
                     {/* Заголовок списка + PeriodSelector */}
-                    <div className="bg-white rounded-xl shadow border border-gray-100 p-4 mb-4">
-                        <div className="flex flex-row items-center justify-between gap-1 sm:gap-2">
-                            <div className="flex items-center gap-2">
-                                <HistoryIcon size={20} className="text-gray-600"/>
-                                <h2 className="font-semibold">Последние операции</h2>
+                    <div className="bg-white rounded-xl shadow border border-gray-100 p-3 sm:p-4 mb-4">
+                        {/* На экранах <380px — колонка, на >=380px — строка */}
+                        <div
+                            className="flex flex-col min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between gap-3">
+
+                            {/* Заголовок с иконкой — не сжимается */}
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                                <HistoryIcon size={20} className="text-gray-600 flex-shrink-0"/>
+                                <h2 className="font-semibold text-sm sm:text-base whitespace-nowrap">
+                                    Последние операции
+                                </h2>
                             </div>
+
+                            {/* Селектор периода — может переноситься, но не давит на заголовок */}
                             <PeriodSelector
                                 periods={periods}
                                 selectedPeriod={selectedPeriod}
                                 onChange={setSelectedPeriod}
+                                className="flex flex-wrap gap-1 sm:gap-2 min-[380px]:justify-end"
                             />
                         </div>
                     </div>
