@@ -4,7 +4,7 @@ import MobileLayout from '../components/Layout/MobileLayout';
 import DesktopLayout from '../components/Layout/DesktopLayout';
 import ScrollToTopButton from '../components/UI/ScrollToTopButton';
 import { transactionAPI } from '../services/api';
-import './index.css';
+import '../index.css';
 
 function App() {
     const [transactions, setTransactions] = useState([]);
