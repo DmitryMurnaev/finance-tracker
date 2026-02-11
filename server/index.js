@@ -333,4 +333,4 @@ app.get('/api/health', async (req, res) => {
     } catch (error) {
         console.error('❌ Не удалось запустить сервер:', error.message);
     }
-})();с
+})();
