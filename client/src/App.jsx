@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Wallet, TrendingUp, History, Plus } from 'lucide-react';
 import TransactionForm from './components/Transactions/TransactionForm';
-import TransactionItem from './components/Transactions/TransactionItem';
+import MobileLayout from './components/Layout/MobileLayout';
+import DesktopLayout from './components/Layout/DesktopLayout';
 import { transactionAPI } from './services/api';
 import './index.css';
 
@@ -64,231 +64,44 @@ function App() {
 
     const { totalIncome, totalExpenses, balance } = calculateStatistics();
 
-    // --- Общие компоненты (переиспользуем) ---
-    const Header = () => (
-        <header className="p-4 bg-white shadow-sm border-b border-gray-100">
-            <h1 className="text-2xl font-bold text-gray-900">💰 Финансовый трекер</h1>
-            <p className="text-gray-500 text-sm mt-1">Учет доходов и расходов</p>
-        </header>
-    );
-
-    const BalanceCard = () => (
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white mb-6 shadow-lg">
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center">
-                    <Wallet className="mr-3" size={24} />
-                    <h2 className="text-lg font-semibold">Текущий баланс</h2>
-                </div>
-                <div className="text-blue-100 text-sm bg-white/20 px-3 py-1 rounded-full">
-                    {balance >= 0 ? '+' : ''}{balance.toLocaleString('ru-RU')} ₽
-                </div>
-            </div>
-            <div className="text-center">
-                <div className="text-5xl font-bold mb-2">
-                    {balance.toLocaleString('ru-RU')} ₽
-                </div>
-                <div className="text-blue-100">
-                    Доходы: +{totalIncome.toLocaleString('ru-RU')} ₽
-                </div>
-            </div>
-        </div>
-    );
-
-    const StatsBlocks = () => (
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
-            <div className="bg-white p-3 sm:p-5 rounded-xl shadow border border-gray-100 overflow-hidden">
-                <div className="text-green-500 font-bold text-lg sm:text-xl md:text-2xl truncate">
-                    + {totalIncome.toLocaleString('ru-RU')} ₽
-                </div>
-                <div className="text-gray-700 text-xs sm:text-sm mt-1">Доходы</div>
-            </div>
-            <div className="bg-white p-3 sm:p-5 rounded-xl shadow border border-gray-100 overflow-hidden">
-                <div className="text-red-500 font-bold text-lg sm:text-xl md:text-2xl truncate">
-                    - {totalExpenses.toLocaleString('ru-RU')} ₽
-                </div>
-                <div className="text-gray-700 text-xs sm:text-sm mt-1">Расходы</div>
-            </div>
-        </div>
-    );
-
-    const ListHeader = () => (
-        <div className="bg-white rounded-xl shadow border border-gray-100 p-4 mb-4">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                    <History className="mr-2 text-gray-600" size={20} />
-                    <h2 className="font-semibold">Последние операции</h2>
-                </div>
-                {transactions.length > 0 && (
-                    <div className="text-gray-500 text-sm">Всего: {transactions.length}</div>
-                )}
-            </div>
-        </div>
-    );
-
-    const TransactionList = () => (
-        <>
-            {loading ? (
-                <div className="text-center py-10">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-                    <p className="text-gray-500 mt-4">Загрузка данных...</p>
-                </div>
-            ) : error ? (
-                <div className="text-center py-10">
-                    <div className="text-red-500 text-lg mb-2">⚠️ {error}</div>
-                    <button
-                        onClick={fetchTransactions}
-                        className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                    >
-                        Повторить
-                    </button>
-                </div>
-            ) : transactions.length > 0 ? (
-                <div className="space-y-2">
-                    {transactions.map((transaction) => (
-                        <TransactionItem
-                            key={transaction.id}
-                            transaction={transaction}
-                            onDelete={deleteTransaction}
-                        />
-                    ))}
-                </div>
-            ) : (
-                <div className="text-center py-10">
-                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-4">
-                        <History className="text-gray-400" size={32} />
-                    </div>
-                    <p className="text-gray-500 font-medium text-lg">Операций пока нет</p>
-                    <p className="text-gray-400 text-sm mt-2">
-                        Нажмите «Добавить» в меню
-                    </p>
-                </div>
-            )}
-        </>
-    );
-
-    const DesktopNavigation = () => (
-        <nav className="grid grid-cols-3 bg-white border-t border-gray-200 px-4 pt-3 pb-3">
-            <div className="flex justify-center">
-                <button
-                    onClick={() => setActiveTab('home')}
-                    className={`flex flex-col items-center ${activeTab === 'home' ? 'text-blue-500' : 'text-gray-400'}`}
-                >
-                    <Wallet size={24} />
-                    <span className="text-xs mt-1">Главная</span>
-                </button>
-            </div>
-            <div className="flex justify-center">
-                <button
-                    onClick={() => setIsFormOpen(true)}
-                    className="flex flex-col items-center -mt-8"
-                >
-                    <div className="bg-blue-500 text-white rounded-full p-4 shadow-lg shadow-blue-500/30">
-                        <Plus size={28}/>
-                    </div>
-                    <span className="text-xs mt-2 text-gray-700">Добавить</span>
-                </button>
-            </div>
-            <div className="flex justify-center">
-                <button
-                    onClick={() => setActiveTab('stats')}
-                    className={`flex flex-col items-center ${activeTab === 'stats' ? 'text-blue-500' : 'text-gray-400'}`}
-                >
-                    <TrendingUp size={24}/>
-                    <span className="text-xs mt-1">Статистика</span>
-                </button>
-            </div>
-        </nav>
-    );
-
-    const MobileNavigation = () => (
-        <nav className="
-        fixed bottom-0 left-0 right-0
-        bg-white border-t border-gray-200
-        px-4 pt-3
-        pb-[max(0.75rem,env(safe-area-inset-bottom,0.75rem))]
-        grid grid-cols-3
-        z-20
-    ">
-            <div className="flex justify-center">
-                <button
-                    onClick={() => setActiveTab('home')}
-                    className={`flex flex-col items-center ${activeTab === 'home' ? 'text-blue-500' : 'text-gray-400'}`}
-                >
-                    <Wallet size={24} />
-                    <span className="text-xs mt-1">Главная</span>
-                </button>
-            </div>
-            <div className="flex justify-center">
-                <button
-                    onClick={() => setIsFormOpen(true)}
-                    className="flex flex-col items-center -mt-8"
-                >
-                    <div className="bg-blue-500 text-white rounded-full p-4 shadow-lg shadow-blue-500/30">
-                        <Plus size={28} />
-                    </div>
-                    <span className="text-xs mt-2 text-gray-700">Добавить</span>
-                </button>
-            </div>
-            <div className="flex justify-center">
-                <button
-                    onClick={() => setActiveTab('stats')}
-                    className={`flex flex-col items-center ${activeTab === 'stats' ? 'text-blue-500' : 'text-gray-400'}`}
-                >
-                    <TrendingUp size={24} />
-                    <span className="text-xs mt-1">Статистика</span>
-                </button>
-            </div>
-        </nav>
-    );
-
     return (
         <>
-            {/* --- Мобильная версия (до md) --- */}
-            <div className="block md:hidden bg-gray-50 min-h-screen pb-32">
-                <Header />
-                <div className="p-4">
-                    <BalanceCard />
-                    <StatsBlocks />
-                    <ListHeader />
-                    <TransactionList />
-                </div>
-                <TransactionForm
-                    isOpen={isFormOpen}
-                    onClose={() => setIsFormOpen(false)}
-                    onAddTransaction={addTransaction}
-                />
-                <MobileNavigation />
-            </div>
+            {/* Мобильная версия */}
+            <MobileLayout
+                transactions={transactions}
+                loading={loading}
+                error={error}
+                fetchTransactions={fetchTransactions}
+                deleteTransaction={deleteTransaction}
+                totalIncome={totalIncome}
+                totalExpenses={totalExpenses}
+                balance={balance}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                setIsFormOpen={setIsFormOpen}
+            />
 
-            {/* --- Десктопная версия (md и выше) --- */}
-            <div className="hidden md:block bg-gray-50 h-screen overflow-hidden">
-                <div className="h-full flex flex-col">
-                    {/* Верхняя фиксированная часть */}
-                    <div className="flex-shrink-0">
-                        <Header />
-                        <div className="p-4">
-                            <BalanceCard />
-                            <StatsBlocks />
-                            <ListHeader />
-                        </div>
-                    </div>
+            {/* Десктопная версия */}
+            <DesktopLayout
+                transactions={transactions}
+                loading={loading}
+                error={error}
+                fetchTransactions={fetchTransactions}
+                deleteTransaction={deleteTransaction}
+                totalIncome={totalIncome}
+                totalExpenses={totalExpenses}
+                balance={balance}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                setIsFormOpen={setIsFormOpen}
+            />
 
-                    {/* Прокручиваемый список */}
-                    <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4">
-                        <TransactionList />
-                    </div>
-
-                    {/* Нижняя навигация (фиксированная в потоке) */}
-                    <DesktopNavigation />
-                </div>
-
-                {/* Форма добавления (общая) */}
-                <TransactionForm
-                    isOpen={isFormOpen}
-                    onClose={() => setIsFormOpen(false)}
-                    onAddTransaction={addTransaction}
-                />
-            </div>
+            {/* Форма добавления — один раз для всех */}
+            <TransactionForm
+                isOpen={isFormOpen}
+                onClose={() => setIsFormOpen(false)}
+                onAddTransaction={addTransaction}
+            />
         </>
     );
 }

@@ -269,22 +269,24 @@ const TransactionForm = ({ isOpen, onClose, onAddTransaction }) => {
               )}
 
               {/* Кнопка */}
-              <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className={`w-full bg-blue-500 text-white py-4 rounded-xl font-bold text-lg ${
-                      isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'
-                  }`}
-              >
-                {isSubmitting ? (
-                    <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                      Добавление...
-                    </div>
-                ) : (
-                    'Добавить операцию'
-                )}
-              </button>
+              <div className="flex gap-3">
+                <button
+                    type="button"
+                    onClick={handleClose}
+                    disabled={isSubmitting}
+                    className="flex-1 bg-gray-100 text-gray-700 py-4 rounded-xl font-bold text-lg hover:bg-gray-200"
+                >
+                  Отмена
+                </button>
+                <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex-1 bg-blue-500 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-600 disabled:opacity-50"
+                >
+                  {isSubmitting ? 'Добавление...' : 'Добавить'}
+                </button>
+              </div>
+
 
             </form>
           </div>
