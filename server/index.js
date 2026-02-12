@@ -17,6 +17,7 @@ console.log('🚀 Finance Tracker API с авторизацией запущен
 const allowedOrigins = [
     'https://finance-tracker-frontend-nxmx.onrender.com',
     'https://finance-tracker-frontend.onrender.com',
+    'https://finance-tracker-frontend-dev-jjcg.onrender.com', // ✅ твой тестовый
     'http://localhost:5173'
 ];
 
