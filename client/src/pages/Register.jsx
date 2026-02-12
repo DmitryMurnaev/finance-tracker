@@ -110,16 +110,14 @@ const Register = () => {
                             <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 mb-1">
                                 Подтвердите пароль
                             </label>
-                            <input
-                                id="confirm-password"
-                                name="confirm-password"
-                                type="password"
-                                autoComplete="new-password"
-                                required
+                            <PasswordInput
+                                id="password"
+                                name="password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                placeholder="••••••••"
+                                placeholder="Пароль"
+                                required
+                                autoComplete="current-password"
                             />
                         </div>
                     </div>
