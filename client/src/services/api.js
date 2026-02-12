@@ -1,12 +1,11 @@
 import axios from 'axios';
 
-// ВАЖНО: Новый URL API!
-const API_URL = 'https://finance-tracker-api-dev.onrender.com';
+// ✅ ВАЖНО: для тестового окружения используем dev-бэкенд с /api
+const API_URL = 'https://finance-tracker-api-dev.onrender.com/api';
 
 console.log(`🌍 Подключаюсь к API: ${API_URL}`);
 console.log(`📍 Фронтенд: ${window.location.origin}`);
 
-// Создаём экземпляр axios с базовыми настройками
 const api = axios.create({
     baseURL: API_URL,
     timeout: 10000,
@@ -31,7 +30,7 @@ api.interceptors.request.use(
 );
 
 // ============================================
-// 2. ПЕРЕХВАТЧИК ОТВЕТОВ — исправлен: не редиректит при логине/регистрации
+// 2. ПЕРЕХВАТЧИК ОТВЕТОВ — не редиректим на маршрутах auth
 // ============================================
 api.interceptors.response.use(
     response => {
@@ -44,7 +43,6 @@ api.interceptors.response.use(
     error => {
         console.error('❌ Ошибка API:', error.message);
 
-        // ✅ Исключаем маршруты аутентификации – при 401 на /login и /register не редиректим!
         const isAuthRequest = error.config?.url?.includes('/auth/login') ||
             error.config?.url?.includes('/auth/register') ||
             error.config?.url?.includes('/auth/send-verification');
@@ -61,42 +59,42 @@ api.interceptors.response.use(
 );
 
 // ============================================
-// 3. API ДЛЯ АУТЕНТИФИКАЦИИ — с подтверждением email
+// 3. API ДЛЯ АУТЕНТИФИКАЦИИ
 // ============================================
 export const authAPI = {
     // 📧 Отправка кода подтверждения на email
     sendVerificationCode: async (email) => {
         const response = await api.post('/auth/send-verification', { email });
-        return response.data; // { success, message }
+        return response.data;
     },
 
     // 📝 Регистрация с проверкой кода
     register: async (email, password, name, code) => {
         const response = await api.post('/auth/register', { email, password, name, code });
-        return response.data; // { user, token }
+        return response.data;
     },
 
     // 🔐 Вход в систему
     login: async (email, password) => {
         const response = await api.post('/auth/login', { email, password });
-        return response.data; // { user, token }
+        return response.data;
     },
 
     // 👤 Получение информации о текущем пользователе
     getMe: async () => {
         const response = await api.get('/auth/me');
-        return response.data; // { id, email, name, created_at }
+        return response.data;
     },
 
     // 🔑 Смена пароля
     changePassword: async (oldPassword, newPassword) => {
         const response = await api.post('/auth/change-password', { oldPassword, newPassword });
-        return response.data; // { success, message }
+        return response.data;
     }
 };
 
 // ============================================
-// 4. API ДЛЯ РАБОТЫ С ТРАНЗАКЦИЯМИ (без изменений)
+// 4. API ДЛЯ ТРАНЗАКЦИЙ
 // ============================================
 export const transactionAPI = {
     getTransactions: async () => {
@@ -106,11 +104,7 @@ export const transactionAPI = {
         } catch (error) {
             console.error('Ошибка загрузки транзакций:', error.message);
             if (!localStorage.getItem('token')) {
-                return [
-                    { id: 1, amount: 500, type: 'expense', category: 'food', description: 'Обед в кафе', date: '2024-02-10' },
-                    { id: 2, amount: 250, type: 'expense', category: 'transport', description: 'Такси на работу', date: '2024-02-10' },
-                    { id: 3, amount: 30000, type: 'income', category: 'salary', description: 'Зарплата за январь', date: '2024-02-10' }
-                ];
+                return [];
             }
             throw error;
         }
@@ -122,13 +116,6 @@ export const transactionAPI = {
             return response.data;
         } catch (error) {
             console.error('Ошибка создания транзакции:', error.message);
-            if (!localStorage.getItem('token')) {
-                return {
-                    id: Date.now(),
-                    ...transactionData,
-                    date: transactionData.date || new Date().toISOString().split('T')[0]
-                };
-            }
             throw error;
         }
     },
@@ -139,9 +126,6 @@ export const transactionAPI = {
             return response.data;
         } catch (error) {
             console.error('Ошибка удаления транзакции:', error.message);
-            if (!localStorage.getItem('token')) {
-                return { success: true };
-            }
             throw error;
         }
     },
@@ -152,10 +136,7 @@ export const transactionAPI = {
             return response.data;
         } catch (error) {
             console.error('Ошибка загрузки статистики:', error.message);
-            if (!localStorage.getItem('token')) {
-                return { income: { total: 0 }, expense: { total: 0 }, balance: 0 };
-            }
-            throw error;
+            return { income: { total: 0 }, expense: { total: 0 }, balance: 0 };
         }
     }
 };

@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useContext } from 'react';
-import { authAPI } from '../services/auth';
+import { authAPI } from '../services/api';
 
 const AuthContext = createContext();
 
@@ -8,10 +8,10 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [token, setToken] = useState(localStorage.getItem('token'));
 
     useEffect(() => {
         const loadUser = async () => {
+            const token = localStorage.getItem('token');
             if (!token) {
                 setLoading(false);
                 return;
@@ -21,38 +21,46 @@ export const AuthProvider = ({ children }) => {
                 setUser(userData);
             } catch {
                 localStorage.removeItem('token');
-                setToken(null);
             } finally {
                 setLoading(false);
             }
         };
         loadUser();
-    }, [token]);
+    }, []);
 
     const login = async (email, password) => {
         const data = await authAPI.login(email, password);
         localStorage.setItem('token', data.token);
-        setToken(data.token);
         setUser(data.user);
         return data;
     };
 
-    const register = async (email, password, name) => {
-        const data = await authAPI.register(email, password, name);
+    const register = async (email, password, name, code) => {
+        const data = await authAPI.register(email, password, name, code);
         localStorage.setItem('token', data.token);
-        setToken(data.token);
         setUser(data.user);
         return data;
     };
 
     const logout = () => {
         localStorage.removeItem('token');
-        setToken(null);
         setUser(null);
     };
 
+    const changePassword = async (oldPassword, newPassword) => {
+        const data = await authAPI.changePassword(oldPassword, newPassword);
+        return data;
+    };
+
     return (
-        <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+        <AuthContext.Provider value={{
+            user,
+            loading,
+            login,
+            register,
+            logout,
+            changePassword
+        }}>
             {children}
         </AuthContext.Provider>
     );
