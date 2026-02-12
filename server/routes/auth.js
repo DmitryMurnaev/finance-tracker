@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { pool } = require('../db');
-const { authMiddleware, JWT_SECRET } = require('../middleware/auth');
+const { authMiddleware, JWT_SECRET } = require('../middleware/auth'); // ✅ импорт секрета
 const { generateCode, sendVerificationCode } = require('../utils/email');
 
 const router = express.Router();
@@ -15,30 +15,19 @@ router.post('/send-verification', async (req, res) => {
     if (!email) {
         return res.status(400).json({ error: 'Email обязателен' });
     }
-
     try {
-        // Проверяем, не занят ли email
         const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
         if (existing.rows.length > 0) {
             return res.status(409).json({ error: 'Пользователь уже существует' });
         }
-
-        // Генерируем код
         const code = generateCode();
-        const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // +15 минут
-
-        // Удаляем старые коды для этого email
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
         await pool.query('DELETE FROM verification_codes WHERE email = $1', [email]);
-
-        // Сохраняем новый код
         await pool.query(
             'INSERT INTO verification_codes (email, code, expires_at) VALUES ($1, $2, $3)',
             [email, code, expiresAt]
         );
-
-        // Отправляем письмо
         await sendVerificationCode(email, code);
-
         res.json({ success: true, message: 'Код отправлен на почту' });
     } catch (error) {
         console.error('❌ Ошибка отправки кода:', error.message);
@@ -54,31 +43,22 @@ router.post('/register', async (req, res) => {
     if (!email || !password || !code) {
         return res.status(400).json({ error: 'Email, пароль и код обязательны' });
     }
-
     try {
-        // 1. Проверяем код подтверждения
         const codeResult = await pool.query(
             'SELECT * FROM verification_codes WHERE email = $1 AND code = $2 AND is_verified = FALSE AND expires_at > NOW()',
             [email, code]
         );
-
         if (codeResult.rows.length === 0) {
             return res.status(400).json({ error: 'Неверный или истёкший код' });
         }
-
-        // 2. Помечаем код как использованный
         await pool.query(
             'UPDATE verification_codes SET is_verified = TRUE WHERE id = $1',
             [codeResult.rows[0].id]
         );
-
-        // 3. Проверяем, не занят ли email (на случай повторной регистрации)
         const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
         if (existing.rows.length > 0) {
             return res.status(409).json({ error: 'Пользователь уже существует' });
         }
-
-        // 4. Создаём пользователя
         const saltRounds = 10;
         const passwordHash = await bcrypt.hash(password, saltRounds);
         const userResult = await pool.query(
@@ -86,14 +66,10 @@ router.post('/register', async (req, res) => {
             [email, passwordHash, name || null]
         );
         const user = userResult.rows[0];
+        // ✅ используем единый JWT_SECRET
         const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
-
-        // 5. Привязываем тестовые транзакции
         await pool.query('UPDATE transactions SET user_id = $1 WHERE user_id IS NULL', [user.id]);
-
-        // 6. Очищаем старые коды
         await pool.query('DELETE FROM verification_codes WHERE email = $1', [email]);
-
         res.status(201).json({ user, token });
     } catch (error) {
         console.error('❌ Ошибка регистрации:', error.message);
@@ -109,7 +85,6 @@ router.post('/login', async (req, res) => {
     if (!email || !password) {
         return res.status(400).json({ error: 'Email и пароль обязательны' });
     }
-
     try {
         const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
         if (result.rows.length === 0) {
@@ -120,6 +95,7 @@ router.post('/login', async (req, res) => {
         if (!valid) {
             return res.status(401).json({ error: 'Неверный email или пароль' });
         }
+        // ✅ используем единый JWT_SECRET
         const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
         res.json({
             user: { id: user.id, email: user.email, name: user.name, created_at: user.created_at },
@@ -161,22 +137,18 @@ router.post('/change-password', authMiddleware, async (req, res) => {
     if (newPassword.length < 6) {
         return res.status(400).json({ error: 'Пароль должен быть не менее 6 символов' });
     }
-
     try {
         const userResult = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
         if (userResult.rows.length === 0) {
             return res.status(404).json({ error: 'Пользователь не найден' });
         }
         const user = userResult.rows[0];
-
         const valid = await bcrypt.compare(oldPassword, user.password_hash);
         if (!valid) {
             return res.status(401).json({ error: 'Неверный текущий пароль' });
         }
-
         const newHash = await bcrypt.hash(newPassword, 10);
         await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [newHash, req.user.id]);
-
         res.json({ success: true, message: 'Пароль успешно изменён' });
     } catch (error) {
         console.error('❌ Ошибка смены пароля:', error.message);

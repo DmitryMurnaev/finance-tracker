@@ -10,7 +10,8 @@ const authMiddleware = (req, res, next) => {
     const token = authHeader.split(' ')[1];
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        req.user = { id: decoded.userId };
+        // ✅ явно преобразуем userId в число
+        req.user = { id: parseInt(decoded.userId, 10) };
         next();
     } catch (err) {
         return res.status(403).json({ error: 'Недействительный токен' });
