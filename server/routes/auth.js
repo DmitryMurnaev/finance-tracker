@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { Pool } = require('pg');
+const { Pool } = require('../db');
 const { JWT_SECRET } = require('../middleware/auth');
 const { authMiddleware } = require('../middleware/auth');
 
@@ -63,7 +63,12 @@ router.post('/login', async (req, res) => {
             token
         });
     } catch (err) {
-        console.error('Login error:', err.message);
+        console.error('❌ Login error (full):', {
+            message: err.message,
+            stack: err.stack,
+            code: err.code,
+            detail: err.detail
+        });
         res.status(500).json({ error: 'Ошибка входа' });
     }
 });
