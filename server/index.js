@@ -13,6 +13,14 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 
 console.log('🚀 Finance Tracker API с авторизацией запущен');
 
+app.use(cors({
+    origin: allowedOrigins,
+    credentials: true,
+    methods: ['GET', 'POST', 'DELETE', 'OPTIONS']
+}));
+app.options('*', cors());
+app.use(express.json());
+
 // Разрешенные домены
 const allowedOrigins = [
     'https://finance-tracker-frontend-nxmx.onrender.com',
@@ -21,13 +29,7 @@ const allowedOrigins = [
     'http://localhost:5173'
 ];
 
-app.use(cors({
-    origin: allowedOrigins,
-    credentials: true,
-    methods: ['GET', 'POST', 'DELETE', 'OPTIONS']
-}));
-app.options('*', cors());
-app.use(express.json());
+
 
 // ============================================
 // 1. ПОДКЛЮЧЕНИЕ К БАЗЕ ДАННЫХ
