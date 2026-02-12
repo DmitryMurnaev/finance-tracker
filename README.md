@@ -1,16 +1,85 @@
-# React + Vite
+# 💰 Finance Tracker — Многопользовательский учёт финансов
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Finance Tracker** — это полнофункциональное веб-приложение для учёта личных доходов и расходов.  
+Проект разработан в рамках дипломной работы и реализует **полный цикл**: от проектирования базы данных до деплоя в облаке.
 
-Currently, two official plugins are available:
+🔗 **Демо‑версии:**
+- 🚀 **Production** (основная): [https://finance-tracker-frontend-nxmx.onrender.com](https://finance-tracker-frontend-nxmx.onrender.com)
+- 🧪 **Development** (тестовая): [https://finance-tracker-frontend-dev-jjcg.onrender.com](https://finance-tracker-frontend-dev-jjcg.onrender.com)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 🧱 Стек технологий
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Backend
+- Node.js + Express
+- PostgreSQL (Render Managed DB)
+- JWT + bcrypt (аутентификация)
+- Nodemailer (интеграция с SMTP — подготовлено, отключено)
+- Хостинг: Render Web Service
 
-## Expanding the ESLint configuration
+### Frontend
+- React + Vite
+- React Router v6
+- Tailwind CSS
+- Axios (с перехватчиками)
+- Lucide React (иконки)
+- Хостинг: Render Static Site
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## ✅ Реализованный функционал
+
+### 👤 Пользователи
+- Регистрация / Вход / Выход
+- Защищённые маршруты (неавторизованный пользователь перенаправляется на `/login`)
+- Просмотр профиля (email, имя, дата регистрации)
+- Смена пароля (с проверкой текущего)
+
+### 💸 Транзакции
+- Добавление дохода/расхода
+- Удаление операции
+- Просмотр списка последних операций
+- Фильтрация по периоду (месяц/всё время)
+- Автоматический пересчёт баланса и статистики
+
+### 📊 Статистика
+- Круговая диаграмма доходов/расходов
+- График динамики (планируется)
+
+### 🎨 Интерфейс
+- Адаптивная вёрстка (Mobile First, Desktop)
+- Выпадающее меню пользователя с аватаром-заглушкой
+- Поля пароля с кнопкой «глазик»
+- Плавные анимации
+
+### 🛡 Безопасность
+- Пароли хэшируются bcrypt
+- JWT‑токен (7 дней) хранится в localStorage
+- Все запросы к API требуют токена (кроме `/login`, `/register`)
+- Данные изолированы по `user_id` — каждый пользователь видит только свои транзакции
+
+---
+
+## 🏗 Архитектура проекта
+
+finance-tracker-full/
+├── client/ # React‑фронтенд
+│ ├── public/
+│ ├── src/
+│ │ ├── components/ # UI‑компоненты
+
+│ │ ├── context/ # AuthContext (глобальное состояние)
+│ │ ├── pages/ # Login, Register, Home, Profile
+│ │ ├── services/ # api.js (axios, перехватчики)
+│ │ └── App.jsx # маршрутизация
+│ └── package.json
+│
+├── server/ # Node.js‑бэкенд
+│ ├── middleware/ # authMiddleware, JWT_SECRET
+│ ├── routes/ # auth.js (регистрация, логин, смена пароля)
+│ ├── db.js # единый пул подключения к PostgreSQL
+│ ├── index.js # точка входа, CORS, защищённые маршруты
+│ └── package.json
+│
+└── README.md
