@@ -74,7 +74,7 @@ const Profile = () => {
             {/* Карточка пользователя */}
             <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
                 <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-medium text-xl">
+                    <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-medium text-xl">
                         {user.name?.[0] || user.email?.[0]?.toUpperCase()}
                     </div>
                     <div>
@@ -147,7 +147,7 @@ const Profile = () => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-xl transition disabled:opacity-50 shadow-sm"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-xl transition disabled:opacity-50 shadow-sm"
                     >
                         {loading ? 'Сохранение...' : 'Обновить пароль'}
                     </button>

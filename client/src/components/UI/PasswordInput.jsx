@@ -15,7 +15,7 @@ const PasswordInput = ({ id, name, value, onChange, placeholder, required = fals
                 placeholder={placeholder}
                 required={required}
                 autoComplete={autoComplete}
-                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 pr-12"
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-12"
             />
             <button
                 type="button"

@@ -56,7 +56,7 @@ const Register = () => {
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
 
@@ -68,7 +68,7 @@ const Register = () => {
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                             required
                         />
                     </div>
@@ -100,14 +100,14 @@ const Register = () => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blueo-700 disabled:opacity-50"
                     >
                         {loading ? 'Регистрация...' : 'Зарегистрироваться'}
                     </button>
 
                     <p className="text-center text-sm text-gray-600">
                         Уже есть аккаунт?{' '}
-                        <Link to="/login" className="text-indigo-600 hover:text-indigo-500">
+                        <Link to="/login" className="text-blue-600 hover:text-blue-500">
                             Войти
                         </Link>
                     </p>
