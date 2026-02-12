@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { pool } = require('./db');
 const authRoutes = require('./routes/auth');
-const { authMiddleware } = require('./middleware/auth'); // ✅ импорт middleware
+const { authMiddleware } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -26,19 +26,14 @@ app.options('*', cors());
 app.use(express.json());
 
 // ============================================
-// ИНИЦИАЛИЗАЦИЯ БД (таблицы, индексы)
-// ============================================
-const initDatabase = async () => { /* ... без изменений ... */ };
-
-// ============================================
-// ПОДКЛЮЧЕНИЕ МАРШРУТОВ
+// ПОДКЛЮЧЕНИЕ МАРШРУТОВ АУТЕНТИФИКАЦИИ
 // ============================================
 app.use('/api/auth', authRoutes);
 
 // ============================================
-// ЗАЩИЩЁННЫЕ МАРШРУТЫ (ТРАНЗАКЦИИ)
+// ЗАЩИЩЁННЫЕ МАРШРУТЫ ДЛЯ ТРАНЗАКЦИЙ
 // ============================================
-// ✅ Используем импортированный authMiddleware
+// Получить все транзакции пользователя
 app.get('/api/transactions', authMiddleware, async (req, res) => {
     console.log('📡 GET /api/transactions (user:', req.user.id, ')');
     try {
@@ -48,14 +43,84 @@ app.get('/api/transactions', authMiddleware, async (req, res) => {
         );
         res.json(result.rows);
     } catch (error) {
-        console.error('❌ Ошибка:', error.message);
+        console.error('❌ Ошибка GET:', error.message);
         res.status(500).json({ error: error.message });
     }
 });
 
-app.post('/api/transactions', authMiddleware, async (req, res) => { /* ... */ });
-app.delete('/api/transactions/:id', authMiddleware, async (req, res) => { /* ... */ });
-app.get('/api/transactions/stats', authMiddleware, async (req, res) => { /* ... */ });
+// ➕ Создать новую транзакцию
+app.post('/api/transactions', authMiddleware, async (req, res) => {
+    console.log('📝 POST /api/transactions (user:', req.user.id, ')', req.body);
+    const { amount, type, category, description, date } = req.body;
+    if (!amount || !type || !category) {
+        return res.status(400).json({ error: 'Сумма, тип и категория обязательны' });
+    }
+    if (!['income', 'expense'].includes(type)) {
+        return res.status(400).json({ error: 'Тип должен быть income или expense' });
+    }
+    try {
+        const result = await pool.query(
+            `INSERT INTO transactions (amount, type, category, description, date, user_id)
+             VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+            [
+                amount,
+                type,
+                category,
+                description,
+                date || new Date().toISOString().split('T')[0],
+                req.user.id
+            ]
+        );
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error('❌ Ошибка POST:', error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 🗑️ Удалить транзакцию
+app.delete('/api/transactions/:id', authMiddleware, async (req, res) => {
+    const id = req.params.id;
+    console.log(`🗑️ DELETE /api/transactions/${id} (user: ${req.user.id})`);
+    try {
+        const result = await pool.query(
+            'DELETE FROM transactions WHERE id = $1 AND user_id = $2 RETURNING *',
+            [id, req.user.id]
+        );
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Транзакция не найдена или не принадлежит вам' });
+        }
+        res.json({ success: true, deleted: result.rows[0] });
+    } catch (error) {
+        console.error('❌ Ошибка DELETE:', error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 📊 Статистика пользователя
+app.get('/api/transactions/stats', authMiddleware, async (req, res) => {
+    console.log('📊 GET /api/transactions/stats (user:', req.user.id, ')');
+    try {
+        const incomeRes = await pool.query(
+            'SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE user_id = $1 AND type = $2',
+            [req.user.id, 'income']
+        );
+        const expenseRes = await pool.query(
+            'SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE user_id = $1 AND type = $2',
+            [req.user.id, 'expense']
+        );
+        const income = parseFloat(incomeRes.rows[0].total) || 0;
+        const expense = parseFloat(expenseRes.rows[0].total) || 0;
+        res.json({
+            income: { total: income },
+            expense: { total: expense },
+            balance: income - expense
+        });
+    } catch (error) {
+        console.error('❌ Ошибка STATS:', error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
 
 // ============================================
 // HEALTH CHECK
@@ -65,7 +130,7 @@ app.get('/api/health', async (req, res) => {
         await pool.query('SELECT 1');
         res.json({
             status: 'OK',
-            message: 'Finance Tracker API с авторизацией работает',
+            message: 'Finance Tracker API работает',
             timestamp: new Date().toISOString(),
             database: 'connected'
         });
@@ -81,16 +146,9 @@ app.get('/api/health', async (req, res) => {
 // ============================================
 // ЗАПУСК СЕРВЕРА
 // ============================================
-(async () => {
-    try {
-        await initDatabase();
-        app.listen(PORT, () => {
-            console.log(`✅ API запущен на порту ${PORT}`);
-            console.log(`📡 Health: http://localhost:${PORT}/api/health`);
-            console.log(`🔐 Auth: /api/auth (send-verification, register, login, me, change-password)`);
-            console.log(`💰 Transactions: /api/transactions (защищено)`);
-        });
-    } catch (error) {
-        console.error('❌ Не удалось запустить сервер:', error.message);
-    }
-})();
+app.listen(PORT, () => {
+    console.log(`✅ API запущен на порту ${PORT}`);
+    console.log(`📡 Health: http://localhost:${PORT}/api/health`);
+    console.log(`🔐 Auth: /api/auth (register, login, me, change-password)`);
+    console.log(`💰 Transactions: /api/transactions (защищено)`);
+});
