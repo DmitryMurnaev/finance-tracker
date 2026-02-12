@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // ВАЖНО: Новый URL API!
-const API_URL = 'https://finance-tracker-api-hjcz.onrender.com/api';
+const API_URL = 'https://finance-tracker-api-dev.onrender.com';
 
 console.log(`🌍 Подключаюсь к API: ${API_URL}`);
 console.log(`📍 Фронтенд: ${window.location.origin}`);
