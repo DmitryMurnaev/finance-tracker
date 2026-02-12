@@ -47,7 +47,7 @@ const Register = () => {
                     </h2>
                     <p className="text-center text-sm text-gray-600">
                         Уже есть аккаунт?{' '}
-                        <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500 transition">
+                        <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500 transition">
                             Войдите
                         </Link>
                     </p>
