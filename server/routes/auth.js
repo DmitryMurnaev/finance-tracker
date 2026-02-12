@@ -150,6 +150,7 @@ router.post('/change-password', authMiddleware, async (req, res) => {
         const newHash = await bcrypt.hash(newPassword, 10);
         await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [newHash, req.user.id]);
         res.json({ success: true, message: 'Пароль успешно изменён' });
+        console.log(`🔑 Пароль обновлён для user ${req.user.id}, rows affected: ${result.rowCount}`);
     } catch (error) {
         console.error('❌ Ошибка смены пароля:', error.message);
         res.status(500).json({ error: 'Ошибка сервера' });

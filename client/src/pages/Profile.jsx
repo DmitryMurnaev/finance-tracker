@@ -13,8 +13,51 @@ const Profile = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleChangePassword = async (e) => { /* ... */ };
-    const handleLogout = () => { logout(); navigate('/login'); };
+    // ✅ ПОЛНАЯ РЕАЛИЗАЦИЯ СМЕНЫ ПАРОЛЯ
+    const handleChangePassword = async (e) => {
+        e.preventDefault();
+        setMessage({ text: '', type: '' });
+
+        // Валидация
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            return setMessage({ text: 'Заполните все поля', type: 'error' });
+        }
+        if (newPassword !== confirmPassword) {
+            return setMessage({ text: 'Пароли не совпадают', type: 'error' });
+        }
+        if (newPassword.length < 6) {
+            return setMessage({ text: 'Пароль должен быть не менее 6 символов', type: 'error' });
+        }
+
+        setLoading(true);
+        try {
+            await changePassword(oldPassword, newPassword);
+            setMessage({ text: '✅ Пароль успешно изменён. Сейчас вы будете перенаправлены на страницу входа.', type: 'success' });
+
+            // Очищаем поля
+            setOldPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
+
+            // Через 2 секунды выходим и перенаправляем на /login
+            setTimeout(() => {
+                logout();
+                navigate('/login');
+            }, 2000);
+        } catch (err) {
+            setMessage({
+                text: err.response?.data?.error || '❌ Ошибка при смене пароля',
+                type: 'error'
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
 
     if (!user) return null;
 
@@ -22,19 +65,16 @@ const Profile = () => {
         <div className="max-w-2xl mx-auto p-6">
             {/* Шапка */}
             <div className="flex items-center gap-4 mb-8">
-                <Link
-                    to="/"
-                    className="p-2 rounded-lg hover:bg-gray-100 transition"
-                >
+                <Link to="/" className="p-2 rounded-lg hover:bg-gray-100 transition">
                     <ArrowLeft size={20} className="text-gray-600" />
                 </Link>
                 <h1 className="text-2xl font-semibold text-gray-900">Профиль</h1>
             </div>
 
-            {/* Карточка пользователя — без бордера, только тень */}
+            {/* Карточка пользователя */}
             <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
                 <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-medium text-xl">
+                    <div className="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-medium text-xl">
                         {user.name?.[0] || user.email?.[0]?.toUpperCase()}
                     </div>
                     <div>
@@ -49,7 +89,7 @@ const Profile = () => {
                 </div>
             </div>
 
-            {/* Смена пароля — без бордера, мягкая тень */}
+            {/* Смена пароля */}
             <div className="bg-white rounded-2xl shadow-sm p-6">
                 <h2 className="text-lg font-medium text-gray-900 mb-5">Сменить пароль</h2>
 
@@ -107,7 +147,7 @@ const Profile = () => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-xl transition disabled:opacity-50 shadow-sm"
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-xl transition disabled:opacity-50 shadow-sm"
                     >
                         {loading ? 'Сохранение...' : 'Обновить пароль'}
                     </button>
