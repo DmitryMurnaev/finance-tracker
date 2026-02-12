@@ -15,7 +15,6 @@ const api = axios.create({
     }
 });
 
-
 // ============================================
 // 1. ПЕРЕХВАТЧИК ЗАПРОСОВ — добавляем токен
 // ============================================
@@ -32,7 +31,7 @@ api.interceptors.request.use(
 );
 
 // ============================================
-// 2. ПЕРЕХВАТЧИК ОТВЕТОВ — обрабатываем 401/403
+// 2. ПЕРЕХВАТЧИК ОТВЕТОВ — исправлен: не редиректит при логине/регистрации
 // ============================================
 api.interceptors.response.use(
     response => {
@@ -45,12 +44,14 @@ api.interceptors.response.use(
     error => {
         console.error('❌ Ошибка API:', error.message);
 
-        // Если токен протух или невалиден — удаляем и редирект на логин
-        if (error.response?.status === 401 || error.response?.status === 403) {
+        // ✅ Исключаем маршруты аутентификации – при 401 на /login и /register не редиректим!
+        const isAuthRequest = error.config?.url?.includes('/auth/login') ||
+            error.config?.url?.includes('/auth/register') ||
+            error.config?.url?.includes('/auth/send-verification');
+
+        if (!isAuthRequest && (error.response?.status === 401 || error.response?.status === 403)) {
             console.warn('🚫 Токен недействителен, выполняем logout');
             localStorage.removeItem('token');
-            // Если есть router — можно сделать редирект, но здесь просто перезагрузим страницу
-            // (в реальном приложении лучше использовать history из react-router)
             if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
                 window.location.href = '/login';
             }
@@ -60,46 +61,50 @@ api.interceptors.response.use(
 );
 
 // ============================================
-// 3. API ДЛЯ АУТЕНТИФИКАЦИИ
+// 3. API ДЛЯ АУТЕНТИФИКАЦИИ — с подтверждением email
 // ============================================
 export const authAPI = {
-    // Регистрация нового пользователя
-    register: async (email, password, name) => {
-        const response = await api.post('/auth/register', { email, password, name });
+    // 📧 Отправка кода подтверждения на email
+    sendVerificationCode: async (email) => {
+        const response = await api.post('/auth/send-verification', { email });
+        return response.data; // { success, message }
+    },
+
+    // 📝 Регистрация с проверкой кода
+    register: async (email, password, name, code) => {
+        const response = await api.post('/auth/register', { email, password, name, code });
         return response.data; // { user, token }
     },
 
-    // Вход в систему
+    // 🔐 Вход в систему
     login: async (email, password) => {
         const response = await api.post('/auth/login', { email, password });
         return response.data; // { user, token }
     },
 
-    // Получение информации о текущем пользователе
+    // 👤 Получение информации о текущем пользователе
     getMe: async () => {
         const response = await api.get('/auth/me');
         return response.data; // { id, email, name, created_at }
     },
 
+    // 🔑 Смена пароля
     changePassword: async (oldPassword, newPassword) => {
         const response = await api.post('/auth/change-password', { oldPassword, newPassword });
-        return response.data;
+        return response.data; // { success, message }
     }
 };
 
 // ============================================
-// 4. API ДЛЯ РАБОТЫ С ТРАНЗАКЦИЯМИ
-//    (все запросы автоматически получают токен из перехватчика)
+// 4. API ДЛЯ РАБОТЫ С ТРАНЗАКЦИЯМИ (без изменений)
 // ============================================
 export const transactionAPI = {
-    // Получить все транзакции текущего пользователя
     getTransactions: async () => {
         try {
             const response = await api.get('/transactions');
             return response.data || [];
         } catch (error) {
             console.error('Ошибка загрузки транзакций:', error.message);
-            // Fallback на локальные данные (только если нет токена или ошибка не 401)
             if (!localStorage.getItem('token')) {
                 return [
                     { id: 1, amount: 500, type: 'expense', category: 'food', description: 'Обед в кафе', date: '2024-02-10' },
@@ -107,18 +112,16 @@ export const transactionAPI = {
                     { id: 3, amount: 30000, type: 'income', category: 'salary', description: 'Зарплата за январь', date: '2024-02-10' }
                 ];
             }
-            throw error; // пробрасываем дальше, чтобы обработать в компоненте
+            throw error;
         }
     },
 
-    // Создать новую транзакцию
     createTransaction: async (transactionData) => {
         try {
             const response = await api.post('/transactions', transactionData);
             return response.data;
         } catch (error) {
             console.error('Ошибка создания транзакции:', error.message);
-            // Если нет токена — отдаём локальный fallback
             if (!localStorage.getItem('token')) {
                 return {
                     id: Date.now(),
@@ -130,7 +133,6 @@ export const transactionAPI = {
         }
     },
 
-    // Удалить транзакцию по ID
     deleteTransaction: async (id) => {
         try {
             const response = await api.delete(`/transactions/${id}`);
@@ -144,7 +146,6 @@ export const transactionAPI = {
         }
     },
 
-    // Получить статистику (доходы, расходы, баланс)
     getStatistics: async () => {
         try {
             const response = await api.get('/transactions/stats');
