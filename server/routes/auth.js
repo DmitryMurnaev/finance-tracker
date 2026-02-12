@@ -69,7 +69,9 @@ router.post('/login', async (req, res) => {
 
 // ============================================
 // ПОЛУЧЕНИЕ ПРОФИЛЯ
-// ============================================
+// ============================================п
+
+
 router.get('/me', authMiddleware, async (req, res) => {
     try {
         const result = await pool.query(
