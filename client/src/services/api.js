@@ -25,7 +25,9 @@ api.interceptors.request.use(
     error => Promise.reject(error)
 );
 
-// Перехватчик ответов — не редиректит на маршрутах auth
+// ============================================
+// ✅ ИСПРАВЛЕННЫЙ ПЕРЕХВАТЧИК ОТВЕТОВ
+// ============================================
 api.interceptors.response.use(
     response => {
         console.log(`✅ Ответ ${response.status}:`, response.data?.length ? `${response.data.length} записей` : 'OK');
@@ -33,8 +35,14 @@ api.interceptors.response.use(
     },
     error => {
         console.error('❌ Ошибка API:', error.message);
-        const isAuthRequest = error.config?.url?.includes('/auth/login') ||
-            error.config?.url?.includes('/auth/register');
+
+        // 🟢 НЕ РЕДИРЕКТИМ на маршрутах аутентификации и смены пароля!
+        const isAuthRequest =
+            error.config?.url?.includes('/auth/login') ||
+            error.config?.url?.includes('/auth/register') ||
+            error.config?.url?.includes('/auth/send-verification') ||
+            error.config?.url?.includes('/auth/change-password'); // ✅ Добавлено!
+
         if (!isAuthRequest && (error.response?.status === 401 || error.response?.status === 403)) {
             console.warn('🚫 Токен недействителен, выполняем logout');
             localStorage.removeItem('token');
@@ -50,25 +58,18 @@ api.interceptors.response.use(
 // API ДЛЯ АУТЕНТИФИКАЦИИ (без кода)
 // ============================================
 export const authAPI = {
-    // 📝 Регистрация (без кода)
     register: async (email, password, name) => {
         const response = await api.post('/auth/register', { email, password, name });
         return response.data;
     },
-
-    // 🔐 Вход
     login: async (email, password) => {
         const response = await api.post('/auth/login', { email, password });
         return response.data;
     },
-
-    // 👤 Получение профиля
     getMe: async () => {
         const response = await api.get('/auth/me');
         return response.data;
     },
-
-    // 🔑 Смена пароля
     changePassword: async (oldPassword, newPassword) => {
         const response = await api.post('/auth/change-password', { oldPassword, newPassword });
         return response.data;
