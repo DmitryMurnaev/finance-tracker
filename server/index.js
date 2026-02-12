@@ -141,81 +141,11 @@ const authMiddleware = (req, res, next) => {
 // 4. ПУБЛИЧНЫЕ МАРШРУТЫ (АУТЕНТИФИКАЦИЯ)
 // ============================================
 // Регистрация
-app.post('/api/auth/register', async (req, res) => {
-    const { email, password, name } = req.body;
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Email и пароль обязательны' });
-    }
-    try {
-        // Проверка существования пользователя
-        const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
-        if (existing.rows.length > 0) {
-            return res.status(409).json({ error: 'Пользователь уже существует' });
-        }
-
-        const saltRounds = 10;
-        const passwordHash = await bcrypt.hash(password, saltRounds);
-        const result = await pool.query(
-            'INSERT INTO users (email, password_hash, name) VALUES ($1, $2, $3) RETURNING id, email, name, created_at',
-            [email, passwordHash, name || null]
-        );
-        const user = result.rows[0];
-        const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
-
-        // Привязываем старые тестовые транзакции к новому пользователю (если они есть без user_id)
-        await pool.query('UPDATE transactions SET user_id = $1 WHERE user_id IS NULL', [user.id]);
-
-        res.status(201).json({ user, token });
-    } catch (error) {
-        console.error('❌ Ошибка регистрации:', error.message);
-        res.status(500).json({ error: 'Ошибка регистрации' });
-    }
-});
 
 app.use('/api/auth', authRoutes);
 // Вход
-app.post('/api/auth/login', async (req, res) => {
-    const { email, password } = req.body;
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Email и пароль обязательны' });
-    }
-    try {
-        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (result.rows.length === 0) {
-            return res.status(401).json({ error: 'Неверный email или пароль' });
-        }
-        const user = result.rows[0];
-        const valid = await bcrypt.compare(password, user.password_hash);
-        if (!valid) {
-            return res.status(401).json({ error: 'Неверный email или пароль' });
-        }
-        const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
-        res.json({
-            user: { id: user.id, email: user.email, name: user.name, created_at: user.created_at },
-            token
-        });
-    } catch (error) {
-        console.error('❌ Ошибка входа:', error.message);
-        res.status(500).json({ error: 'Ошибка входа' });
-    }
-});
 
 // Получить данные текущего пользователя
-app.get('/api/auth/me', authMiddleware, async (req, res) => {
-    try {
-        const result = await pool.query(
-            'SELECT id, email, name, created_at FROM users WHERE id = $1',
-            [req.user.id]
-        );
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'Пользователь не найден' });
-        }
-        res.json(result.rows[0]);
-    } catch (error) {
-        console.error('❌ Ошибка получения пользователя:', error.message);
-        res.status(500).json({ error: 'Ошибка сервера' });
-    }
-});
 
 // ============================================
 // 5. ЗАЩИЩЁННЫЕ МАРШРУТЫ (ТРАНЗАКЦИИ)
@@ -278,39 +208,6 @@ app.delete('/api/transactions/:id', authMiddleware, async (req, res) => {
 });
 
 // Смена пароля (защищённый маршрут)
-app.post('/api/auth/change-password', authMiddleware, async (req, res) => {
-    const { oldPassword, newPassword } = req.body;
-    if (!oldPassword || !newPassword) {
-        return res.status(400).json({ error: 'Все поля обязательны' });
-    }
-    if (newPassword.length < 6) {
-        return res.status(400).json({ error: 'Пароль должен быть не менее 6 символов' });
-    }
-
-    try {
-        // Получаем пользователя из БД
-        const userResult = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
-        if (userResult.rows.length === 0) {
-            return res.status(404).json({ error: 'Пользователь не найден' });
-        }
-        const user = userResult.rows[0];
-
-        // Проверяем старый пароль
-        const valid = await bcrypt.compare(oldPassword, user.password_hash);
-        if (!valid) {
-            return res.status(401).json({ error: 'Неверный текущий пароль' });
-        }
-
-        // Хэшируем новый пароль
-        const newHash = await bcrypt.hash(newPassword, 10);
-        await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [newHash, req.user.id]);
-
-        res.json({ success: true, message: 'Пароль успешно изменён' });
-    } catch (error) {
-        console.error('❌ Ошибка смены пароля:', error.message);
-        res.status(500).json({ error: 'Ошибка сервера' });
-    }
-});
 
 // Статистика пользователя
 app.get('/api/transactions/stats', authMiddleware, async (req, res) => {
