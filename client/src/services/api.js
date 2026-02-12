@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// ✅ для тестового окружения используем dev-бэкенд
 const API_URL = 'https://finance-tracker-api-dev.onrender.com/api';
 
 console.log(`🌍 Подключаюсь к API: ${API_URL}`);
