@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Базовый URL API (без /auth — общий для всех эндпоинтов)
-const API_URL = 'https://finance-tracker-api-hjcz.onrender.com/api';
+const API_URL = 'https://finance-tracker-api-dev.onrender.com';
 
 console.log(`🌍 API базовый URL: ${API_URL}`);
 console.log(`📍 Фронтенд: ${window.location.origin}`);
