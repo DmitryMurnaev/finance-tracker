@@ -48,8 +48,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const changePassword = async (oldPassword, newPassword) => {
-        const data = await authAPI.changePassword(oldPassword, newPassword);
-        return data;
+        return await authAPI.changePassword(oldPassword, newPassword);
     };
 
     return (

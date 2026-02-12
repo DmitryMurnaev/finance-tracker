@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { pool } = require('../db');                // ✅ правильно
+const { pool } = require('../db');
 const { authMiddleware, JWT_SECRET } = require('../middleware/auth');
 
 const router = express.Router();
@@ -70,6 +70,41 @@ router.get('/me', authMiddleware, async (req, res) => {
     } catch (err) {
         console.error('❌ Me error:', err.message);
         res.status(500).json({ error: 'Ошибка сервера' });
+    }
+});
+
+// Смена пароля
+router.post('/change-password', authMiddleware, async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    if (!oldPassword || !newPassword) {
+        return res.status(400).json({ error: 'Все поля обязательны' });
+    }
+    if (newPassword.length < 6) {
+        return res.status(400).json({ error: 'Пароль должен быть не менее 6 символов' });
+    }
+
+    try {
+        // Получаем пользователя из БД
+        const userResult = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Пользователь не найден' });
+        }
+        const user = userResult.rows[0];
+
+        // Проверяем старый пароль
+        const valid = await bcrypt.compare(oldPassword, user.password_hash);
+        if (!valid) {
+            return res.status(401).json({ error: 'Неверный текущий пароль' });
+        }
+
+        // Хэшируем новый пароль
+        const newHash = await bcrypt.hash(newPassword, 10);
+        await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [newHash, req.user.id]);
+
+        res.json({ success: true, message: 'Пароль успешно изменён' });
+    } catch (error) {
+        console.error('❌ Change password error:', error.message);
+        res.status(500).json({ error: 'Ошибка при смене пароля' });
     }
 });
 

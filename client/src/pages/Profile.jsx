@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-
+import { useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
+import PasswordInput from "../components/UI/PasswordInput.jsx";
 const Profile = () => {
     const { user, logout, changePassword } = useAuth();
     const [oldPassword, setOldPassword] = useState('');
@@ -48,7 +49,17 @@ const Profile = () => {
 
     return (
         <div className="max-w-2xl mx-auto p-6">
-            <h1 className="text-2xl font-bold mb-6">Профиль</h1>
+            <div className="flex items-center gap-4 mb-6">
+                <Link
+                    to="/"
+                    className="p-2 rounded-lg hover:bg-gray-100 transition"
+                    aria-label="Назад"
+                >
+                    <ArrowLeft size={24} className="text-gray-700"/>
+                </Link>
+                <h1 className="text-2xl font-bold">Профиль</h1>
+            </div>
+
 
             {/* Информация о пользователе */}
             <div className="bg-white rounded-lg shadow p-6 mb-6">
@@ -77,12 +88,14 @@ const Profile = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Текущий пароль
                         </label>
-                        <input
-                            type="password"
-                            value={oldPassword}
-                            onChange={(e) => setOldPassword(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        <PasswordInput
+                            id="password"
+                            name="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Пароль"
                             required
+                            autoComplete="current-password"
                         />
                     </div>
 
@@ -90,13 +103,14 @@ const Profile = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Новый пароль
                         </label>
-                        <input
-                            type="password"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        <PasswordInput
+                            id="password"
+                            name="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Пароль"
                             required
-                            minLength={6}
+                            autoComplete="current-password"
                         />
                     </div>
 
@@ -104,12 +118,14 @@ const Profile = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Подтвердите новый пароль
                         </label>
-                        <input
-                            type="password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        <PasswordInput
+                            id="password"
+                            name="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Пароль"
                             required
+                            autoComplete="current-password"
                         />
                     </div>
 
