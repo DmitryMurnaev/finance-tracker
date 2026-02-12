@@ -23,7 +23,7 @@ const DesktopLayout = ({
                        }) => (
     <div className="hidden md:block bg-gray-50 min-h-screen pb-32">
         {/* Шапка с меню пользователя */}
-        <div className="flex justify-between items-center p-4">
+        <div className="flex justify-between items-center p-4 bg-white shadow-sm border-b border-gray-100">
             <Header />
             <UserMenu /> {/* ✅ меню справа */}
         </div>
