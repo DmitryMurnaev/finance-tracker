@@ -5,12 +5,6 @@ const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
-const changePassword = async (oldPassword, newPassword) => {
-    const data = await authAPI.changePassword(oldPassword, newPassword);
-    // После смены пароля — разлогиниваем и просим войти снова
-    logout();
-    return data;
-};
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -41,9 +35,9 @@ export const AuthProvider = ({ children }) => {
         return data;
     };
 
-
-    const register = async (email, password, name, code) => {
-        const data = await authAPI.register(email, password, name, code);
+    // ✅ Регистрация без code
+    const register = async (email, password, name) => {
+        const data = await authAPI.register(email, password, name);
         localStorage.setItem('token', data.token);
         setUser(data.user);
         return data;

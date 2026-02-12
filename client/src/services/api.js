@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// ✅ ВАЖНО: для тестового окружения используем dev-бэкенд с /api
+// ✅ для тестового окружения используем dev-бэкенд
 const API_URL = 'https://finance-tracker-api-dev.onrender.com/api';
 
 console.log(`🌍 Подключаюсь к API: ${API_URL}`);
@@ -9,14 +9,10 @@ console.log(`📍 Фронтенд: ${window.location.origin}`);
 const api = axios.create({
     baseURL: API_URL,
     timeout: 10000,
-    headers: {
-        'Content-Type': 'application/json'
-    }
+    headers: { 'Content-Type': 'application/json' }
 });
 
-// ============================================
-// 1. ПЕРЕХВАТЧИК ЗАПРОСОВ — добавляем токен
-// ============================================
+// Перехватчик запросов — добавляет токен
 api.interceptors.request.use(
     config => {
         const token = localStorage.getItem('token');
@@ -29,29 +25,21 @@ api.interceptors.request.use(
     error => Promise.reject(error)
 );
 
-// ============================================
-// 2. ПЕРЕХВАТЧИК ОТВЕТОВ — не редиректим на маршрутах auth
-// ============================================
+// Перехватчик ответов — не редиректит на маршрутах auth
 api.interceptors.response.use(
     response => {
-        console.log(
-            `✅ Ответ ${response.status}:`,
-            response.data?.length ? `${response.data.length} записей` : 'OK'
-        );
+        console.log(`✅ Ответ ${response.status}:`, response.data?.length ? `${response.data.length} записей` : 'OK');
         return response;
     },
     error => {
         console.error('❌ Ошибка API:', error.message);
-
         const isAuthRequest = error.config?.url?.includes('/auth/login') ||
-            error.config?.url?.includes('/auth/register') ||
-            error.config?.url?.includes('/auth/send-verification');
-
+            error.config?.url?.includes('/auth/register');
         if (!isAuthRequest && (error.response?.status === 401 || error.response?.status === 403)) {
             console.warn('🚫 Токен недействителен, выполняем logout');
             localStorage.removeItem('token');
             if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
-                //window.location.href = '/login';
+                window.location.href = '/login';
             }
         }
         return Promise.reject(error);
@@ -59,28 +47,22 @@ api.interceptors.response.use(
 );
 
 // ============================================
-// 3. API ДЛЯ АУТЕНТИФИКАЦИИ
+// API ДЛЯ АУТЕНТИФИКАЦИИ (без кода)
 // ============================================
 export const authAPI = {
-    // 📧 Отправка кода подтверждения на email
-    sendVerificationCode: async (email) => {
-        const response = await api.post('/auth/send-verification', { email });
+    // 📝 Регистрация (без кода)
+    register: async (email, password, name) => {
+        const response = await api.post('/auth/register', { email, password, name });
         return response.data;
     },
 
-    // 📝 Регистрация с проверкой кода
-    register: async (email, password, name, code) => {
-        const response = await api.post('/auth/register', { email, password, name, code });
-        return response.data;
-    },
-
-    // 🔐 Вход в систему
+    // 🔐 Вход
     login: async (email, password) => {
         const response = await api.post('/auth/login', { email, password });
         return response.data;
     },
 
-    // 👤 Получение информации о текущем пользователе
+    // 👤 Получение профиля
     getMe: async () => {
         const response = await api.get('/auth/me');
         return response.data;
@@ -94,7 +76,7 @@ export const authAPI = {
 };
 
 // ============================================
-// 4. API ДЛЯ ТРАНЗАКЦИЙ
+// API ДЛЯ ТРАНЗАКЦИЙ (без изменений)
 // ============================================
 export const transactionAPI = {
     getTransactions: async () => {
@@ -109,7 +91,6 @@ export const transactionAPI = {
             throw error;
         }
     },
-
     createTransaction: async (transactionData) => {
         try {
             const response = await api.post('/transactions', transactionData);
@@ -119,7 +100,6 @@ export const transactionAPI = {
             throw error;
         }
     },
-
     deleteTransaction: async (id) => {
         try {
             const response = await api.delete(`/transactions/${id}`);
@@ -129,7 +109,6 @@ export const transactionAPI = {
             throw error;
         }
     },
-
     getStatistics: async () => {
         try {
             const response = await api.get('/transactions/stats');
