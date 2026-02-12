@@ -25,7 +25,7 @@ const UserMenu = () => {
                 onClick={() => setOpen(!open)}
                 className="flex items-center gap-2 p-1.5 rounded-full hover:bg-gray-100 transition"
             >
-                <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-medium text-sm">
+                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium text-sm">
                     {getInitials()}
                 </div>
                 <span className="hidden sm:inline text-sm font-medium text-gray-700">
