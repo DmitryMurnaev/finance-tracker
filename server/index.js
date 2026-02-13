@@ -20,7 +20,7 @@ const allowedOrigins = [
 app.use(cors({
     origin: allowedOrigins,
     credentials: true,
-    methods: ['GET', 'POST', 'DELETE', 'OPTIONS']
+    methods: ['GET', 'POST', 'DELETE', 'OPTIONS', 'PUT']
 }));
 app.options('*', cors());
 app.use(express.json());
