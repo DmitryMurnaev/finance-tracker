@@ -19,8 +19,6 @@ const allowedOrigins = [
 
 const categoriesRoutes = require('./routes/categories');
 
-app.use('/api/categories', categoriesRoutes);
-
 app.use(cors({
     origin: allowedOrigins,
     credentials: true,
@@ -28,6 +26,10 @@ app.use(cors({
 }));
 app.options('*', cors());
 app.use(express.json());
+
+
+app.use('/api/categories', categoriesRoutes);
+
 
 // ============================================
 // ПОДКЛЮЧЕНИЕ МАРШРУТОВ АУТЕНТИФИКАЦИИ
