@@ -1,11 +1,12 @@
 import { Pencil, Trash2 } from 'lucide-react';
 import { getCategoryConfig } from '../../config/categoryConfig';
+const config = getCategoryConfig(transaction.category_name);
 
 const TransactionItem = ({ transaction, onDelete, onEdit }) => {
     if (!transaction) return null;
 
     const isExpense = transaction.type === 'expense';
-    const config = getCategoryConfig(transaction.category_name);
+    const config = getCategoryConfig(transaction.config.name);
 
     const formattedDate = transaction.date
         ? new Date(transaction.date).toLocaleDateString('ru-RU', {

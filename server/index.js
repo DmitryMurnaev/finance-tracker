@@ -45,14 +45,12 @@ app.get('/api/transactions', authMiddleware, async (req, res) => {
     try {
         const result = await pool.query(
             `SELECT t.*, 
-                    c.name as category_name, 
-                    c.icon as category_icon, 
-                    c.color as category_color
-             FROM transactions t
-             LEFT JOIN categories c ON t.category_id = c.id
-             WHERE t.user_id = $1 
-             ORDER BY t.date DESC, t.id DESC 
-             LIMIT 100`,
+                c.name as category_name
+         FROM transactions t
+         LEFT JOIN categories c ON t.category_id = c.id
+         WHERE t.user_id = $1 
+         ORDER BY t.date DESC, t.id DESC 
+         LIMIT 100`,
             [req.user.id]
         );
         res.json(result.rows);
