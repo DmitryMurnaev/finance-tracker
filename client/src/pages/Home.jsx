@@ -112,7 +112,7 @@ function App() {
                 periods={periods}                       // ← для PeriodSelector
                 selectedPeriod={selectedPeriod}
                 setSelectedPeriod={setSelectedPeriod}
-                onEditTransaction{handleEdit}
+                onEditTransaction={handleEdit}
             />
             <DesktopLayout
                 transactions={filteredTransactions}
