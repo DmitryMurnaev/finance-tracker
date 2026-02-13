@@ -17,6 +17,10 @@ const allowedOrigins = [
     'http://localhost:5173'
 ];
 
+const categoriesRoutes = require('./routes/categories');
+
+app.use('/api/categories', categoriesRoutes);
+
 app.use(cors({
     origin: allowedOrigins,
     credentials: true,
@@ -38,7 +42,15 @@ app.get('/api/transactions', authMiddleware, async (req, res) => {
     console.log('📡 GET /api/transactions (user:', req.user.id, ')');
     try {
         const result = await pool.query(
-            'SELECT * FROM transactions WHERE user_id = $1 ORDER BY date DESC, id DESC LIMIT 100',
+            `SELECT t.*, 
+                    c.name as category_name, 
+                    c.icon as category_icon, 
+                    c.color as category_color
+             FROM transactions t
+             LEFT JOIN categories c ON t.category_id = c.id
+             WHERE t.user_id = $1 
+             ORDER BY t.date DESC, t.id DESC 
+             LIMIT 100`,
             [req.user.id]
         );
         res.json(result.rows);
@@ -51,8 +63,8 @@ app.get('/api/transactions', authMiddleware, async (req, res) => {
 // ➕ Создать новую транзакцию
 app.post('/api/transactions', authMiddleware, async (req, res) => {
     console.log('📝 POST /api/transactions (user:', req.user.id, ')', req.body);
-    const { amount, type, category, description, date } = req.body;
-    if (!amount || !type || !category) {
+    const { amount, type, category_id, description, date } = req.body;
+    if (!amount || !type || !category_id) {
         return res.status(400).json({ error: 'Сумма, тип и категория обязательны' });
     }
     if (!['income', 'expense'].includes(type)) {
@@ -82,8 +94,8 @@ app.post('/api/transactions', authMiddleware, async (req, res) => {
 app.put('/api/transactions/:id', authMiddleware, async (req, res) => {
     const id = req.params.id;
     console.log(`✏️ PUT /api/transactions/${id} (user: ${req.user.id})`, req.body);
-    const { amount, type, category, description, date } = req.body;
-    if (!amount || !type || !category) {
+    const { amount, type, category_id, description, date } = req.body;
+    if (!amount || !type || !category_id) {
         return res.status(400).json({ error: 'Сумма, тип и категория обязательны' });
     }
     if (!['income', 'expense'].includes(type)) {
