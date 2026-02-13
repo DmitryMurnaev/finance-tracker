@@ -48,7 +48,7 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
             maximumFractionDigits: 2
         })
         : '0.00';
-
+    console.log('🔥 TransactionItem props:', { onEdit, onDelete, transaction });
     return (
         <div className="flex items-center justify-between p-3 sm:p-4 bg-white rounded-xl shadow-sm mb-2 hover:shadow-md transition-shadow">
             {/* Левая часть: иконка и информация */}
