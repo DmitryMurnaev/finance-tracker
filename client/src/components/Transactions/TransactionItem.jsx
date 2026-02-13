@@ -1,7 +1,7 @@
 import { Pencil, Trash2 } from 'lucide-react';
 
 
-const TransactionItem = ({ transaction, onDelete }) => {
+const TransactionItem = ({ transaction, onDelete, onEdit }) => {
     // Функция для получения информации о категории
     const getCategoryInfo = () => {
         const categories = {
