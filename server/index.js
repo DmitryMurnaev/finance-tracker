@@ -106,13 +106,13 @@ app.put('/api/transactions/:id', authMiddleware, async (req, res) => {
     try {
         const result = await pool.query(
             `UPDATE transactions 
-             SET amount = $1, type = $2, category = $3, description = $4, date = $5
+             SET amount = $1, type = $2, category_id = $3, description = $4, date = $5
              WHERE id = $6 AND user_id = $7
              RETURNING *`,
             [
                 amount,
                 type,
-                category,
+                category_id,   // ✅ правильно
                 description,
                 date || new Date().toISOString().split('T')[0],
                 id,
