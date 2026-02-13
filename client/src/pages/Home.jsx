@@ -130,7 +130,7 @@ function App() {
                 periods={periods}
                 selectedPeriod={selectedPeriod}
                 setSelectedPeriod={setSelectedPeriod}
-                onEditTransaction{handleEdit}
+                onEditTransaction={handleEdit}
             />
             <TransactionForm
                 isOpen={isFormOpen}
