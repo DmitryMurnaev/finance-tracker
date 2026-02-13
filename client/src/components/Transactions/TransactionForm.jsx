@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { categoryAPI } from '../../services/api'; // импорт
+import { categoryAPI } from '../../services/api';
+import { getCategoryConfig } from '../../config/categoryConfig';
 
 const TransactionForm = ({
                            isOpen,
@@ -211,22 +212,25 @@ const TransactionForm = ({
                     <div className="text-center py-4">Загрузка категорий...</div>
                 ) : (
                     <div className="grid grid-cols-3 gap-2">
-                      {filteredCategories.map((cat) => (
-                          <button
-                              key={cat.id}
-                              type="button"
-                              onClick={() => setCategoryId(cat.id)}
-                              disabled={isSubmitting}
-                              className={`p-3 rounded-xl flex flex-col items-center ${
-                                  categoryId === cat.id
-                                      ? `ring-2 ring-blue-500 ${cat.color || 'bg-gray-100'}`
-                                      : cat.color || 'bg-gray-100'
-                              }`}
-                          >
-                            <span className="text-lg">{cat.icon || '📝'}</span>
-                            <span className="text-xs mt-1">{cat.name}</span>
-                          </button>
-                      ))}
+                      {filteredCategories.map((cat) => {
+                        const config = getCategoryConfig(cat.name);
+                        return (
+                            <button
+                                key={cat.id}
+                                type="button"
+                                onClick={() => setCategoryId(cat.id)}
+                                disabled={isSubmitting}
+                                className={`p-3 rounded-xl flex flex-col items-center ${
+                                    categoryId === cat.id
+                                        ? `ring-2 ring-blue-500 ${config.color}`
+                                        : config.color
+                                }`}
+                            >
+                              <span className="text-lg">{config.icon}</span>
+                              <span className="text-xs mt-1">{config.name}</span>
+                            </button>
+                        );
+                      })}
                     </div>
                 )}
               </div>

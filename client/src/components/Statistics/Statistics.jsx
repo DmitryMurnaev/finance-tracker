@@ -48,17 +48,18 @@ const Statistics = ({ transactions }) => {
         const filtered = filteredTransactions.filter((t) => t.type === activeType);
         const stats = {};
         filtered.forEach((t) => {
-            const catId = t.category_id;
-            if (!stats[catId]) {
-                stats[catId] = {
-                    id: catId,
-                    name: t.category_name || 'Другое',
-                    icon: t.category_icon || '📝',
-                    color: t.category_color || 'bg-gray-100 text-gray-800',
+            const catName = t.category_name;
+            if (!stats[catName]) {
+                const config = getCategoryConfig(catName);
+                stats[catName] = {
+                    name: catName,
+                    icon: config.icon,
+                    color: config.color,
+                    displayName: config.name,
                     total: 0,
                 };
             }
-            stats[catId].total += parseFloat(t.amount);
+            stats[catName].total += parseFloat(t.amount);
         });
         return Object.values(stats).sort((a, b) => b.total - a.total);
     }, [filteredTransactions, activeType]);

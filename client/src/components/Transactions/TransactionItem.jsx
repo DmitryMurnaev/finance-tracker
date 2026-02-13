@@ -1,12 +1,11 @@
 import { Pencil, Trash2 } from 'lucide-react';
+import { getCategoryConfig } from '../../config/categoryConfig';
 
 const TransactionItem = ({ transaction, onDelete, onEdit }) => {
     if (!transaction) return null;
 
     const isExpense = transaction.type === 'expense';
-    const categoryIcon = transaction.category_icon || '📝';
-    const categoryColor = transaction.category_color || 'bg-gray-100 text-gray-800';
-    const categoryName = transaction.category_name || 'Другое';
+    const config = getCategoryConfig(transaction.category_name);
 
     const formattedDate = transaction.date
         ? new Date(transaction.date).toLocaleDateString('ru-RU', {
@@ -26,17 +25,17 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
         <div className="flex items-center justify-between p-3 sm:p-4 bg-white rounded-xl shadow-sm mb-2 hover:shadow-md transition-shadow">
             <div className="flex items-center min-w-0 flex-1">
                 <div
-                    className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mr-3 sm:mr-4 ${categoryColor}`}
+                    className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mr-3 sm:mr-4 ${config.color}`}
                 >
-                    <span className="text-xl sm:text-2xl">{categoryIcon}</span>
+                    <span className="text-xl sm:text-2xl">{config.icon}</span>
                 </div>
                 <div className="min-w-0 flex-1">
                     <h4 className="font-medium text-gray-800 text-sm sm:text-base truncate">
                         {transaction.description || 'Без описания'}
                     </h4>
                     <div className="flex items-center gap-2 mt-0.5 sm:mt-1 flex-wrap">
-            <span className={`px-2 py-0.5 rounded-full text-xs ${categoryColor} flex-shrink-0`}>
-              {categoryName}
+            <span className={`px-2 py-0.5 rounded-full text-xs ${config.color} flex-shrink-0`}>
+              {config.name}
             </span>
                         <span className="text-gray-500 text-xs sm:text-sm flex-shrink-0">{formattedDate}</span>
                     </div>
