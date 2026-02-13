@@ -46,7 +46,7 @@ const TransactionList = ({ transactions, loading, error, onDelete, onRetry, onEd
                     key={transaction.id}
                     transaction={transaction}
                     onDelete={onDelete}
-                    onEdit={{onEdit}}
+                    onEdit={onEdit}
                 />
             ))}
         </div>
