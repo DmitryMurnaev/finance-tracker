@@ -56,6 +56,7 @@ const Statistics = ({ transactions }) => {
                     name: catName,
                     icon: config.icon,
                     color: config.color,
+                    chartColor: config.chartColor,
                     displayName: config.name,
                     total: 0,
                 };
@@ -130,9 +131,7 @@ const Statistics = ({ transactions }) => {
         return categoryStats.map((cat) => ({
             name: cat.name,
             value: cat.total,
-            color: cat.color.includes('bg-')
-                ? '#9CA3AF' // fallback для SVG
-                : cat.color,
+            color: cat.chartColor, // теперь это HEX
         }));
     }, [categoryStats]);
 
