@@ -15,7 +15,7 @@
 - Node.js + Express
 - PostgreSQL (Render Managed DB)
 - JWT + bcrypt (аутентификация)
-- Nodemailer (интеграция с SMTP — подготовлено, отключено)
+- Nodemailer (интеграция с SMTP — подготовлена, но отключена)
 - Хостинг: Render Web Service
 
 ### Frontend
@@ -25,6 +25,52 @@
 - Axios (с перехватчиками)
 - Lucide React (иконки)
 - Хостинг: Render Static Site
+
+---
+
+## 📁 Структура проекта
+finance-tracker-full/
+├── client/ # React‑фронтенд
+│ ├── public/
+│ ├── src/
+│ │ ├── assets/ # react.svg (не используется)
+│ │ ├── components/ # UI‑компоненты
+│ │ │ ├── Common/ # (пусто, можно удалить)
+│ │ │ ├── Layout/ # Header, MobileLayout, DesktopLayout, навигация
+│ │ │ ├── Statistics/ # Statistics.jsx
+│ │ │ ├── Transactions/ # TransactionForm, TransactionItem, TransactionList
+│ │ │ ├── UI/ # PasswordInput, PeriodSelector, ScrollToTopButton, UserMenu, VerificationCodeInput (устарел)
+│ │ │ └── ProtectedRoute.jsx
+│ │ ├── context/ # AuthContext.jsx (глобальное состояние пользователя)
+│ │ ├── pages/ # Home, Login, Register, Profile
+│ │ ├── services/ # api.js (axios‑клиент с перехватчиками)
+│ │ ├── App.css # (не используется, можно удалить)
+│ │ ├── App.jsx # маршрутизация
+│ │ ├── index.css # глобальные стили
+│ │ └── main.jsx # точка входа
+│ ├── index.html
+│ ├── package.json
+│ ├── tailwind.config.js
+│ ├── vite.config.js
+│ └── render.yml # конфигурация для Render (опционально)
+│
+├── server/ # Node.js‑бэкенд
+│ ├── middleware/
+│ │ └── auth.js # JWT‑проверка
+│ ├── node_modules/
+│ ├── routes/
+│ │ └── auth.js # регистрация, вход, профиль, смена пароля
+│ ├── .env # переменные окружения (локально)
+│ ├── db.js # единый пул подключения к PostgreSQL
+│ ├── index.js # точка входа, CORS, защищённые маршруты
+│ ├── package.json
+│ └── render.yml # конфигурация для Render
+│
+├── database/ # (пусто, для будущих миграций)
+├── .gitignore
+├── eslint.config.js
+├── package.json (корневой) # (обычно не нужен, можно удалить)
+└── README.md
 
 ---
 
@@ -61,25 +107,14 @@
 
 ---
 
-## 🏗 Архитектура проекта
+## 🏗 Ключевые архитектурные решения
 
-finance-tracker-full/
-├── client/ # React‑фронтенд
-│ ├── public/
-│ ├── src/
-│ │ ├── components/ # UI‑компоненты
+1. **Изоляция данных через `user_id`** — все SQL‑запросы к транзакциям фильтруются по идентификатору пользователя, извлечённому из JWT.
+2. **Единый пул подключения к БД** — файл `server/db.js` экспортирует один экземпляр `Pool`, используемый во всех модулях.
+3. **Централизованная обработка ошибок 401/403** — перехватчик axios на фронте исключает маршруты аутентификации из автоматического logout.
+4. **Два независимых окружения** — параллельная разработка и эксплуатация без риска для продакшна.
 
-│ │ ├── context/ # AuthContext (глобальное состояние)
-│ │ ├── pages/ # Login, Register, Home, Profile
-│ │ ├── services/ # api.js (axios, перехватчики)
-│ │ └── App.jsx # маршрутизация
-│ └── package.json
-│
-├── server/ # Node.js‑бэкенд
-│ ├── middleware/ # authMiddleware, JWT_SECRET
-│ ├── routes/ # auth.js (регистрация, логин, смена пароля)
-│ ├── db.js # единый пул подключения к PostgreSQL
-│ ├── index.js # точка входа, CORS, защищённые маршруты
-│ └── package.json
-│
-└── README.md
+---
+
+👨‍💻 Автор
+Мурнаев Дмитрий Юрьевич
