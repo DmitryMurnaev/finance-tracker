@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { getCategoryConfig } from '../../config/categoryConfig';
 import {
     TrendingUp,
     TrendingDown,

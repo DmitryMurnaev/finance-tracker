@@ -1,12 +1,11 @@
 import { Pencil, Trash2 } from 'lucide-react';
 import { getCategoryConfig } from '../../config/categoryConfig';
-const config = getCategoryConfig(transaction.category_name);
 
 const TransactionItem = ({ transaction, onDelete, onEdit }) => {
     if (!transaction) return null;
 
     const isExpense = transaction.type === 'expense';
-    const config = getCategoryConfig(transaction.config.name);
+    const config = getCategoryConfig(transaction.category_name);
 
     const formattedDate = transaction.date
         ? new Date(transaction.date).toLocaleDateString('ru-RU', {
@@ -35,22 +34,22 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
                         {transaction.description || 'Без описания'}
                     </h4>
                     <div className="flex items-center gap-2 mt-0.5 sm:mt-1 flex-wrap">
-            <span className={`px-2 py-0.5 rounded-full text-xs ${config.color} flex-shrink-0`}>
-              {config.name}
-            </span>
+                        <span className={`px-2 py-0.5 rounded-full text-xs ${config.color} flex-shrink-0`}>
+                            {config.name}
+                        </span>
                         <span className="text-gray-500 text-xs sm:text-sm flex-shrink-0">{formattedDate}</span>
                     </div>
                 </div>
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-2">
-        <span
-            className={`text-sm sm:text-lg font-bold whitespace-nowrap ${
-                isExpense ? 'text-red-600' : 'text-green-600'
-            }`}
-        >
-          {isExpense ? '-' : '+'} {formattedAmount} ₽
-        </span>
+                <span
+                    className={`text-sm sm:text-lg font-bold whitespace-nowrap ${
+                        isExpense ? 'text-red-600' : 'text-green-600'
+                    }`}
+                >
+                    {isExpense ? '-' : '+'} {formattedAmount} ₽
+                </span>
                 <div className="flex gap-1">
                     <button
                         onClick={() => onEdit(transaction)}
