@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://finance-tracker-api-dev.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 console.log(`🌍 Подключаюсь к API: ${API_URL}`);
 console.log(`📍 Фронтенд: ${window.location.origin}`);
