@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { categoryAPI } from '../services/api'; // импорт
+import { categoryAPI } from '../../services/api'; // импорт
 
 const TransactionForm = ({
                            isOpen,
