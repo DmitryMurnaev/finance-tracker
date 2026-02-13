@@ -17,6 +17,8 @@ const allowedOrigins = [
     'http://localhost:5173'
 ];
 
+const categoriesRoutes = require('./routes/categories');
+
 app.use(cors({
     origin: allowedOrigins,
     credentials: true,
@@ -24,6 +26,10 @@ app.use(cors({
 }));
 app.options('*', cors());
 app.use(express.json());
+
+
+app.use('/api/categories', categoriesRoutes);
+
 
 // ============================================
 // ПОДКЛЮЧЕНИЕ МАРШРУТОВ АУТЕНТИФИКАЦИИ
@@ -38,7 +44,13 @@ app.get('/api/transactions', authMiddleware, async (req, res) => {
     console.log('📡 GET /api/transactions (user:', req.user.id, ')');
     try {
         const result = await pool.query(
-            'SELECT * FROM transactions WHERE user_id = $1 ORDER BY date DESC, id DESC LIMIT 100',
+            `SELECT t.*, 
+                c.name as category_name
+         FROM transactions t
+         LEFT JOIN categories c ON t.category_id = c.id
+         WHERE t.user_id = $1 
+         ORDER BY t.date DESC, t.id DESC 
+         LIMIT 100`,
             [req.user.id]
         );
         res.json(result.rows);
@@ -51,8 +63,8 @@ app.get('/api/transactions', authMiddleware, async (req, res) => {
 // ➕ Создать новую транзакцию
 app.post('/api/transactions', authMiddleware, async (req, res) => {
     console.log('📝 POST /api/transactions (user:', req.user.id, ')', req.body);
-    const { amount, type, category, description, date } = req.body;
-    if (!amount || !type || !category) {
+    const { amount, type, category_id, description, date } = req.body;
+    if (!amount || !type || !category_id) {
         return res.status(400).json({ error: 'Сумма, тип и категория обязательны' });
     }
     if (!['income', 'expense'].includes(type)) {
@@ -82,8 +94,8 @@ app.post('/api/transactions', authMiddleware, async (req, res) => {
 app.put('/api/transactions/:id', authMiddleware, async (req, res) => {
     const id = req.params.id;
     console.log(`✏️ PUT /api/transactions/${id} (user: ${req.user.id})`, req.body);
-    const { amount, type, category, description, date } = req.body;
-    if (!amount || !type || !category) {
+    const { amount, type, category_id, description, date } = req.body;
+    if (!amount || !type || !category_id) {
         return res.status(400).json({ error: 'Сумма, тип и категория обязательны' });
     }
     if (!['income', 'expense'].includes(type)) {
@@ -92,13 +104,13 @@ app.put('/api/transactions/:id', authMiddleware, async (req, res) => {
     try {
         const result = await pool.query(
             `UPDATE transactions 
-             SET amount = $1, type = $2, category = $3, description = $4, date = $5
+             SET amount = $1, type = $2, category_id = $3, description = $4, date = $5
              WHERE id = $6 AND user_id = $7
              RETURNING *`,
             [
                 amount,
                 type,
-                category,
+                category_id,   // ✅ правильно
                 description,
                 date || new Date().toISOString().split('T')[0],
                 id,
