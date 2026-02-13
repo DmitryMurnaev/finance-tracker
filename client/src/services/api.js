@@ -5,24 +5,6 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 console.log(`🌍 Подключаюсь к API: ${API_URL}`);
 console.log(`📍 Фронтенд: ${window.location.origin}`);
 
-export const categoryAPI = {
-    getCategories: async () => {
-        const response = await api.get('/categories');
-        return response.data;
-    },
-    createCategory: async (categoryData) => {
-        const response = await api.post('/categories', categoryData);
-        return response.data;
-    },
-    updateCategory: async (id, categoryData) => {
-        const response = await api.put(`/categories/${id}`, categoryData);
-        return response.data;
-    },
-    deleteCategory: async (id) => {
-        const response = await api.delete(`/categories/${id}`);
-        return response.data;
-    }
-};
 
 const api = axios.create({
     baseURL: API_URL,
