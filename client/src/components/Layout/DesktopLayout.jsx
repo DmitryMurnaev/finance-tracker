@@ -19,7 +19,9 @@ const DesktopLayout = ({
                            balance,
                            activeTab,
                            setActiveTab,
-                           setIsFormOpen
+                           setIsFormOpen,
+                           // Для реадактирования транзакции
+                           onEditTransaction
                        }) => (
     <div className="hidden md:block bg-gray-50 min-h-screen pb-32">
         {/* Шапка с меню пользователя */}
@@ -48,6 +50,7 @@ const DesktopLayout = ({
                     error={error}
                     onDelete={deleteTransaction}
                     onRetry={fetchTransactions}
+                    onEdit={onEditTransaction}
                 />
             ) : (
                 <Statistics transactions={transactions} />

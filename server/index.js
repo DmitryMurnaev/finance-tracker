@@ -78,6 +78,43 @@ app.post('/api/transactions', authMiddleware, async (req, res) => {
     }
 });
 
+// ✏️ Обновить транзакцию
+app.put('/api/transactions/:id', authMiddleware, async (req, res) => {
+    const id = req.params.id;
+    console.log(`✏️ PUT /api/transactions/${id} (user: ${req.user.id})`, req.body);
+    const { amount, type, category, description, date } = req.body;
+    if (!amount || !type || !category) {
+        return res.status(400).json({ error: 'Сумма, тип и категория обязательны' });
+    }
+    if (!['income', 'expense'].includes(type)) {
+        return res.status(400).json({ error: 'Тип должен быть income или expense' });
+    }
+    try {
+        const result = await pool.query(
+            `UPDATE transactions 
+             SET amount = $1, type = $2, category = $3, description = $4, date = $5
+             WHERE id = $6 AND user_id = $7
+             RETURNING *`,
+            [
+                amount,
+                type,
+                category,
+                description,
+                date || new Date().toISOString().split('T')[0],
+                id,
+                req.user.id
+            ]
+        );
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Транзакция не найдена или не принадлежит вам' });
+        }
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error('❌ Ошибка PUT:', error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // 🗑️ Удалить транзакцию
 app.delete('/api/transactions/:id', authMiddleware, async (req, res) => {
     const id = req.params.id;

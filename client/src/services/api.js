@@ -100,6 +100,16 @@ export const transactionAPI = {
             throw error;
         }
     },
+
+    updateTransaction: async (id, transactionData) => {
+        try {
+            const response = await api.put(`/transactions/${id}`, transactionData);
+            return response.data;
+        } catch (error) {
+            console.error('Ошибка обновления транзакции:', error.message);
+            throw error;
+        }
+    },
     deleteTransaction: async (id) => {
         try {
             const response = await api.delete(`/transactions/${id}`);

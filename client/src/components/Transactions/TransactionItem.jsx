@@ -1,4 +1,5 @@
-import { Trash2 } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
+
 
 const TransactionItem = ({ transaction, onDelete }) => {
     // Функция для получения информации о категории
@@ -75,13 +76,22 @@ const TransactionItem = ({ transaction, onDelete }) => {
                 }`}>
                     {isExpense ? '-' : '+'} {formattedAmount} ₽
                 </span>
-                <button
-                    onClick={() => onDelete(transaction.id)}
-                    className="p-1 sm:p-2 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
-                    aria-label="Удалить операцию"
-                >
-                    <Trash2 size={16} className="sm:w-4 sm:h-4" />
-                </button>
+                <div className="flex gap-1">
+                    <button
+                        onClick={() => onEdit(transaction)}  // передаём всю транзакцию
+                        className="p-1 sm:p-2 text-gray-400 hover:text-blue-600 transition-colors flex-shrink-0"
+                        title="Редактировать"
+                    >
+                        <Pencil size={18}/>
+                    </button>
+                    <button
+                        onClick={() => onDelete(transaction.id)}
+                        className="p-1 sm:p-2 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
+                        aria-label="Удалить операцию"
+                    >
+                        <Trash2 size={16} className="sm:w-4 sm:h-4"/>
+                    </button>
+                </div>
             </div>
         </div>
     );

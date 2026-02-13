@@ -12,6 +12,26 @@ function App() {
     const [activeTab, setActiveTab] = useState('home');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [editingTransaction, setEditingTransaction] = useState(null);
+
+    // Функция обновления транзакции
+    const updateTransaction = async (id, updateData) => {
+        try {
+            await transactionAPI.updateTransaction(id, updateData);
+            await fetchTransactions();
+            setEditingTransaction(null);
+            setIsFormOpen(false);
+        } catch {
+            alert('Не удалось обновить операцию')
+        }
+    };
+
+    // При клике на редактирование в дочерних компонентах
+    const handleEdit = (transactions) => {
+        setEditingTransaction(transactions);
+        setIsFormOpen(true);
+    };
+
 
     // --- Фильтр периода для главной ---
     const [selectedPeriod, setSelectedPeriod] = useState('all');
@@ -92,6 +112,7 @@ function App() {
                 periods={periods}                       // ← для PeriodSelector
                 selectedPeriod={selectedPeriod}
                 setSelectedPeriod={setSelectedPeriod}
+                onEditTransaction{handleEdit}
             />
             <DesktopLayout
                 transactions={filteredTransactions}
@@ -109,11 +130,17 @@ function App() {
                 periods={periods}
                 selectedPeriod={selectedPeriod}
                 setSelectedPeriod={setSelectedPeriod}
+                onEditTransaction{handleEdit}
             />
             <TransactionForm
                 isOpen={isFormOpen}
-                onClose={() => setIsFormOpen(false)}
+                onClose={() => {
+                    setIsFormOpen(false);
+                    setEditingTransaction(null);
+                }}
                 onAddTransaction={addTransaction}
+                onUpdateTransaction={updateTransaction}
+                editingTransaction={editingTransaction}
             />
             <ScrollToTopButton />   {/* ← плавающая кнопка */}
         </>

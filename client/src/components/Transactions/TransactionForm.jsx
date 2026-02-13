@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
-const TransactionForm = ({ isOpen, onClose, onAddTransaction }) => {
+const TransactionForm = ({
+  isOpen,
+  onClose,
+  onAddTransaction,
+  onUpdateTransaction,
+  editingTransaction,
+}) => {
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [type, setType] = useState('expense');
@@ -50,6 +56,7 @@ const TransactionForm = ({ isOpen, onClose, onAddTransaction }) => {
     ]
   };
 
+
   // Выбираем категории в зависимости от устройства
   const currentCategories = window.innerWidth >= 768 ? desktopCategories : categories;
 
@@ -68,6 +75,23 @@ const TransactionForm = ({ isOpen, onClose, onAddTransaction }) => {
       setError('');
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (editingTransaction) {
+      setAmount(editingTransaction.amount.toString());
+      setDescription(editingTransaction.description || '');
+      setType(editingTransaction.type);
+      setCategory(editingTransaction.category);
+      setDate(editingTransaction.date);
+    } else {
+      // Сброс для добавления
+      setAmount('');
+      setDescription('');
+      setType('expense');
+      setCategory('food');
+      setDate(new Date().toISOString().split('T')[0]);
+    }
+  }, [editingTransaction, isOpen]); // Срабатывает при открытии транзакции с выбранной транзакцией
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -91,7 +115,12 @@ const TransactionForm = ({ isOpen, onClose, onAddTransaction }) => {
         date
       };
 
-      await onAddTransaction(transactionData);
+      if (editingTransaction) {
+        await onUpdateTransaction(editingTransaction.id, transactionData);
+      } else {
+        await onAddTransaction(transactionData);
+      }
+
       resetForm();
       onClose();
 
@@ -117,6 +146,11 @@ const TransactionForm = ({ isOpen, onClose, onAddTransaction }) => {
   };
 
   if (!isOpen) return null;
+
+  const modalTitle = editingTransaction ? 'Редактировать операцию' : 'Новая операция';
+  const sumbitButtonText = isSubmitting
+      ? (editingTransaction ? 'Сохранение...' : 'Добавление...')
+      : (editingTransaction ? 'Сохранить' : 'Добавить');
 
   return (
       <div className="fixed inset-0 z-50">
@@ -147,13 +181,13 @@ const TransactionForm = ({ isOpen, onClose, onAddTransaction }) => {
             p-4
             flex justify-between items-center
           ">
-              <h2 className="text-xl font-bold text-gray-900">Новая операция</h2>
+              <h2 className="text-xl font-bold text-gray-900">{modalTitle}</h2>
               <button
                   onClick={handleClose}
                   className="p-2 text-gray-500 hover:text-gray-700"
                   disabled={isSubmitting}
               >
-                <X size={24} />
+                <X size={24}/>
               </button>
             </div>
 

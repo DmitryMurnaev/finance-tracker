@@ -27,7 +27,9 @@ const MobileLayout = ({
                           // Пропсы для PeriodSelector
                           periods,
                           selectedPeriod,
-                          setSelectedPeriod
+                          setSelectedPeriod,
+                          // Для редактирования транзакции
+                          onEditTransaction
                       }) => (
     <div className="block md:hidden bg-gray-50 min-h-screen pb-32">
         {/* Шапка с меню пользователя */}
@@ -65,6 +67,7 @@ const MobileLayout = ({
                         error={error}
                         onDelete={deleteTransaction}
                         onRetry={fetchTransactions}
+                        onEdit={onEditTransaction}
                     />
                 </>
             ) : (

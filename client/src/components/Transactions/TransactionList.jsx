@@ -1,7 +1,7 @@
 import { History as HistoryIcon } from 'lucide-react';
 import TransactionItem from './TransactionItem';
 
-const TransactionList = ({ transactions, loading, error, onDelete, onRetry }) => {
+const TransactionList = ({ transactions, loading, error, onDelete, onRetry, onEdit }) => {
     if (loading) {
         return (
             <div className="text-center py-10">
@@ -46,6 +46,7 @@ const TransactionList = ({ transactions, loading, error, onDelete, onRetry }) =>
                     key={transaction.id}
                     transaction={transaction}
                     onDelete={onDelete}
+                    onEdit={{onEdit}}
                 />
             ))}
         </div>
