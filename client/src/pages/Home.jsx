@@ -24,6 +24,10 @@ function Home() {
         fetchAccounts();
     }, []);
 
+    useEffect(() => {
+        console.log('isAccountFormOpen =', isAccountFormOpen);
+    }, [isAccountFormOpen]);
+
 
     // Функция сохранения счета (создание/обновление)
     const handleSaveAccount = async (accountData, accountId) => {
@@ -43,6 +47,7 @@ function Home() {
 
     // Функция открытия формы для создания
     const handleAddAccount = () => {
+        console.log('📝 handleAddAccount вызван');
         setEditingAccount(null);
         setIsAccountFormOpen(true);
     };
@@ -210,6 +215,12 @@ function Home() {
             />
             <BalanceCard balance={totalBalance} totalIncome={totalIncome} />
             <ScrollToTopButton />
+            <AccountForm
+                isOpen={isAccountFormOpen}
+                onClose={() => setIsAccountFormOpen(false)}
+                onSave={handleSaveAccount}
+                editingAccount={editingAccount}
+            />
         </>
     );
 }
