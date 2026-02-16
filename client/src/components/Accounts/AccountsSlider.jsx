@@ -60,8 +60,8 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
 
                 <div
                     ref={sliderRef}
-                    className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide scroll-smooth snap-x snap-mandatory"
-                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', scrollPadding: '0 16px' }}
+                    className="flex overflow-x-auto gap-4 pb-4 px-4 scrollbar-hide scroll-smooth snap-x snap-mandatory"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                     {accounts.map((account) => {
                         const icon = getIconById(account.icon_id);
@@ -70,7 +70,7 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
                             <div
                                 key={account.id}
                                 onClick={() => onEditAccount(account)}
-                                className={`account-card flex-shrink-0 w-[calc(100vw-2rem)] sm:w-64 md:w-72 p-4 rounded-xl shadow-sm cursor-pointer snap-start ${color.bg}`}
+                                className={`account-card flex-shrink-0 w-[85vw] sm:w-64 md:w-72 p-4 rounded-xl shadow-sm cursor-pointer snap-start ${color.bg}`}
                             >
                                 <div className="flex items-center gap-3 mb-3">
                                     <span className="text-3xl">{icon.emoji}</span>
