@@ -1,18 +1,27 @@
-import { useRef } from 'react';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { useRef, useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight, Plus, Hand } from 'lucide-react'; // Hand можно заменить на Swipe или другой значок
 import { getIconById, getColorById } from '../../config/accountsConfig';
 
 const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }) => {
     const sliderRef = useRef(null);
+    const [showHint, setShowHint] = useState(false);
+
+    // Проверка, нужно ли показывать подсказку (если есть скролл)
+    useEffect(() => {
+        if (!accounts.length || !sliderRef.current) return;
+        const container = sliderRef.current;
+        const hasScroll = container.scrollWidth > container.clientWidth;
+        // Показываем подсказку, если есть скролл и еще не прокручивали (можно сохранять в localStorage)
+        setShowHint(hasScroll);
+    }, [accounts]);
 
     const scroll = (direction) => {
         if (sliderRef.current) {
-            const scrollAmount = direction === 'left' ? -200 : 200;
+            const cardWidth = sliderRef.current.querySelector('.account-card')?.offsetWidth || 200;
+            const scrollAmount = direction === 'left' ? -cardWidth : cardWidth;
             sliderRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
         }
     };
-
-    console.log('🎨 AccountsSlider рендер с accounts:', accounts);
 
     if (!accounts.length) {
         return (
@@ -51,11 +60,11 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
                     <ChevronLeft size={24} />
                 </button>
 
-                {/* Контейнер с карточками */}
+                {/* Контейнер с карточками (с прилипанием) */}
                 <div
                     ref={sliderRef}
-                    className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide scroll-smooth"
-                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                    className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide scroll-smooth snap-x snap-mandatory"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', scrollPadding: '0 16px' }}
                 >
                     {accounts.map((account) => {
                         const icon = getIconById(account.icon_id);
@@ -64,21 +73,30 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
                             <div
                                 key={account.id}
                                 onClick={() => onEditAccount(account)}
-                                className={`flex-shrink-0 w-[80vw] sm:w-64 md:w-72 p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer ${color.bg}`}
+                                className="account-card flex-shrink-0 w-[80vw] sm:w-64 md:w-72 p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer snap-start"
                             >
-                                <div className="flex items-center gap-3 mb-3">
-                                    <span className="text-3xl">{icon.emoji}</span>
-                                    <span className={`font-medium text-lg truncate ${color.text}`}>
-                                        {account.name}
-                                    </span>
-                                </div>
-                                <div className={`text-2xl font-bold ${color.text}`}>
-                                    {account.balance.toLocaleString('ru-RU')} ₽
+                                <div className={`h-full ${color.bg} p-4 rounded-lg`}>
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <span className="text-3xl">{icon.emoji}</span>
+                                        <span className={`font-medium text-lg truncate ${color.text}`}>
+                                            {account.name}
+                                        </span>
+                                    </div>
+                                    <div className={`text-2xl font-bold ${color.text}`}>
+                                        {account.balance.toLocaleString('ru-RU')} ₽
+                                    </div>
                                 </div>
                             </div>
                         );
                     })}
                 </div>
+
+                {/* Подсказка для мобильных (показывается, если есть скролл) */}
+                {showHint && (
+                    <div className="md:hidden absolute right-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-lg animate-pulse">
+                        <Hand className="text-blue-500" size={24} />
+                    </div>
+                )}
 
                 {/* Правая стрелка (десктоп) */}
                 <button

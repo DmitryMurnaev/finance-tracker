@@ -213,7 +213,6 @@ function Home() {
                 onUpdateTransaction={updateTransaction}
                 editingTransaction={editingTransaction}
             />
-            <BalanceCard balance={totalBalance} totalIncome={totalIncome} />
             <ScrollToTopButton />
             <AccountForm
                 isOpen={isAccountFormOpen}
