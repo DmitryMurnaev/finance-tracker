@@ -17,7 +17,7 @@ const AccountsSlider = ({ accounts, onAddClick }) => {
             <div className="mb-6 text-center p-4 bg-gray-50 rounded-xl">
                 <p className="text-gray-500 mb-2">У вас ещё нет счетов</p>
                 <button
-                    onClick={onAddClick}
+                    onClick={onAddClick}   // ✅ используем переданный проп
                     className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
                 >
                     <Plus size={18} /> Добавить счёт
@@ -31,7 +31,7 @@ const AccountsSlider = ({ accounts, onAddClick }) => {
             <div className="flex justify-between items-center mb-3">
                 <h2 className="text-lg font-semibold">Ваши счета</h2>
                 <button
-                    onClick={onAddClick}
+                    onClick={onAddClick}   // ✅ используем переданный проп
                     className="text-blue-500 text-sm hover:text-blue-600"
                 >
                     + Новый счёт
@@ -42,7 +42,6 @@ const AccountsSlider = ({ accounts, onAddClick }) => {
                 <button
                     onClick={() => scroll('left')}
                     className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full shadow-md p-1 hover:bg-gray-50"
-                    aria-label="Прокрутить влево"
                 >
                     <ChevronLeft size={24} />
                 </button>
@@ -77,7 +76,6 @@ const AccountsSlider = ({ accounts, onAddClick }) => {
                 <button
                     onClick={() => scroll('right')}
                     className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full shadow-md p-1 hover:bg-gray-50"
-                    aria-label="Прокрутить вправо"
                 >
                     <ChevronRight size={24} />
                 </button>
