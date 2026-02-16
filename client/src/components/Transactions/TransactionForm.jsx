@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { categoryAPI } from '../../services/api';
 import { getCategoryConfig } from '../../config/categoryConfig';
+import { accountAPI } from '../../services/api';
 
 const TransactionForm = ({
                            isOpen,
@@ -19,6 +20,35 @@ const TransactionForm = ({
   const [error, setError] = useState('');
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
+  const [accounts, setAccounts] = useState([]);
+  const [loadingAccounts, setLoadingAccounts] = useState(false);
+  const [accountId, setAccountId] = useState(null);
+
+  // Загрузка счетов
+
+  useEffect(() => {
+    if (isOpen) {
+      const fetchData = async () => {
+        setLoadingCategories(true);
+        setLoadingAccounts(true);
+        try {
+          const [categoriesData, accountsData] = await Promise.all([
+            categoryAPI.getCategories(),
+            accountAPI.getAccounts()
+          ]);
+          setCategories(categoriesData);
+          setAccounts(accountsData);
+          // ... выбор по умолчанию
+        } catch (err) {
+          console.error('Ошибка загрузки данных', err);
+        } finally {
+          setLoadingCategories(false);
+          setLoadingAccounts(false);
+        }
+      };
+      fetchData();
+    }
+  }, [isOpen, type, editingTransaction]);
 
   // Загрузка категорий при открытии формы
   useEffect(() => {
@@ -205,6 +235,39 @@ const TransactionForm = ({
                 </div>
               </div>
 
+              {/* Выбор счёта */}
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2 font-medium">Счёт</label>
+                {loadingAccounts ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      {[...Array(3)].map((_, i) => (
+                          <div key={i} className="p-3 bg-gray-200 animate-pulse rounded-lg h-12"></div>
+                      ))}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 gap-2">
+                      {accounts.map((acc) => {
+                        const icon = getIconById(acc.icon_id);
+                        const color = getColorById(acc.color_id);
+                        return (
+                            <button
+                                key={acc.id}
+                                type="button"
+                                onClick={() => setAccountId(acc.id)}
+                                className={`p-2 rounded-lg flex items-center gap-2 ${
+                                    accountId === acc.id ? `ring-2 ring-blue-500 ${color.bg}` : color.bg
+                                }`}
+                            >
+                              <span className="text-xl">{icon.emoji}</span>
+                              <span className={`text-sm font-medium truncate ${color.text}`}>
+                            {acc.name}
+                        </span>
+                            </button>
+                        );
+                      })}
+                    </div>
+                )}
+              </div>
               {/* Категории (загруженные из БД) */}
               <div className="mb-4">
                 <label className="block text-gray-700 mb-2 font-medium">Категория</label>

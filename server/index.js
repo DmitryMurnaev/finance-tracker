@@ -3,6 +3,8 @@ const cors = require('cors');
 const { pool } = require('./db');
 const authRoutes = require('./routes/auth');
 const { authMiddleware } = require('./middleware/auth');
+const categoriesRoutes = require('./routes/categories');
+const accountsRoutes = require('./routes/accounts')
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -17,7 +19,7 @@ const allowedOrigins = [
     'http://localhost:5173'
 ];
 
-const categoriesRoutes = require('./routes/categories');
+
 
 app.use(cors({
     origin: allowedOrigins,
@@ -29,7 +31,7 @@ app.use(express.json());
 
 
 app.use('/api/categories', categoriesRoutes);
-
+app.use('/api/accounts', accountsRoutes)
 
 // ============================================
 // ПОДКЛЮЧЕНИЕ МАРШРУТОВ АУТЕНТИФИКАЦИИ
@@ -44,13 +46,17 @@ app.get('/api/transactions', authMiddleware, async (req, res) => {
     console.log('📡 GET /api/transactions (user:', req.user.id, ')');
     try {
         const result = await pool.query(
-            `SELECT t.*, 
-                c.name as category_name
-         FROM transactions t
-         LEFT JOIN categories c ON t.category_id = c.id
-         WHERE t.user_id = $1 
-         ORDER BY t.date DESC, t.id DESC 
-         LIMIT 100`,
+            `SELECT t.*,
+       c.name as category_name,
+       a.name as account_name,
+       a.icon_id as account_icon_id,
+       a.color_id as account_color_id
+FROM transactions t
+LEFT JOIN categories c ON t.category_id = c.id
+LEFT JOIN accounts a ON t.account_id = a.id
+WHERE t.user_id = $1
+ORDER BY t.date DESC, t.id DESC
+LIMIT 100`,
             [req.user.id]
         );
         res.json(result.rows);
@@ -62,31 +68,36 @@ app.get('/api/transactions', authMiddleware, async (req, res) => {
 
 // ➕ Создать новую транзакцию
 app.post('/api/transactions', authMiddleware, async (req, res) => {
-    console.log('📝 POST /api/transactions (user:', req.user.id, ')', req.body);
-    const { amount, type, category_id, description, date } = req.body;
-    if (!amount || !type || !category_id) {
-        return res.status(400).json({ error: 'Сумма, тип и категория обязательны' });
+    const { amount, type, category_id, account_id, description, date } = req.body;
+    if (!amount || !type || !category_id || !account_id) {
+        return res.status(400).json({ error: 'Сумма, тип, категория и счёт обязательны' });
     }
-    if (!['income', 'expense'].includes(type)) {
-        return res.status(400).json({ error: 'Тип должен быть income или expense' });
-    }
+    const client = await pool.connect();
     try {
-        const result = await pool.query(
-            `INSERT INTO transactions (amount, type, category, description, date, user_id)
-             VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-            [
-                amount,
-                type,
-                category,
-                description,
-                date || new Date().toISOString().split('T')[0],
-                req.user.id
-            ]
+        await client.query('BEGIN');
+
+        // Вставляем транзакцию
+        const insertRes = await client.query(
+            `INSERT INTO transactions (amount, type, category_id, account_id, description, date, user_id)
+             VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+            [amount, type, category_id, account_id, description, date || new Date().toISOString().split('T')[0], req.user.id]
         );
-        res.status(201).json(result.rows[0]);
+
+        // Обновляем баланс счёта
+        const balanceChange = type === 'income' ? amount : -amount;
+        await client.query(
+            'UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3',
+            [balanceChange, account_id, req.user.id]
+        );
+
+        await client.query('COMMIT');
+        res.status(201).json(insertRes.rows[0]);
     } catch (error) {
+        await client.query('ROLLBACK');
         console.error('❌ Ошибка POST:', error.message);
         res.status(500).json({ error: error.message });
+    } finally {
+        client.release();
     }
 });
 

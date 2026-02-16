@@ -1,6 +1,7 @@
 import React from 'react';
 import { History as HistoryIcon } from 'lucide-react';
 import Header from './Header';
+import AccountsSlider from "../Accounts/AccountsSlider.jsx";
 import BalanceCard from './BalanceCard';
 import StatsBlocks from './StatsBlocks';
 import TransactionList from '../Transactions/TransactionList';
@@ -29,7 +30,9 @@ const MobileLayout = ({
                           selectedPeriod,
                           setSelectedPeriod,
                           // Для редактирования транзакции
-                          onEditTransaction
+                          onEditTransaction,
+                          accounts,
+                          onAddAccounts,
                       }) => (
     <div className="block md:hidden bg-gray-50 min-h-screen pb-32">
         {/* Шапка с меню пользователя */}
@@ -39,6 +42,7 @@ const MobileLayout = ({
         </div>
 
         <div className="p-4">
+            <AccountsSlider accounts={accounts} onAddClick={onAddAccount} />
             <BalanceCard balance={balance} totalIncome={totalIncome} />
             <StatsBlocks totalIncome={totalIncome} totalExpenses={totalExpenses} />
 

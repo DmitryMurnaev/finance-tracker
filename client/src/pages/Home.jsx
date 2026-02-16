@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { accountAPI } from "../services/api";
 import TransactionForm from '../components/Transactions/TransactionForm';
 import MobileLayout from '../components/Layout/MobileLayout';
 import DesktopLayout from '../components/Layout/DesktopLayout';
@@ -6,14 +7,37 @@ import ScrollToTopButton from '../components/UI/ScrollToTopButton';
 import { transactionAPI } from '../services/api';
 import '../index.css';
 
-function App() {
+function Home() {
     const [transactions, setTransactions] = useState([]);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('home');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [editingTransaction, setEditingTransaction] = useState(null);
+    const [accounts, setAccounts] = useState([]);
+    const [accountsLoading, setAccountsLoading] = useState(false);
 
+    useEffect(() => {
+        fetchAccounts();
+    }, []);
+
+
+    const fetchAccounts = async () => {
+        setAccountsLoading(true);
+        try {
+            const data = await accountAPI.getAccounts();
+            setAccounts(data)
+        } catch (err) {
+            console.error('Ошибка загрузки счетов', err);
+        } finally {
+            setAccountsLoading(false);
+        }
+    }
+
+    // Функция открыта формы для создания счета (пока просто alert)
+    const handleAddAccount = () => {
+        alert('Форма создания счета будет позже');
+    }
     // Функция обновления транзакции
     const updateTransaction = async (id, updateData) => {
         try {
@@ -94,9 +118,13 @@ function App() {
         return transactions.filter(t => t.date && t.date.startsWith(selectedPeriod));
     }, [transactions, selectedPeriod]);
 
+    const totalBalance = accounts.reduce((sum, acc) => sum + parseFloat(acc.balance), 0);
+
     return (
         <>
             <MobileLayout
+                account={accounts}
+                onAddAccount={handleAddAccount}
                 transactions={filteredTransactions}       // ← фильтрованные для списка
                 allTransactions={transactions}           // ← все для баланса (не фильтруем!)
                 loading={loading}
@@ -115,6 +143,8 @@ function App() {
                 onEditTransaction={handleEdit}
             />
             <DesktopLayout
+                accounts={accounts}
+                onAddAccounts={handleAddAccount}
                 transactions={filteredTransactions}
                 allTransactions={transactions}
                 loading={loading}
@@ -143,8 +173,9 @@ function App() {
                 editingTransaction={editingTransaction}
             />
             <ScrollToTopButton />   {/* ← плавающая кнопка */}
+            <BalanceCard totalBalance={totalBalance} totalIncome={totalIncome} />
         </>
     );
 }
 
-export default App;
+export default Home;

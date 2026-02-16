@@ -1,5 +1,6 @@
 import React from 'react';
 import Header from './Header';
+import AccountsSlider from "../Accounts/AccountsSlider";
 import BalanceCard from './BalanceCard';
 import StatsBlocks from './StatsBlocks';
 import ListHeader from './ListHeader';
@@ -21,7 +22,9 @@ const DesktopLayout = ({
                            setActiveTab,
                            setIsFormOpen,
                            // Для реадактирования транзакции
-                           onEditTransaction
+                           onEditTransaction,
+                           accounts,
+                           onAddAccounts,
                        }) => (
     <div className="hidden md:block bg-gray-50 min-h-screen pb-32">
         {/* Шапка с меню пользователя */}
@@ -31,6 +34,7 @@ const DesktopLayout = ({
         </div>
 
         <div className="p-4">
+            <AccountsSlider accounts={accounts} onAddClick={onAddAccount} />
             <BalanceCard balance={balance} totalIncome={totalIncome} />
             <StatsBlocks totalIncome={totalIncome} totalExpenses={totalExpenses} />
 
