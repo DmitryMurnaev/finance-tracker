@@ -18,7 +18,7 @@ const DesktopLayout = ({
                            deleteTransaction,
                            totalIncome,
                            totalExpenses,
-                           totalBalance,                       // ✅ принимаем общий баланс
+                           totalBalance,
                            activeTab,
                            setActiveTab,
                            setIsFormOpen,
@@ -27,7 +27,9 @@ const DesktopLayout = ({
                            setSelectedPeriod,
                            onEditTransaction,
                            accounts,
-                           onAddAccount,                       // ✅ единое имя
+                           onAddAccount,
+                           onEditAccount,       // ✅ добавили
+                           onDeleteAccount,     // ✅ добавили
                        }) => (
     <div className="hidden md:block bg-gray-50 min-h-screen pb-32">
         <div className="flex justify-between items-center p-4 bg-white shadow-sm border-b border-gray-100">
@@ -36,7 +38,12 @@ const DesktopLayout = ({
         </div>
 
         <div className="p-4">
-            <AccountsSlider accounts={accounts} onAddClick={onAddAccount} />
+            <AccountsSlider
+                accounts={accounts}
+                onAddClick={onAddAccount}
+                onEditAccount={onEditAccount}     // ✅ передаём
+                onDeleteAccount={onDeleteAccount}   // ✅ передаём
+            />
             <BalanceCard balance={totalBalance} totalIncome={totalIncome} />
             <StatsBlocks totalIncome={totalIncome} totalExpenses={totalExpenses} />
 

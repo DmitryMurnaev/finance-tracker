@@ -1,8 +1,8 @@
 import { useRef } from 'react';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Pencil, Trash2 } from 'lucide-react';
 import { getIconById, getColorById } from '../../config/accountsConfig';
 
-const AccountsSlider = ({ accounts, onAddClick }) => {
+const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }) => {
     const sliderRef = useRef(null);
 
     const scroll = (direction) => {
@@ -66,6 +66,20 @@ const AccountsSlider = ({ accounts, onAddClick }) => {
                                     <span className={`font-medium truncate ${color.text}`}>
                                         {account.name}
                                     </span>
+                                    {/* Кнопка редактирования */}
+                                    <button
+                                        onClick={() => onEditAccount(account)}
+                                        className="ml-auto text-gray-500 hover:text-blue-600"
+                                    >
+                                        <Pencil size={16} />
+                                    </button>
+                                    {/* Кнопка удаления */}
+                                    <button
+                                        onClick={() => onDeleteAccount(account.id)}
+                                        className="text-gray-500 hover:text-red-600"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
                                 </div>
                                 <div className={`text-lg font-bold ${color.text}`}>
                                     {account.balance.toLocaleString('ru-RU')} ₽

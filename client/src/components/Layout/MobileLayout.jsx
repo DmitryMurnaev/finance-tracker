@@ -19,7 +19,7 @@ const MobileLayout = ({
                           deleteTransaction,
                           totalIncome,
                           totalExpenses,
-                          totalBalance,                       // ✅ принимаем общий баланс
+                          totalBalance,
                           activeTab,
                           setActiveTab,
                           setIsFormOpen,
@@ -28,7 +28,9 @@ const MobileLayout = ({
                           setSelectedPeriod,
                           onEditTransaction,
                           accounts,
-                          onAddAccount,                       // ✅ единое имя
+                          onAddAccount,
+                          onEditAccount,       // ✅ добавили
+                          onDeleteAccount,     // ✅ добавили
                       }) => (
     <div className="block md:hidden bg-gray-50 min-h-screen pb-32">
         <div className="flex justify-between items-center p-4">
@@ -37,7 +39,12 @@ const MobileLayout = ({
         </div>
 
         <div className="p-4">
-            <AccountsSlider accounts={accounts} onAddClick={onAddAccount} />
+            <AccountsSlider
+                accounts={accounts}
+                onAddClick={onAddAccount}
+                onEditAccount={onEditAccount}     // ✅ передаём
+                onDeleteAccount={onDeleteAccount}   // ✅ передаём
+            />
             <BalanceCard balance={totalBalance} totalIncome={totalIncome} />
             <StatsBlocks totalIncome={totalIncome} totalExpenses={totalExpenses} />
 

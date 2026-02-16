@@ -5,6 +5,7 @@ import MobileLayout from '../components/Layout/MobileLayout';
 import DesktopLayout from '../components/Layout/DesktopLayout';
 import ScrollToTopButton from '../components/UI/ScrollToTopButton';
 import BalanceCard from '../components/Layout/BalanceCard';
+import AccountForm from '../components/Accounts/AccountForm';
 import '../index.css';
 
 function Home() {
@@ -16,11 +17,46 @@ function Home() {
     const [editingTransaction, setEditingTransaction] = useState(null);
     const [accounts, setAccounts] = useState([]);
     const [accountsLoading, setAccountsLoading] = useState(false);
+    const [isAccountFormOpen, setIsAccountFormOpen] = useState(false);
+    const [editingAccount, setEditingAccount] = useState(null);
 
     useEffect(() => {
         fetchAccounts();
     }, []);
 
+
+    // Функция сохранения счета (создание/обновление)
+    const handleSaveAccount = async (accountData, accountId) => {
+        if (accountId) {
+            await accountAPI.updateAccount(accountId, accountData);
+        } else {
+            await accountAPI.createAccount(accountData);
+        }
+        await fetchAccounts(); // обновляем список счетов
+    };
+
+    // Функция открытия формы для создания
+    const handleAddAccount = () => {
+        setEditingAccount(null);
+        setIsAccountFormOpen(true);
+    };
+
+// Функция открытия формы для редактирования
+    const handleEditAccount = (account) => {
+        setEditingAccount(account);
+        setIsAccountFormOpen(true);
+    };
+
+// Функция удаления счета (пока не реализована, можно добавить позже)
+    const handleDeleteAccount = async (id) => {
+        if (!window.confirm('Удалить счёт? Все транзакции этого счета останутся без привязки.')) return;
+        try {
+            await accountAPI.deleteAccount(id);
+            await fetchAccounts();
+        } catch (err) {
+            alert('Не удалось удалить счёт');
+        }
+    };
     const fetchAccounts = async () => {
         setAccountsLoading(true);
         try {
@@ -32,10 +68,6 @@ function Home() {
         } finally {
             setAccountsLoading(false);
         }
-    };
-
-    const handleAddAccount = () => {
-        alert('Форма создания счета будет позже');
     };
 
     const updateTransaction = async (id, updateData) => {
