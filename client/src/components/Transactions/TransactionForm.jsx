@@ -25,8 +25,7 @@ const TransactionForm = ({
   const [loadingAccounts, setLoadingAccounts] = useState(false);
   const [accountId, setAccountId] = useState(null);
 
-  // Загрузка счетов
-
+  // Загрузка категорий и счетов при открытии формы
   useEffect(() => {
     if (isOpen) {
       const fetchData = async () => {
@@ -39,7 +38,12 @@ const TransactionForm = ({
           ]);
           setCategories(categoriesData);
           setAccounts(accountsData);
-          // ... выбор по умолчанию
+          // Если не редактирование – выбираем первую подходящую категорию и первый счёт
+          if (!editingTransaction) {
+            const defaultCat = categoriesData.find(c => c.type === type || c.type === 'both');
+            if (defaultCat) setCategoryId(defaultCat.id);
+            if (accountsData.length > 0) setAccountId(accountsData[0].id);
+          }
         } catch (err) {
           console.error('Ошибка загрузки данных', err);
         } finally {
@@ -51,30 +55,6 @@ const TransactionForm = ({
     }
   }, [isOpen, type, editingTransaction]);
 
-  // Загрузка категорий при открытии формы
-  useEffect(() => {
-    if (isOpen) {
-      const fetchCategories = async () => {
-        setLoadingCategories(true);
-        try {
-          const data = await categoryAPI.getCategories();
-          setCategories(data);
-          // Если редактирование – выбранная категория уже установлена
-          if (!editingTransaction) {
-            // По умолчанию выбираем первую категорию подходящего типа
-            const defaultCat = data.find(c => c.type === type || c.type === 'both');
-            if (defaultCat) setCategoryId(defaultCat.id);
-          }
-        } catch (err) {
-          console.error('Ошибка загрузки категорий:', err);
-        } finally {
-          setLoadingCategories(false);
-        }
-      };
-      fetchCategories();
-    }
-  }, [isOpen, type, editingTransaction]);
-
   useEffect(() => {
     if (isOpen) {
       const today = new Date().toISOString().split('T')[0];
@@ -83,18 +63,21 @@ const TransactionForm = ({
     }
   }, [isOpen]);
 
+  // Заполнение формы при редактировании
   useEffect(() => {
     if (editingTransaction) {
       setAmount(editingTransaction.amount.toString());
       setDescription(editingTransaction.description || '');
       setType(editingTransaction.type);
       setCategoryId(editingTransaction.category_id);
+      setAccountId(editingTransaction.account_id);   // ✅ важно!
       setDate(editingTransaction.date);
     } else {
       setAmount('');
       setDescription('');
       setType('expense');
       setCategoryId(null);
+      setAccountId(null);
       setDate(new Date().toISOString().split('T')[0]);
     }
   }, [editingTransaction, isOpen]);
@@ -114,12 +97,16 @@ const TransactionForm = ({
       if (!categoryId) {
         throw new Error('Выберите категорию');
       }
+      if (!accountId) {                               // ✅ проверка счёта
+        throw new Error('Выберите счёт');
+      }
 
       const transactionData = {
         amount: parseFloat(amount),
         description: description.trim(),
         type,
         category_id: categoryId,
+        account_id: accountId,                      // ✅ обязательно
         date
       };
 
@@ -144,6 +131,7 @@ const TransactionForm = ({
     setDescription('');
     setType('expense');
     setCategoryId(null);
+    setAccountId(null);
     setDate(new Date().toISOString().split('T')[0]);
     setError('');
   };
@@ -160,7 +148,6 @@ const TransactionForm = ({
       ? (editingTransaction ? 'Сохранение...' : 'Добавление...')
       : (editingTransaction ? 'Сохранить' : 'Добавить');
 
-  // Фильтруем категории по типу
   const filteredCategories = categories.filter(
       cat => cat.type === type || cat.type === 'both'
   );
@@ -261,24 +248,22 @@ const TransactionForm = ({
                             >
                               <span className="text-xl">{icon.emoji}</span>
                               <span className={`text-sm font-medium truncate ${color.text}`}>
-                            {acc.name}
-                        </span>
+                                                    {acc.name}
+                                                </span>
                             </button>
                         );
                       })}
                     </div>
                 )}
               </div>
-              {/* Категории (загруженные из БД) */}
+
+              {/* Категории */}
               <div className="mb-4">
                 <label className="block text-gray-700 mb-2 font-medium">Категория</label>
                 {loadingCategories ? (
                     <div className="grid grid-cols-3 gap-2">
                       {[...Array(6)].map((_, i) => (
-                          <div
-                              key={i}
-                              className="p-3 rounded-xl flex flex-col items-center bg-gray-200 animate-pulse"
-                          >
+                          <div key={i} className="p-3 rounded-xl flex flex-col items-center bg-gray-200 animate-pulse">
                             <div className="w-6 h-6 bg-gray-300 rounded-full mb-2"></div>
                             <div className="w-12 h-3 bg-gray-300 rounded"></div>
                           </div>
@@ -295,9 +280,7 @@ const TransactionForm = ({
                                 onClick={() => setCategoryId(cat.id)}
                                 disabled={isSubmitting}
                                 className={`p-3 rounded-xl flex flex-col items-center ${
-                                    categoryId === cat.id
-                                        ? `ring-2 ring-blue-500 ${config.color}`
-                                        : config.color
+                                    categoryId === cat.id ? `ring-2 ring-blue-500 ${config.color}` : config.color
                                 }`}
                             >
                               <span className="text-lg">{config.icon}</span>
