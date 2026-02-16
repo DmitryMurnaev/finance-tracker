@@ -271,6 +271,10 @@ const TransactionForm = ({
                           </div>
                       ))}
                     </div>
+                ) : filteredCategories.length === 0 ? (
+                    <div className="text-center py-4 text-gray-500 bg-gray-50 rounded-lg">
+                      Нет категорий. Сначала создайте категорию.
+                    </div>
                 ) : (
                     <div className="grid grid-cols-3 gap-2">
                       {filteredCategories.map((cat) => {
@@ -301,7 +305,7 @@ const TransactionForm = ({
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm md:text-base"
                     disabled={isSubmitting}
                     max={new Date().toISOString().split('T')[0]}
                 />
