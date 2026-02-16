@@ -1,23 +1,22 @@
 import { useRef, useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Plus, Hand } from 'lucide-react'; // Hand можно заменить на Swipe или другой значок
+import { ChevronLeft, ChevronRight, Plus, Hand } from 'lucide-react';
 import { getIconById, getColorById } from '../../config/accountsConfig';
 
 const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }) => {
     const sliderRef = useRef(null);
     const [showHint, setShowHint] = useState(false);
 
-    // Проверка, нужно ли показывать подсказку (если есть скролл)
     useEffect(() => {
         if (!accounts.length || !sliderRef.current) return;
         const container = sliderRef.current;
         const hasScroll = container.scrollWidth > container.clientWidth;
-        // Показываем подсказку, если есть скролл и еще не прокручивали (можно сохранять в localStorage)
         setShowHint(hasScroll);
     }, [accounts]);
 
     const scroll = (direction) => {
         if (sliderRef.current) {
-            const cardWidth = sliderRef.current.querySelector('.account-card')?.offsetWidth || 200;
+            const card = sliderRef.current.querySelector('.account-card');
+            const cardWidth = card?.offsetWidth || 200;
             const scrollAmount = direction === 'left' ? -cardWidth : cardWidth;
             sliderRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
         }
@@ -52,7 +51,6 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
             </div>
 
             <div className="relative group">
-                {/* Левая стрелка (десктоп) */}
                 <button
                     onClick={() => scroll('left')}
                     className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 -ml-4 w-10 h-10 bg-white rounded-full shadow-md items-center justify-center text-gray-600 hover:text-blue-600 hover:shadow-lg transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
@@ -60,7 +58,6 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
                     <ChevronLeft size={24} />
                 </button>
 
-                {/* Контейнер с карточками (с прилипанием) */}
                 <div
                     ref={sliderRef}
                     className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide scroll-smooth snap-x snap-mandatory"
@@ -73,32 +70,28 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
                             <div
                                 key={account.id}
                                 onClick={() => onEditAccount(account)}
-                                className="account-card flex-shrink-0 w-[80vw] sm:w-64 md:w-72 p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer snap-start"
+                                className={`account-card flex-shrink-0 w-[calc(100vw-2rem)] sm:w-64 md:w-72 p-4 rounded-xl shadow-sm cursor-pointer snap-start ${color.bg}`}
                             >
-                                <div className={`h-full ${color.bg} p-4 rounded-lg`}>
-                                    <div className="flex items-center gap-3 mb-3">
-                                        <span className="text-3xl">{icon.emoji}</span>
-                                        <span className={`font-medium text-lg truncate ${color.text}`}>
-                                            {account.name}
-                                        </span>
-                                    </div>
-                                    <div className={`text-2xl font-bold ${color.text}`}>
-                                        {account.balance.toLocaleString('ru-RU')} ₽
-                                    </div>
+                                <div className="flex items-center gap-3 mb-3">
+                                    <span className="text-3xl">{icon.emoji}</span>
+                                    <span className={`font-medium text-lg truncate ${color.text}`}>
+                                        {account.name}
+                                    </span>
+                                </div>
+                                <div className={`text-2xl font-bold ${color.text}`}>
+                                    {account.balance.toLocaleString('ru-RU')} ₽
                                 </div>
                             </div>
                         );
                     })}
                 </div>
 
-                {/* Подсказка для мобильных (показывается, если есть скролл) */}
                 {showHint && (
                     <div className="md:hidden absolute right-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-lg animate-pulse">
                         <Hand className="text-blue-500" size={24} />
                     </div>
                 )}
 
-                {/* Правая стрелка (десктоп) */}
                 <button
                     onClick={() => scroll('right')}
                     className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 -mr-4 w-10 h-10 bg-white rounded-full shadow-md items-center justify-center text-gray-600 hover:text-blue-600 hover:shadow-lg transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
