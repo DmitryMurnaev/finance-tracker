@@ -12,6 +12,8 @@ const AccountsSlider = ({ accounts, onAddClick }) => {
         }
     };
 
+    console.log('🎨 AccountsSlider рендер с accounts:', accounts);
+
     if (!accounts.length) {
         return (
             <div className="mb-6 text-center p-4 bg-gray-50 rounded-xl">

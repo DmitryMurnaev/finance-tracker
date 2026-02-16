@@ -25,6 +25,7 @@ function Home() {
         setAccountsLoading(true);
         try {
             const data = await accountAPI.getAccounts();
+            console.log('📥 fetchAccounts получил данные:', data);
             setAccounts(data);
         } catch (err) {
             console.error('Ошибка загрузки счетов', err);
