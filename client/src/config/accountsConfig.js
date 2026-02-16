@@ -11,13 +11,13 @@ export const iconOptions = [
 
 // Цветовые схемы (Tailwind классы)
 export const colorOptions = [
-    { id: 1, bg: 'bg-red-200', text: 'text-white', name: 'Красный' },
-    { id: 2, bg: 'bg-blue-200', text: 'text-white', name: 'Синий' },
-    { id: 3, bg: 'bg-green-200', text: 'text-white', name: 'Зелёный' },
-    { id: 4, bg: 'bg-yellow-200', text: 'text-white', name: 'Жёлтый' },
-    { id: 5, bg: 'bg-purple-200', text: 'text-white', name: 'Фиолетовый' },
-    { id: 6, bg: 'bg-pink-200', text: 'text-white', name: 'Розовый' },
-    { id: 7, bg: 'bg-gray-200', text: 'text-white', name: 'Серый' },
+    { id: 1, bg: 'bg-red-300', text: 'text-white', name: 'Красный' },
+    { id: 2, bg: 'bg-blue-300', text: 'text-white', name: 'Синий' },
+    { id: 3, bg: 'bg-green-300', text: 'text-white', name: 'Зелёный' },
+    { id: 4, bg: 'bg-yellow-300', text: 'text-white', name: 'Жёлтый' },
+    { id: 5, bg: 'bg-purple-300', text: 'text-white', name: 'Фиолетовый' },
+    { id: 6, bg: 'bg-pink-300', text: 'text-white', name: 'Розовый' },
+    { id: 7, bg: 'bg-gray-300', text: 'text-white', name: 'Серый' },
 ];
 
 // Вспомогательные функции
