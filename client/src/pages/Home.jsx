@@ -150,6 +150,8 @@ function Home() {
         <>
             <MobileLayout
                 accounts={accounts}
+                onEditAccount={handleEditAccount}
+                onDeleteAccount={handleDeleteAccount}
                 onAddAccount={handleAddAccount}
                 transactions={filteredTransactions}
                 allTransactions={transactions}
@@ -171,6 +173,8 @@ function Home() {
             <DesktopLayout
                 accounts={accounts}
                 onAddAccount={handleAddAccount}
+                onEditAccount={handleEditAccount}
+                onDeleteAccount={handleDeleteAccount}
                 transactions={filteredTransactions}
                 allTransactions={transactions}
                 loading={loading}
