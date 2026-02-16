@@ -1,11 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
-import { accountAPI } from "../services/api";
+import { accountAPI, transactionAPI } from '../services/api';
 import TransactionForm from '../components/Transactions/TransactionForm';
 import MobileLayout from '../components/Layout/MobileLayout';
 import DesktopLayout from '../components/Layout/DesktopLayout';
 import ScrollToTopButton from '../components/UI/ScrollToTopButton';
-import { transactionAPI } from '../services/api';
-// ✅ Добавлен импорт BalanceCard
 import BalanceCard from '../components/Layout/BalanceCard';
 import '../index.css';
 
@@ -35,12 +33,10 @@ function Home() {
         }
     };
 
-    // Функция открытия формы для создания счета (пока просто alert)
     const handleAddAccount = () => {
         alert('Форма создания счета будет позже');
     };
 
-    // Функция обновления транзакции
     const updateTransaction = async (id, updateData) => {
         try {
             await transactionAPI.updateTransaction(id, updateData);
@@ -52,16 +48,13 @@ function Home() {
         }
     };
 
-    // При клике на редактирование в дочерних компонентах
     const handleEdit = (transaction) => {
         setEditingTransaction(transaction);
         setIsFormOpen(true);
     };
 
-    // --- Фильтр периода для главной ---
     const [selectedPeriod, setSelectedPeriod] = useState('all');
 
-    // --- Загрузка данных ---
     useEffect(() => { fetchTransactions(); }, []);
 
     const fetchTransactions = async () => {
@@ -76,7 +69,6 @@ function Home() {
         } finally { setLoading(false); }
     };
 
-    // --- CRUD ---
     const addTransaction = async (newTransaction) => {
         try {
             await transactionAPI.createTransaction(newTransaction);
@@ -93,40 +85,36 @@ function Home() {
         } catch { alert('Не удалось удалить операцию'); }
     };
 
-    // --- Статистика для баланса ---
     const calculateStats = () => {
-        if (!Array.isArray(transactions)) return { totalIncome: 0, totalExpenses: 0, balance: 0 };
+        if (!Array.isArray(transactions)) return { totalIncome: 0, totalExpenses: 0 };
         const totalIncome = transactions
             .filter(t => t?.type === 'income')
             .reduce((sum, t) => sum + parseFloat(t.amount), 0);
         const totalExpenses = transactions
             .filter(t => t?.type === 'expense')
             .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-        return { totalIncome, totalExpenses, balance: totalIncome - totalExpenses };
+        return { totalIncome, totalExpenses };
     };
     const { totalIncome, totalExpenses } = calculateStats();
 
-    // --- Доступные периоды (YYYY-MM) ---
     const periods = useMemo(() => {
         const dates = transactions.map(t => t.date).filter(Boolean);
         const unique = [...new Set(dates.map(d => d.slice(0, 7)))];
         return unique.sort().reverse();
     }, [transactions]);
 
-    // --- Фильтрованные транзакции для главной ---
     const filteredTransactions = useMemo(() => {
         if (selectedPeriod === 'all') return transactions;
         return transactions.filter(t => t.date && t.date.startsWith(selectedPeriod));
     }, [transactions, selectedPeriod]);
 
-    // ✅ Общий баланс (сумма по счетам)
     const totalBalance = accounts.reduce((sum, acc) => sum + parseFloat(acc.balance), 0);
 
     return (
         <>
             <MobileLayout
                 accounts={accounts}
-                onAddAccount={handleAddAccount}  // единое имя пропса
+                onAddAccount={handleAddAccount}
                 transactions={filteredTransactions}
                 allTransactions={transactions}
                 loading={loading}
@@ -135,6 +123,7 @@ function Home() {
                 deleteTransaction={deleteTransaction}
                 totalIncome={totalIncome}
                 totalExpenses={totalExpenses}
+                totalBalance={totalBalance}         // ✅ передаём общий баланс
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
                 setIsFormOpen={setIsFormOpen}
@@ -145,7 +134,7 @@ function Home() {
             />
             <DesktopLayout
                 accounts={accounts}
-                onAddAccount={handleAddAccount}  // единое имя пропса
+                onAddAccount={handleAddAccount}
                 transactions={filteredTransactions}
                 allTransactions={transactions}
                 loading={loading}
@@ -154,6 +143,7 @@ function Home() {
                 deleteTransaction={deleteTransaction}
                 totalIncome={totalIncome}
                 totalExpenses={totalExpenses}
+                totalBalance={totalBalance}         // ✅ передаём общий баланс
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
                 setIsFormOpen={setIsFormOpen}
@@ -172,7 +162,6 @@ function Home() {
                 onUpdateTransaction={updateTransaction}
                 editingTransaction={editingTransaction}
             />
-            {/* ✅ BalanceCard теперь с правильными пропсами */}
             <BalanceCard balance={totalBalance} totalIncome={totalIncome} />
             <ScrollToTopButton />
         </>

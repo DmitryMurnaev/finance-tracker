@@ -1,19 +1,17 @@
 import React from 'react';
 import { History as HistoryIcon } from 'lucide-react';
 import Header from './Header';
-import AccountsSlider from "../Accounts/AccountsSlider.jsx";
+import AccountsSlider from "../Accounts/AccountsSlider";
 import BalanceCard from './BalanceCard';
 import StatsBlocks from './StatsBlocks';
 import TransactionList from '../Transactions/TransactionList';
 import Statistics from '../Statistics/Statistics';
 import MobileNavigation from './MobileNavigation';
 import PeriodSelector from '../UI/PeriodSelector';
-import UserMenu from '../UI/UserMenu'; // ✅ импорт отдельного компонента
+import UserMenu from '../UI/UserMenu';
 
 const MobileLayout = ({
-                          // Отфильтрованные транзакции для списка
                           transactions,
-                          // Все транзакции (для статистики)
                           allTransactions,
                           loading,
                           error,
@@ -21,29 +19,26 @@ const MobileLayout = ({
                           deleteTransaction,
                           totalIncome,
                           totalExpenses,
-                          balance,
+                          totalBalance,                       // ✅ принимаем общий баланс
                           activeTab,
                           setActiveTab,
                           setIsFormOpen,
-                          // Пропсы для PeriodSelector
                           periods,
                           selectedPeriod,
                           setSelectedPeriod,
-                          // Для редактирования транзакции
                           onEditTransaction,
                           accounts,
-                          onAddAccounts,
+                          onAddAccount,                       // ✅ единое имя
                       }) => (
     <div className="block md:hidden bg-gray-50 min-h-screen pb-32">
-        {/* Шапка с меню пользователя */}
         <div className="flex justify-between items-center p-4">
             <Header />
-            <UserMenu /> {/* ✅ меню справа */}
+            <UserMenu />
         </div>
 
         <div className="p-4">
             <AccountsSlider accounts={accounts} onAddClick={onAddAccount} />
-            <BalanceCard balance={balance} totalIncome={totalIncome} />
+            <BalanceCard balance={totalBalance} totalIncome={totalIncome} />
             <StatsBlocks totalIncome={totalIncome} totalExpenses={totalExpenses} />
 
             {activeTab === 'home' ? (
