@@ -28,52 +28,6 @@
 
 ---
 
-## 📁 Структура проекта
-finance-tracker-full/
-├── client/ # React‑фронтенд
-│ ├── public/
-│ ├── src/
-│ │ ├── assets/ # react.svg (не используется)
-│ │ ├── components/ # UI‑компоненты
-│ │ │ ├── Common/ # (пусто, можно удалить)
-│ │ │ ├── Layout/ # Header, MobileLayout, DesktopLayout, навигация
-│ │ │ ├── Statistics/ # Statistics.jsx
-│ │ │ ├── Transactions/ # TransactionForm, TransactionItem, TransactionList
-│ │ │ ├── UI/ # PasswordInput, PeriodSelector, ScrollToTopButton, UserMenu, VerificationCodeInput (устарел)
-│ │ │ └── ProtectedRoute.jsx
-│ │ ├── context/ # AuthContext.jsx (глобальное состояние пользователя)
-│ │ ├── pages/ # Home, Login, Register, Profile
-│ │ ├── services/ # api.js (axios‑клиент с перехватчиками)
-│ │ ├── App.css # (не используется, можно удалить)
-│ │ ├── App.jsx # маршрутизация
-│ │ ├── index.css # глобальные стили
-│ │ └── main.jsx # точка входа
-│ ├── index.html
-│ ├── package.json
-│ ├── tailwind.config.js
-│ ├── vite.config.js
-│ └── render.yml # конфигурация для Render (опционально)
-│
-├── server/ # Node.js‑бэкенд
-│ ├── middleware/
-│ │ └── auth.js # JWT‑проверка
-│ ├── node_modules/
-│ ├── routes/
-│ │ └── auth.js # регистрация, вход, профиль, смена пароля
-│ ├── .env # переменные окружения (локально)
-│ ├── db.js # единый пул подключения к PostgreSQL
-│ ├── index.js # точка входа, CORS, защищённые маршруты
-│ ├── package.json
-│ └── render.yml # конфигурация для Render
-│
-├── database/ # (пусто, для будущих миграций)
-├── .gitignore
-├── eslint.config.js
-├── package.json (корневой) # (обычно не нужен, можно удалить)
-└── README.md
-
----
-
 ## ✅ Реализованный функционал
 
 ### 👤 Пользователи
