@@ -41,6 +41,7 @@ function Home() {
         try {
             await transactionAPI.updateTransaction(id, updateData);
             await fetchTransactions();
+            await fetchAccounts();
             setEditingTransaction(null);
             setIsFormOpen(false);
         } catch {
@@ -73,6 +74,7 @@ function Home() {
         try {
             await transactionAPI.createTransaction(newTransaction);
             await fetchTransactions();
+            await fetchAccounts();
             setIsFormOpen(false);
         } catch { alert('Не удалось добавить операцию'); }
     };
@@ -82,6 +84,7 @@ function Home() {
         try {
             await transactionAPI.deleteTransaction(id);
             await fetchTransactions();
+            await fetchAccounts();
         } catch { alert('Не удалось удалить операцию'); }
     };
 
