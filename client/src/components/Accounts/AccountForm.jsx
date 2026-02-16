@@ -112,7 +112,7 @@ const AccountForm = ({
                         {/* Иконка */}
                         <div className="mb-4">
                             <label className="block text-gray-700 mb-2 font-medium">Иконка</label>
-                            <div className="grid grid-cols-4 gap-2">
+                            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                                 {iconOptions.map((icon) => (
                                     <button
                                         key={icon.id}
@@ -134,7 +134,7 @@ const AccountForm = ({
                         {/* Цвет */}
                         <div className="mb-4">
                             <label className="block text-gray-700 mb-2 font-medium">Цвет</label>
-                            <div className="grid grid-cols-4 gap-2">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                 {colorOptions.map((color) => (
                                     <button
                                         key={color.id}
@@ -144,7 +144,7 @@ const AccountForm = ({
                                             colorId === color.id ? 'ring-2 ring-blue-500' : ''
                                         } ${color.bg}`}
                                     >
-                                        <span className={`text-sm font-medium ${color.text}`}>
+                                        <span className={`text-xs sm:text-sm font-medium ${color.text}`}>
                                             {color.name}
                                         </span>
                                     </button>
