@@ -209,7 +209,17 @@ const TransactionForm = ({
               <div className="mb-4">
                 <label className="block text-gray-700 mb-2 font-medium">Категория</label>
                 {loadingCategories ? (
-                    <div className="text-center py-4">Загрузка категорий...</div>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[...Array(6)].map((_, i) => (
+                          <div
+                              key={i}
+                              className="p-3 rounded-xl flex flex-col items-center bg-gray-200 animate-pulse"
+                          >
+                            <div className="w-6 h-6 bg-gray-300 rounded-full mb-2"></div>
+                            <div className="w-12 h-3 bg-gray-300 rounded"></div>
+                          </div>
+                      ))}
+                    </div>
                 ) : (
                     <div className="grid grid-cols-3 gap-2">
                       {filteredCategories.map((cat) => {
