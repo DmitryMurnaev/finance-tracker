@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { categoryAPI } from '../../services/api';
 import { getCategoryConfig } from '../../config/categoryConfig';
+import { accountAPI } from '../../services/api';
+import { getIconById, getColorById } from '../../config/accountsConfig';
 
 const TransactionForm = ({
                            isOpen,
@@ -19,28 +21,37 @@ const TransactionForm = ({
   const [error, setError] = useState('');
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
+  const [accounts, setAccounts] = useState([]);
+  const [loadingAccounts, setLoadingAccounts] = useState(false);
+  const [accountId, setAccountId] = useState(null);
 
-  // Загрузка категорий при открытии формы
+  // Загрузка категорий и счетов при открытии формы
   useEffect(() => {
     if (isOpen) {
-      const fetchCategories = async () => {
+      const fetchData = async () => {
         setLoadingCategories(true);
+        setLoadingAccounts(true);
         try {
-          const data = await categoryAPI.getCategories();
-          setCategories(data);
-          // Если редактирование – выбранная категория уже установлена
+          const [categoriesData, accountsData] = await Promise.all([
+            categoryAPI.getCategories(),
+            accountAPI.getAccounts()
+          ]);
+          setCategories(categoriesData);
+          setAccounts(accountsData);
+          // Если не редактирование – выбираем первую подходящую категорию и первый счёт
           if (!editingTransaction) {
-            // По умолчанию выбираем первую категорию подходящего типа
-            const defaultCat = data.find(c => c.type === type || c.type === 'both');
+            const defaultCat = categoriesData.find(c => c.type === type || c.type === 'both');
             if (defaultCat) setCategoryId(defaultCat.id);
+            if (accountsData.length > 0) setAccountId(accountsData[0].id);
           }
         } catch (err) {
-          console.error('Ошибка загрузки категорий:', err);
+          console.error('Ошибка загрузки данных', err);
         } finally {
           setLoadingCategories(false);
+          setLoadingAccounts(false);
         }
       };
-      fetchCategories();
+      fetchData();
     }
   }, [isOpen, type, editingTransaction]);
 
@@ -52,18 +63,21 @@ const TransactionForm = ({
     }
   }, [isOpen]);
 
+  // Заполнение формы при редактировании
   useEffect(() => {
     if (editingTransaction) {
       setAmount(editingTransaction.amount.toString());
       setDescription(editingTransaction.description || '');
       setType(editingTransaction.type);
       setCategoryId(editingTransaction.category_id);
+      setAccountId(editingTransaction.account_id);   // ✅ важно!
       setDate(editingTransaction.date);
     } else {
       setAmount('');
       setDescription('');
       setType('expense');
       setCategoryId(null);
+      setAccountId(null);
       setDate(new Date().toISOString().split('T')[0]);
     }
   }, [editingTransaction, isOpen]);
@@ -83,12 +97,16 @@ const TransactionForm = ({
       if (!categoryId) {
         throw new Error('Выберите категорию');
       }
+      if (!accountId) {                               // ✅ проверка счёта
+        throw new Error('Выберите счёт');
+      }
 
       const transactionData = {
         amount: parseFloat(amount),
         description: description.trim(),
         type,
         category_id: categoryId,
+        account_id: accountId,                      // ✅ обязательно
         date
       };
 
@@ -113,6 +131,7 @@ const TransactionForm = ({
     setDescription('');
     setType('expense');
     setCategoryId(null);
+    setAccountId(null);
     setDate(new Date().toISOString().split('T')[0]);
     setError('');
   };
@@ -129,7 +148,6 @@ const TransactionForm = ({
       ? (editingTransaction ? 'Сохранение...' : 'Добавление...')
       : (editingTransaction ? 'Сохранить' : 'Добавить');
 
-  // Фильтруем категории по типу
   const filteredCategories = categories.filter(
       cat => cat.type === type || cat.type === 'both'
   );
@@ -205,16 +223,47 @@ const TransactionForm = ({
                 </div>
               </div>
 
-              {/* Категории (загруженные из БД) */}
+              {/* Выбор счёта */}
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2 font-medium">Счёт</label>
+                {loadingAccounts ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      {[...Array(3)].map((_, i) => (
+                          <div key={i} className="p-3 bg-gray-200 animate-pulse rounded-lg h-12"></div>
+                      ))}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 gap-2">
+                      {accounts.map((acc) => {
+                        const icon = getIconById(acc.icon_id);
+                        const color = getColorById(acc.color_id);
+                        return (
+                            <button
+                                key={acc.id}
+                                type="button"
+                                onClick={() => setAccountId(acc.id)}
+                                className={`p-2 rounded-lg flex items-center gap-2 ${
+                                    accountId === acc.id ? `ring-2 ring-blue-500 ${color.bg}` : color.bg
+                                }`}
+                            >
+                              <span className="text-xl">{icon.emoji}</span>
+                              <span className={`text-sm font-medium truncate ${color.text}`}>
+                                                    {acc.name}
+                                                </span>
+                            </button>
+                        );
+                      })}
+                    </div>
+                )}
+              </div>
+
+              {/* Категории */}
               <div className="mb-4">
                 <label className="block text-gray-700 mb-2 font-medium">Категория</label>
                 {loadingCategories ? (
                     <div className="grid grid-cols-3 gap-2">
                       {[...Array(6)].map((_, i) => (
-                          <div
-                              key={i}
-                              className="p-3 rounded-xl flex flex-col items-center bg-gray-200 animate-pulse"
-                          >
+                          <div key={i} className="p-3 rounded-xl flex flex-col items-center bg-gray-200 animate-pulse">
                             <div className="w-6 h-6 bg-gray-300 rounded-full mb-2"></div>
                             <div className="w-12 h-3 bg-gray-300 rounded"></div>
                           </div>
@@ -231,9 +280,7 @@ const TransactionForm = ({
                                 onClick={() => setCategoryId(cat.id)}
                                 disabled={isSubmitting}
                                 className={`p-3 rounded-xl flex flex-col items-center ${
-                                    categoryId === cat.id
-                                        ? `ring-2 ring-blue-500 ${config.color}`
-                                        : config.color
+                                    categoryId === cat.id ? `ring-2 ring-blue-500 ${config.color}` : config.color
                                 }`}
                             >
                               <span className="text-lg">{config.icon}</span>

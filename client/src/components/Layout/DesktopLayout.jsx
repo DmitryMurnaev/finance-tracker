@@ -1,44 +1,54 @@
 import React from 'react';
 import Header from './Header';
+import AccountsSlider from "../Accounts/AccountsSlider";
 import BalanceCard from './BalanceCard';
 import StatsBlocks from './StatsBlocks';
 import ListHeader from './ListHeader';
 import TransactionList from '../Transactions/TransactionList';
 import Statistics from '../Statistics/Statistics';
 import DesktopNavigation from './DesktopNavigation';
-import UserMenu from '../UI/UserMenu'; // ✅ импорт отдельного компонента
+import UserMenu from '../UI/UserMenu';
 
 const DesktopLayout = ({
                            transactions,
+                           allTransactions,
                            loading,
                            error,
                            fetchTransactions,
                            deleteTransaction,
                            totalIncome,
                            totalExpenses,
-                           balance,
+                           totalBalance,
                            activeTab,
                            setActiveTab,
                            setIsFormOpen,
-                           // Для реадактирования транзакции
-                           onEditTransaction
+                           periods,
+                           selectedPeriod,
+                           setSelectedPeriod,
+                           onEditTransaction,
+                           accounts,
+                           onAddAccount,
+                           onEditAccount,       // ✅ добавили
+                           onDeleteAccount,     // ✅ добавили
                        }) => (
     <div className="hidden md:block bg-gray-50 min-h-screen pb-32">
-        {/* Шапка с меню пользователя */}
         <div className="flex justify-between items-center p-4 bg-white shadow-sm border-b border-gray-100">
             <Header />
-            <UserMenu /> {/* ✅ меню справа */}
+            <UserMenu />
         </div>
 
         <div className="p-4">
-            <BalanceCard balance={balance} totalIncome={totalIncome} />
+            <AccountsSlider
+                accounts={accounts}
+                onAddClick={onAddAccount}
+                onEditAccount={onEditAccount}     // ✅ передаём
+                onDeleteAccount={onDeleteAccount}   // ✅ передаём
+            />
+            <BalanceCard balance={totalBalance} totalIncome={totalIncome} />
             <StatsBlocks totalIncome={totalIncome} totalExpenses={totalExpenses} />
 
             {activeTab === 'home' && (
-                <ListHeader
-                    title="Последние операции"
-                    count={transactions.length}
-                />
+                <ListHeader title="Последние операции" count={transactions.length} />
             )}
         </div>
 
@@ -53,7 +63,7 @@ const DesktopLayout = ({
                     onEdit={onEditTransaction}
                 />
             ) : (
-                <Statistics transactions={transactions} />
+                <Statistics transactions={allTransactions} />
             )}
         </div>
 

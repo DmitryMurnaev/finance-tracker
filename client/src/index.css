@@ -9,3 +9,7 @@
 .animate-fadeIn {
     animation: fadeIn 0.15s ease-out;
 }
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}

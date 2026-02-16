@@ -21,4 +21,5 @@ const BalanceCard = ({ balance, totalIncome }) => (
         </div>
     </div>
 );
+
 export default BalanceCard;

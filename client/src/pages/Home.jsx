@@ -1,42 +1,105 @@
 import { useState, useEffect, useMemo } from 'react';
+import { accountAPI, transactionAPI } from '../services/api';
 import TransactionForm from '../components/Transactions/TransactionForm';
 import MobileLayout from '../components/Layout/MobileLayout';
 import DesktopLayout from '../components/Layout/DesktopLayout';
 import ScrollToTopButton from '../components/UI/ScrollToTopButton';
-import { transactionAPI } from '../services/api';
+import BalanceCard from '../components/Layout/BalanceCard';
+import AccountForm from '../components/Accounts/AccountForm';
 import '../index.css';
 
-function App() {
+function Home() {
     const [transactions, setTransactions] = useState([]);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('home');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [editingTransaction, setEditingTransaction] = useState(null);
+    const [accounts, setAccounts] = useState([]);
+    const [accountsLoading, setAccountsLoading] = useState(false);
+    const [isAccountFormOpen, setIsAccountFormOpen] = useState(false);
+    const [editingAccount, setEditingAccount] = useState(null);
 
-    // Функция обновления транзакции
+    useEffect(() => {
+        fetchAccounts();
+    }, []);
+
+    useEffect(() => {
+        console.log('isAccountFormOpen =', isAccountFormOpen);
+    }, [isAccountFormOpen]);
+
+
+    // Функция сохранения счета (создание/обновление)
+    const handleSaveAccount = async (accountData, accountId) => {
+        try {
+            if (accountId) {
+                await accountAPI.updateAccount(accountId, accountData);
+            } else {
+                await accountAPI.createAccount(accountData);
+            }
+            await fetchAccounts();
+        } catch (err) {
+            console.error('Ошибка сохранения счета:', err);
+            alert('Ошибка при сохранении счета: ' + (err.response?.data?.error || err.message));
+            throw err; // пробрасываем, чтобы форма знала об ошибке
+        }
+    };
+
+    // Функция открытия формы для создания
+    const handleAddAccount = () => {
+        console.log('📝 handleAddAccount вызван');
+        setEditingAccount(null);
+        setIsAccountFormOpen(true);
+    };
+
+// Функция открытия формы для редактирования
+    const handleEditAccount = (account) => {
+        setEditingAccount(account);
+        setIsAccountFormOpen(true);
+    };
+
+// Функция удаления счета (пока не реализована, можно добавить позже)
+    const handleDeleteAccount = async (id) => {
+        if (!window.confirm('Удалить счёт? Все транзакции этого счета останутся без привязки.')) return;
+        try {
+            await accountAPI.deleteAccount(id);
+            await fetchAccounts();
+        } catch (err) {
+            alert('Не удалось удалить счёт');
+        }
+    };
+    const fetchAccounts = async () => {
+        setAccountsLoading(true);
+        try {
+            const data = await accountAPI.getAccounts();
+            console.log('📥 fetchAccounts получил данные:', data);
+            setAccounts(data);
+        } catch (err) {
+            console.error('Ошибка загрузки счетов', err);
+        } finally {
+            setAccountsLoading(false);
+        }
+    };
+
     const updateTransaction = async (id, updateData) => {
         try {
             await transactionAPI.updateTransaction(id, updateData);
             await fetchTransactions();
+            await fetchAccounts();
             setEditingTransaction(null);
             setIsFormOpen(false);
         } catch {
-            alert('Не удалось обновить операцию')
+            alert('Не удалось обновить операцию');
         }
     };
 
-    // При клике на редактирование в дочерних компонентах
-    const handleEdit = (transactions) => {
-        setEditingTransaction(transactions);
+    const handleEdit = (transaction) => {
+        setEditingTransaction(transaction);
         setIsFormOpen(true);
     };
 
-
-    // --- Фильтр периода для главной ---
     const [selectedPeriod, setSelectedPeriod] = useState('all');
 
-    // --- Загрузка данных ---
     useEffect(() => { fetchTransactions(); }, []);
 
     const fetchTransactions = async () => {
@@ -51,11 +114,11 @@ function App() {
         } finally { setLoading(false); }
     };
 
-    // --- CRUD ---
     const addTransaction = async (newTransaction) => {
         try {
             await transactionAPI.createTransaction(newTransaction);
             await fetchTransactions();
+            await fetchAccounts();
             setIsFormOpen(false);
         } catch { alert('Не удалось добавить операцию'); }
     };
@@ -65,56 +128,42 @@ function App() {
         try {
             await transactionAPI.deleteTransaction(id);
             await fetchTransactions();
+            await fetchAccounts();
         } catch { alert('Не удалось удалить операцию'); }
     };
 
-    // --- Статистика для баланса ---
     const calculateStats = () => {
-        if (!Array.isArray(transactions)) return { totalIncome: 0, totalExpenses: 0, balance: 0 };
+        if (!Array.isArray(transactions)) return { totalIncome: 0, totalExpenses: 0 };
         const totalIncome = transactions
             .filter(t => t?.type === 'income')
             .reduce((sum, t) => sum + parseFloat(t.amount), 0);
         const totalExpenses = transactions
             .filter(t => t?.type === 'expense')
             .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-        return { totalIncome, totalExpenses, balance: totalIncome - totalExpenses };
+        return { totalIncome, totalExpenses };
     };
-    const { totalIncome, totalExpenses, balance } = calculateStats();
+    const { totalIncome, totalExpenses } = calculateStats();
 
-    // --- Доступные периоды (YYYY-MM) ---
     const periods = useMemo(() => {
         const dates = transactions.map(t => t.date).filter(Boolean);
         const unique = [...new Set(dates.map(d => d.slice(0, 7)))];
         return unique.sort().reverse();
     }, [transactions]);
 
-    // --- Фильтрованные транзакции для главной ---
     const filteredTransactions = useMemo(() => {
         if (selectedPeriod === 'all') return transactions;
         return transactions.filter(t => t.date && t.date.startsWith(selectedPeriod));
     }, [transactions, selectedPeriod]);
 
+    const totalBalance = accounts.reduce((sum, acc) => sum + parseFloat(acc.balance), 0);
+
     return (
         <>
             <MobileLayout
-                transactions={filteredTransactions}       // ← фильтрованные для списка
-                allTransactions={transactions}           // ← все для баланса (не фильтруем!)
-                loading={loading}
-                error={error}
-                fetchTransactions={fetchTransactions}
-                deleteTransaction={deleteTransaction}
-                totalIncome={totalIncome}
-                totalExpenses={totalExpenses}
-                balance={balance}
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                setIsFormOpen={setIsFormOpen}
-                periods={periods}                       // ← для PeriodSelector
-                selectedPeriod={selectedPeriod}
-                setSelectedPeriod={setSelectedPeriod}
-                onEditTransaction={handleEdit}
-            />
-            <DesktopLayout
+                accounts={accounts}
+                onEditAccount={handleEditAccount}
+                onDeleteAccount={handleDeleteAccount}
+                onAddAccount={handleAddAccount}
                 transactions={filteredTransactions}
                 allTransactions={transactions}
                 loading={loading}
@@ -123,7 +172,29 @@ function App() {
                 deleteTransaction={deleteTransaction}
                 totalIncome={totalIncome}
                 totalExpenses={totalExpenses}
-                balance={balance}
+                totalBalance={totalBalance}         // ✅ передаём общий баланс
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                setIsFormOpen={setIsFormOpen}
+                periods={periods}
+                selectedPeriod={selectedPeriod}
+                setSelectedPeriod={setSelectedPeriod}
+                onEditTransaction={handleEdit}
+            />
+            <DesktopLayout
+                accounts={accounts}
+                onAddAccount={handleAddAccount}
+                onEditAccount={handleEditAccount}
+                onDeleteAccount={handleDeleteAccount}
+                transactions={filteredTransactions}
+                allTransactions={transactions}
+                loading={loading}
+                error={error}
+                fetchTransactions={fetchTransactions}
+                deleteTransaction={deleteTransaction}
+                totalIncome={totalIncome}
+                totalExpenses={totalExpenses}
+                totalBalance={totalBalance}         // ✅ передаём общий баланс
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
                 setIsFormOpen={setIsFormOpen}
@@ -142,9 +213,16 @@ function App() {
                 onUpdateTransaction={updateTransaction}
                 editingTransaction={editingTransaction}
             />
-            <ScrollToTopButton />   {/* ← плавающая кнопка */}
+            <ScrollToTopButton />
+            <AccountForm
+                isOpen={isAccountFormOpen}
+                onClose={() => setIsAccountFormOpen(false)}
+                onSave={handleSaveAccount}
+                onDelete={handleDeleteAccount}
+                editingAccount={editingAccount}
+            />
         </>
     );
 }
 
-export default App;
+export default Home;
