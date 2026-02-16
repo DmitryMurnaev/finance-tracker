@@ -28,8 +28,8 @@ const DesktopLayout = ({
                            onEditTransaction,
                            accounts,
                            onAddAccount,
-                           onEditAccount,       // ✅ добавили
-                           onDeleteAccount,     // ✅ добавили
+                           onEditAccount,
+                           onDeleteAccount,
                        }) => (
     <div className="hidden md:block bg-gray-50 min-h-screen pb-32">
         <div className="flex justify-between items-center p-4 bg-white shadow-sm border-b border-gray-100">
@@ -38,14 +38,18 @@ const DesktopLayout = ({
         </div>
 
         <div className="p-4">
-            <AccountsSlider
-                accounts={accounts}
-                onAddClick={onAddAccount}
-                onEditAccount={onEditAccount}     // ✅ передаём
-                onDeleteAccount={onDeleteAccount}   // ✅ передаём
-            />
-            <BalanceCard balance={totalBalance} totalIncome={totalIncome} />
-            <StatsBlocks totalIncome={totalIncome} totalExpenses={totalExpenses} />
+            {activeTab === 'home' && (
+                <>
+                    <AccountsSlider
+                        accounts={accounts}
+                        onAddClick={onAddAccount}
+                        onEditAccount={onEditAccount}
+                        onDeleteAccount={onDeleteAccount}
+                    />
+                    <BalanceCard balance={totalBalance} totalIncome={totalIncome} />
+                    <StatsBlocks totalIncome={totalIncome} totalExpenses={totalExpenses} />
+                </>
+            )}
 
             {activeTab === 'home' && (
                 <ListHeader title="Последние операции" count={transactions.length} />

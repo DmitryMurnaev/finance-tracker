@@ -29,8 +29,8 @@ const MobileLayout = ({
                           onEditTransaction,
                           accounts,
                           onAddAccount,
-                          onEditAccount,       // ✅ добавили
-                          onDeleteAccount,     // ✅ добавили
+                          onEditAccount,
+                          onDeleteAccount,
                       }) => (
     <div className="block md:hidden bg-gray-50 min-h-screen pb-32">
         <div className="flex justify-between items-center p-4">
@@ -39,14 +39,18 @@ const MobileLayout = ({
         </div>
 
         <div className="p-4">
-            <AccountsSlider
-                accounts={accounts}
-                onAddClick={onAddAccount}
-                onEditAccount={onEditAccount}     // ✅ передаём
-                onDeleteAccount={onDeleteAccount}   // ✅ передаём
-            />
-            <BalanceCard balance={totalBalance} totalIncome={totalIncome} />
-            <StatsBlocks totalIncome={totalIncome} totalExpenses={totalExpenses} />
+            {activeTab === 'home' && (
+                <>
+                    <AccountsSlider
+                        accounts={accounts}
+                        onAddClick={onAddAccount}
+                        onEditAccount={onEditAccount}
+                        onDeleteAccount={onDeleteAccount}
+                    />
+                    <BalanceCard balance={totalBalance} totalIncome={totalIncome} />
+                    <StatsBlocks totalIncome={totalIncome} totalExpenses={totalExpenses} />
+                </>
+            )}
 
             {activeTab === 'home' ? (
                 <>
