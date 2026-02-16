@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { categoryAPI } from '../../services/api';
 import { getCategoryConfig } from '../../config/categoryConfig';
 import { accountAPI } from '../../services/api';
+import { getIconById, getColorById } from '../../config/accountsConfig';
 
 const TransactionForm = ({
                            isOpen,
