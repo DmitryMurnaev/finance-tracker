@@ -219,6 +219,7 @@ function Home() {
                 isOpen={isAccountFormOpen}
                 onClose={() => setIsAccountFormOpen(false)}
                 onSave={handleSaveAccount}
+                onDelete={handleDeleteAccount}
                 editingAccount={editingAccount}
             />
         </>

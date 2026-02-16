@@ -6,6 +6,7 @@ const AccountForm = ({
                          isOpen,
                          onClose,
                          onSave,
+                         onDelete,        // новый проп
                          editingAccount,
                      }) => {
     const [name, setName] = useState('');
@@ -21,7 +22,7 @@ const AccountForm = ({
             setName(editingAccount.name);
             setIconId(editingAccount.icon_id);
             setColorId(editingAccount.color_id);
-            setBalance(''); // баланс не редактируем
+            setBalance('');
         } else {
             setName('');
             setIconId(1);
@@ -46,12 +47,10 @@ const AccountForm = ({
                 color_id: colorId,
             };
 
-            // При редактировании передаём текущий статус активности (не меняем его)
             if (editingAccount) {
                 accountData.is_active = editingAccount.is_active;
             }
 
-            // Только при создании можно передать начальный баланс
             if (!editingAccount && balance && !isNaN(parseFloat(balance))) {
                 accountData.balance = parseFloat(balance);
             }
@@ -65,15 +64,23 @@ const AccountForm = ({
         }
     };
 
+    const handleDelete = async () => {
+        if (!editingAccount) return;
+        if (!window.confirm('Удалить счёт? Все транзакции этого счета останутся без привязки.')) return;
+        try {
+            await onDelete(editingAccount.id);
+            onClose();
+        } catch (err) {
+            alert('Не удалось удалить счёт');
+        }
+    };
+
     if (!isOpen) return null;
 
     const modalTitle = editingAccount ? 'Редактировать счёт' : 'Новый счёт';
     const submitText = isSubmitting
         ? (editingAccount ? 'Сохранение...' : 'Создание...')
         : (editingAccount ? 'Сохранить' : 'Создать');
-
-    console.log('AccountForm loaded');
-    console.log('AccountForm rendering, isOpen =', isOpen);
 
     return (
         <div className="fixed inset-0 z-60">
@@ -134,9 +141,7 @@ const AccountForm = ({
                                         type="button"
                                         onClick={() => setColorId(color.id)}
                                         className={`p-2 rounded-lg flex flex-col items-center ${
-                                            colorId === color.id
-                                                ? 'ring-2 ring-blue-500'
-                                                : ''
+                                            colorId === color.id ? 'ring-2 ring-blue-500' : ''
                                         } ${color.bg}`}
                                     >
                                         <span className={`text-sm font-medium ${color.text}`}>
@@ -189,6 +194,20 @@ const AccountForm = ({
                                 {submitText}
                             </button>
                         </div>
+
+                        {/* Кнопка удаления (только для редактирования) */}
+                        {editingAccount && (
+                            <div className="mt-4">
+                                <button
+                                    type="button"
+                                    onClick={handleDelete}
+                                    disabled={isSubmitting}
+                                    className="w-full bg-red-50 text-red-600 py-3 rounded-lg font-medium hover:bg-red-100 transition-colors border border-red-200"
+                                >
+                                    Удалить счёт
+                                </button>
+                            </div>
+                        )}
                     </form>
                 </div>
             </div>

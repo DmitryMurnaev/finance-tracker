@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { ChevronLeft, ChevronRight, Plus, Pencil, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { getIconById, getColorById } from '../../config/accountsConfig';
 
 const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }) => {
@@ -16,41 +16,45 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
 
     if (!accounts.length) {
         return (
-            <div className="mb-6 text-center p-4 bg-gray-50 rounded-xl">
-                <p className="text-gray-500 mb-2">У вас ещё нет счетов</p>
+            <div className="mb-6 text-center p-8 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border border-gray-200">
+                <p className="text-gray-600 text-lg mb-4">У вас ещё нет счетов</p>
                 <button
                     onClick={onAddClick}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 transition-all shadow-md hover:shadow-lg"
                 >
-                    <Plus size={18} /> Добавить счёт
+                    <Plus size={20} />
+                    Добавить счёт
                 </button>
             </div>
         );
     }
 
     return (
-        <div className="mb-6">
-            <div className="flex justify-between items-center mb-3">
-                <h2 className="text-lg font-semibold">Ваши счета</h2>
+        <div className="mb-8">
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold text-gray-800">Ваши счета</h2>
                 <button
                     onClick={onAddClick}
-                    className="text-blue-500 text-sm hover:text-blue-600"
+                    className="inline-flex items-center gap-1 px-4 py-2 bg-blue-50 text-blue-600 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors"
                 >
-                    + Новый счёт
+                    <Plus size={18} />
+                    Новый счёт
                 </button>
             </div>
 
-            <div className="relative">
+            <div className="relative group">
+                {/* Левая стрелка (десктоп) */}
                 <button
                     onClick={() => scroll('left')}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full shadow-md p-1 hover:bg-gray-50"
+                    className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 -ml-4 w-10 h-10 bg-white rounded-full shadow-md items-center justify-center text-gray-600 hover:text-blue-600 hover:shadow-lg transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
                 >
                     <ChevronLeft size={24} />
                 </button>
 
+                {/* Контейнер с карточками */}
                 <div
                     ref={sliderRef}
-                    className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide scroll-smooth"
+                    className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide scroll-smooth"
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                     {accounts.map((account) => {
@@ -59,29 +63,16 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
                         return (
                             <div
                                 key={account.id}
-                                className={`flex-shrink-0 w-48 p-4 rounded-xl shadow-sm ${color.bg}`}
+                                onClick={() => onEditAccount(account)}
+                                className={`flex-shrink-0 w-[80vw] sm:w-64 md:w-72 p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer ${color.bg}`}
                             >
-                                <div className="flex items-center gap-2 mb-2">
-                                    <span className="text-2xl">{icon.emoji}</span>
-                                    <span className={`font-medium truncate ${color.text}`}>
+                                <div className="flex items-center gap-3 mb-3">
+                                    <span className="text-3xl">{icon.emoji}</span>
+                                    <span className={`font-medium text-lg truncate ${color.text}`}>
                                         {account.name}
                                     </span>
-                                    {/* Кнопка редактирования */}
-                                    <button
-                                        onClick={() => onEditAccount(account)}
-                                        className="ml-auto text-gray-500 hover:text-blue-600"
-                                    >
-                                        <Pencil size={16} />
-                                    </button>
-                                    {/* Кнопка удаления */}
-                                    <button
-                                        onClick={() => onDeleteAccount(account.id)}
-                                        className="text-gray-500 hover:text-red-600"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
                                 </div>
-                                <div className={`text-lg font-bold ${color.text}`}>
+                                <div className={`text-2xl font-bold ${color.text}`}>
                                     {account.balance.toLocaleString('ru-RU')} ₽
                                 </div>
                             </div>
@@ -89,9 +80,10 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
                     })}
                 </div>
 
+                {/* Правая стрелка (десктоп) */}
                 <button
                     onClick={() => scroll('right')}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full shadow-md p-1 hover:bg-gray-50"
+                    className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 -mr-4 w-10 h-10 bg-white rounded-full shadow-md items-center justify-center text-gray-600 hover:text-blue-600 hover:shadow-lg transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
                 >
                     <ChevronRight size={24} />
                 </button>
