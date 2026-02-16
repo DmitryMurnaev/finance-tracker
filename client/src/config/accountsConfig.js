@@ -11,13 +11,13 @@ export const iconOptions = [
 
 // Цветовые схемы (Tailwind классы)
 export const colorOptions = [
-    { id: 1, bg: 'bg-white', text: 'text-red-600', name: 'Красный' },
-    { id: 2, bg: 'bg-white', text: 'text-blue-600', name: 'Синий' },
-    { id: 3, bg: 'bg-white', text: 'text-green-600', name: 'Зелёный' },
-    { id: 4, bg: 'bg-white', text: 'text-yellow-600', name: 'Жёлтый' },
-    { id: 5, bg: 'bg-white', text: 'text-purple-600', name: 'Фиолетовый' },
-    { id: 6, bg: 'bg-white', text: 'text-pink-600', name: 'Розовый' },
-    { id: 7, bg: 'bg-white', text: 'text-gray-600', name: 'Серый' },
+    { id: 1, bg: 'text-red-600', text: 'bg-white', name: 'Красный' },
+    { id: 2, bg: 'text-blue-600', text: 'bg-white', name: 'Синий' },
+    { id: 3, bg: 'text-green-600', text: 'bg-white', name: 'Зелёный' },
+    { id: 4, bg: 'text-yellow-600', text: 'bg-white', name: 'Жёлтый' },
+    { id: 5, bg: 'text-purple-600', text: 'bg-white', name: 'Фиолетовый' },
+    { id: 6, bg: 'text-pink-600', text: 'bg-white', name: 'Розовый' },
+    { id: 7, bg: 'text-gray-600', text: 'bg-white', name: 'Серый' },
 ];
 
 // Вспомогательные функции
