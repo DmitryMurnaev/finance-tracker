@@ -46,6 +46,11 @@ const AccountForm = ({
                 color_id: colorId,
             };
 
+            // При редактировании передаём текущий статус активности (не меняем его)
+            if (editingAccount) {
+                accountData.is_active = editingAccount.is_active;
+            }
+
             // Только при создании можно передать начальный баланс
             if (!editingAccount && balance && !isNaN(parseFloat(balance))) {
                 accountData.balance = parseFloat(balance);

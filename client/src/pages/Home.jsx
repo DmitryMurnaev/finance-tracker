@@ -27,12 +27,18 @@ function Home() {
 
     // Функция сохранения счета (создание/обновление)
     const handleSaveAccount = async (accountData, accountId) => {
-        if (accountId) {
-            await accountAPI.updateAccount(accountId, accountData);
-        } else {
-            await accountAPI.createAccount(accountData);
+        try {
+            if (accountId) {
+                await accountAPI.updateAccount(accountId, accountData);
+            } else {
+                await accountAPI.createAccount(accountData);
+            }
+            await fetchAccounts();
+        } catch (err) {
+            console.error('Ошибка сохранения счета:', err);
+            alert('Ошибка при сохранении счета: ' + (err.response?.data?.error || err.message));
+            throw err; // пробрасываем, чтобы форма знала об ошибке
         }
-        await fetchAccounts(); // обновляем список счетов
     };
 
     // Функция открытия формы для создания
