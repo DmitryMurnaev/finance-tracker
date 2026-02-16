@@ -104,56 +104,114 @@ app.post('/api/transactions', authMiddleware, async (req, res) => {
 // ✏️ Обновить транзакцию
 app.put('/api/transactions/:id', authMiddleware, async (req, res) => {
     const id = req.params.id;
-    console.log(`✏️ PUT /api/transactions/${id} (user: ${req.user.id})`, req.body);
-    const { amount, type, category_id, description, date } = req.body;
-    if (!amount || !type || !category_id) {
-        return res.status(400).json({ error: 'Сумма, тип и категория обязательны' });
+    const { amount, type, category_id, account_id, description, date } = req.body;
+    if (!amount || !type || !category_id || !account_id) {
+        return res.status(400).json({ error: 'Сумма, тип, категория и счёт обязательны' });
     }
     if (!['income', 'expense'].includes(type)) {
         return res.status(400).json({ error: 'Тип должен быть income или expense' });
     }
+
+    const client = await pool.connect();
     try {
-        const result = await pool.query(
+        await client.query('BEGIN');
+
+        // 1. Получаем старую транзакцию
+        const oldRes = await client.query(
+            'SELECT amount, type, account_id FROM transactions WHERE id = $1 AND user_id = $2',
+            [id, req.user.id]
+        );
+        if (oldRes.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: 'Транзакция не найдена или не принадлежит вам' });
+        }
+        const old = oldRes.rows[0];
+
+        // 2. Обновляем транзакцию
+        const updateRes = await client.query(
             `UPDATE transactions 
-             SET amount = $1, type = $2, category_id = $3, description = $4, date = $5
-             WHERE id = $6 AND user_id = $7
+             SET amount = $1, type = $2, category_id = $3, account_id = $4, description = $5, date = $6
+             WHERE id = $7 AND user_id = $8
              RETURNING *`,
             [
                 amount,
                 type,
-                category_id,   // ✅ правильно
+                category_id,
+                account_id,
                 description,
                 date || new Date().toISOString().split('T')[0],
                 id,
                 req.user.id
             ]
         );
-        if (result.rowCount === 0) {
-            return res.status(404).json({ error: 'Транзакция не найдена или не принадлежит вам' });
-        }
-        res.json(result.rows[0]);
+
+        // 3. Корректируем балансы счетов
+        // Сначала отменяем влияние старой транзакции
+        const oldChange = old.type === 'income' ? -old.amount : old.amount; // если был расход, то баланс нужно увеличить (вернуть)
+        await client.query(
+            'UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3',
+            [oldChange, old.account_id, req.user.id]
+        );
+
+        // Затем применяем влияние новой транзакции
+        const newChange = type === 'income' ? amount : -amount;
+        await client.query(
+            'UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3',
+            [newChange, account_id, req.user.id]
+        );
+
+        await client.query('COMMIT');
+        console.log(`✅ Транзакция ${id} обновлена, балансы скорректированы`);
+        res.json(updateRes.rows[0]);
     } catch (error) {
+        await client.query('ROLLBACK');
         console.error('❌ Ошибка PUT:', error.message);
         res.status(500).json({ error: error.message });
+    } finally {
+        client.release();
     }
 });
 
 // 🗑️ Удалить транзакцию
 app.delete('/api/transactions/:id', authMiddleware, async (req, res) => {
     const id = req.params.id;
-    console.log(`🗑️ DELETE /api/transactions/${id} (user: ${req.user.id})`);
+    const client = await pool.connect();
     try {
-        const result = await pool.query(
-            'DELETE FROM transactions WHERE id = $1 AND user_id = $2 RETURNING *',
+        await client.query('BEGIN');
+
+        // Получаем данные транзакции перед удалением
+        const getRes = await client.query(
+            'SELECT amount, type, account_id FROM transactions WHERE id = $1 AND user_id = $2',
             [id, req.user.id]
         );
-        if (result.rowCount === 0) {
+        if (getRes.rows.length === 0) {
+            await client.query('ROLLBACK');
             return res.status(404).json({ error: 'Транзакция не найдена или не принадлежит вам' });
         }
-        res.json({ success: true, deleted: result.rows[0] });
+        const { amount, type, account_id } = getRes.rows[0];
+
+        // Удаляем транзакцию
+        await client.query(
+            'DELETE FROM transactions WHERE id = $1 AND user_id = $2',
+            [id, req.user.id]
+        );
+
+        // Корректируем баланс счета: для расхода возвращаем, для дохода вычитаем
+        const balanceChange = type === 'expense' ? amount : -amount;
+        await client.query(
+            'UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3',
+            [balanceChange, account_id, req.user.id]
+        );
+
+        await client.query('COMMIT');
+        console.log(`✅ Транзакция ${id} удалена, баланс счета ${account_id} скорректирован`);
+        res.json({ success: true, message: 'Транзакция удалена' });
     } catch (error) {
+        await client.query('ROLLBACK');
         console.error('❌ Ошибка DELETE:', error.message);
         res.status(500).json({ error: error.message });
+    } finally {
+        client.release();
     }
 });
 
