@@ -226,7 +226,7 @@ const TransactionForm = ({
               </div>
 
               {/* Выбор счёта (горизонтальная прокрутка) */}
-              <div className="mb-4">
+              <div className="p4-4 mb-4">
                 <label className="block text-gray-700 mb-2 font-medium">Счёт</label>
                 {loadingAccounts ? (
                     <div className="flex gap-2 overflow-x-auto pb-2">
