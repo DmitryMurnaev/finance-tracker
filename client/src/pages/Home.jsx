@@ -5,6 +5,7 @@ import TransactionTypeMenu from '../components/Transactions/TransactionTypeMenu'
 import MobileLayout from '../components/Layout/MobileLayout';
 import DesktopLayout from '../components/Layout/DesktopLayout';
 import ScrollToTopButton from '../components/UI/ScrollToTopButton';
+import BalanceCard from '../components/Layout/BalanceCard';
 import AccountForm from '../components/Accounts/AccountForm';
 import '../index.css';
 
@@ -172,6 +173,12 @@ function Home() {
         setSelectedType(type);
         setShowTypeMenu(false);
         setIsFormOpen(true);
+    };
+
+    const handleCloseForm = () => {
+        setIsFormOpen(false);
+        setSelectedType(null);
+        setEditingTransaction(null);
     };
 
     const handleCloseMenu = () => {
