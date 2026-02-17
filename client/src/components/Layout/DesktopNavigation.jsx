@@ -33,4 +33,5 @@ const DesktopNavigation = ({ activeTab, setActiveTab, onAddClick, isMenuOpen }) 
         </div>
     </nav>
 );
+
 export default DesktopNavigation;
