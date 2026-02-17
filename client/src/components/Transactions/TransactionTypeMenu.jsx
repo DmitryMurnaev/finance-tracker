@@ -5,7 +5,7 @@ const TransactionTypeMenu = ({ onSelectType, onClose }) => {
     return (
         <div className="fixed inset-0 z-50 flex items-end justify-center">
             <div className="fixed inset-0 bg-black/70" onClick={onClose} />
-            <div className="relative bg-transparent w-full max-w-md p-6 pb-3 z-10">
+            <div className="relative bg-transparent w-full max-w-md p-6 pb-7 z-10">
                 <div className="grid grid-cols-3 gap-4 mb-6">
                     <button
                         onClick={() => onSelectType('expense')}
@@ -38,7 +38,7 @@ const TransactionTypeMenu = ({ onSelectType, onClose }) => {
                 <div className="flex justify-center -mt-2">
                     <button
                         onClick={onClose}
-                        className="w-14 h-14 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-gray-100 transition-transform duration-300 rotate-0 active:rotate-90"
+                        className="w-14.5 h-14.5 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-gray-100 transition-transform duration-300 rotate-0 active:rotate-90"
                     >
                         <X size={28} className="text-gray-600"/>
                     </button>

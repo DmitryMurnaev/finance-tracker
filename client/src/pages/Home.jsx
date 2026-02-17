@@ -120,13 +120,18 @@ function Home() {
     };
 
     const addTransaction = async (newTransaction) => {
+        console.log('addTransaction called with', newTransaction);
         try {
             await transactionAPI.createTransaction(newTransaction);
+            console.log('createTransaction succeeded');
             await fetchTransactions();
             await fetchAccounts();
             setIsFormOpen(false);
             setSelectedType(null);
-        } catch { alert('Не удалось добавить операцию'); }
+        } catch (error) {
+            console.error('addTransaction error', error);
+            alert('Не удалось добавить операцию');
+        }
     };
 
     const deleteTransaction = async (id) => {

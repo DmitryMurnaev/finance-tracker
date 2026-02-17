@@ -103,9 +103,16 @@ const TransactionForm = ({
     }
   }, [editingTransaction, mode, isOpen]);
 
+  useEffect(() => {
+    console.log('Accounts loaded:', accounts);
+    console.log('Categories loaded:', categories);
+    console.log('accountId:', accountId, 'categoryId:', categoryId);
+  }, [accounts, categories, accountId, categoryId]);
+
   const handleSubmit = async (e) => {
-    console.log('handleSubmit called', { amount, categoryId, accountId, dataReady });
     e.preventDefault();
+    e.stopPropagation();
+    console.log('handleSubmit called', { amount, categoryId, accountId, dataReady });
     setError('');
     setIsSubmitting(true);
 
@@ -185,9 +192,13 @@ const TransactionForm = ({
       ? fromAccountId && toAccountId
       : categoryId && accountId;
 
-  useEffect(() => {
-    console.log('dataReady:', dataReady, 'accountId:', accountId, 'categoryId:', categoryId);
-  }, [dataReady, accountId, categoryId]);
+
+  // useEffect(() => {
+  //   console.log('dataReady:', dataReady, 'accountId:', accountId, 'categoryId:', categoryId);
+  // }, [dataReady, accountId, categoryId]);
+
+  console.log('Button disabled:', isSubmitting || !dataReady);
+  console.log('isSubmitting:', isSubmitting, 'dataReady:', dataReady);
 
   return (
       <div className="fixed inset-0 z-50">
@@ -388,7 +399,8 @@ const TransactionForm = ({
                   Отмена
                 </button>
                 <button
-                    type="submit"
+                    type="button"
+                    onClick={handleSubmit}
                     disabled={isSubmitting || !dataReady}
                     className={`flex-1 py-4 rounded-xl font-bold text-lg transition ${
                         dataReady && !isSubmitting
