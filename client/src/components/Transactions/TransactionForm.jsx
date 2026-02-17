@@ -104,6 +104,7 @@ const TransactionForm = ({
   }, [editingTransaction, mode, isOpen]);
 
   const handleSubmit = async (e) => {
+    console.log('handleSubmit called', { amount, categoryId, accountId, dataReady });
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
@@ -183,6 +184,10 @@ const TransactionForm = ({
   const dataReady = mode === 'transfer'
       ? fromAccountId && toAccountId
       : categoryId && accountId;
+
+  useEffect(() => {
+    console.log('dataReady:', dataReady, 'accountId:', accountId, 'categoryId:', categoryId);
+  }, [dataReady, accountId, categoryId]);
 
   return (
       <div className="fixed inset-0 z-50">
