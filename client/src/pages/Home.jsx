@@ -5,7 +5,6 @@ import TransactionTypeMenu from '../components/Transactions/TransactionTypeMenu'
 import MobileLayout from '../components/Layout/MobileLayout';
 import DesktopLayout from '../components/Layout/DesktopLayout';
 import ScrollToTopButton from '../components/UI/ScrollToTopButton';
-import BalanceCard from '../components/Layout/BalanceCard';
 import AccountForm from '../components/Accounts/AccountForm';
 import '../index.css';
 
@@ -32,6 +31,9 @@ function Home() {
     useEffect(() => {
         console.log('isAccountFormOpen =', isAccountFormOpen);
     }, [isAccountFormOpen]);
+
+    // отслеживать состояние меню
+    const [isMenuOpen, setIsMenuOpen] = useState(false)
 
     const handleSaveAccount = async (accountData, accountId) => {
         try {
@@ -162,6 +164,7 @@ function Home() {
 
     // Обработчик открытия меню добавления
     const handleAddClick = () => {
+        setIsMenuOpen(true);
         setShowTypeMenu(true);
     };
 
@@ -171,15 +174,15 @@ function Home() {
         setIsFormOpen(true);
     };
 
-    const handleCloseForm = () => {
-        setIsFormOpen(false);
-        setSelectedType(null);
-        setEditingTransaction(null);
+    const handleCloseMenu = () => {
+        setIsMenuOpen(false);
+        setShowTypeMenu(false);
     };
 
     return (
         <>
             <MobileLayout
+                isMenuOpen={isMenuOpen}
                 accounts={accounts}
                 onEditAccount={handleEditAccount}
                 onDeleteAccount={handleDeleteAccount}
@@ -203,6 +206,7 @@ function Home() {
                 onEditTransaction={handleEdit}
             />
             <DesktopLayout
+                isMenuOpen={isMenuOpen}
                 accounts={accounts}
                 onAddAccount={handleAddAccount}
                 onEditAccount={handleEditAccount}
@@ -236,7 +240,7 @@ function Home() {
             {showTypeMenu && (
                 <TransactionTypeMenu
                     onSelectType={handleTypeSelect}
-                    onClose={() => setShowTypeMenu(false)}
+                    onClose={handleCloseMenu}
                 />
             )}
             <ScrollToTopButton />

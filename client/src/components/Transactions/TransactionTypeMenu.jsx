@@ -4,8 +4,8 @@ import { ArrowDown, ArrowUp, Repeat, X } from 'lucide-react';
 const TransactionTypeMenu = ({ onSelectType, onClose }) => {
     return (
         <div className="fixed inset-0 z-50 flex items-end justify-center">
-            {/* Затемнение */}
-            <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+            {/* Затемнение – усилено до 70% */}
+            <div className="fixed inset-0 bg-black/70" onClick={onClose} />
 
             {/* Панель с кнопками */}
             <div className="relative bg-transparent w-full max-w-md p-6 pb-12 z-10">
@@ -17,7 +17,7 @@ const TransactionTypeMenu = ({ onSelectType, onClose }) => {
                         <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-2">
                             <ArrowDown size={32} className="text-red-600" />
                         </div>
-                        <span className="text-sm font-medium text-gray-700">Расход</span>
+                        <span className="text-sm font-medium text-gray-900">Расход</span>
                     </button>
                     <button
                         onClick={() => onSelectType('income')}
@@ -26,7 +26,7 @@ const TransactionTypeMenu = ({ onSelectType, onClose }) => {
                         <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-2">
                             <ArrowUp size={32} className="text-green-600" />
                         </div>
-                        <span className="text-sm font-medium text-gray-700">Доход</span>
+                        <span className="text-sm font-medium text-gray-900">Доход</span>
                     </button>
                     <button
                         onClick={() => onSelectType('transfer')}
@@ -35,7 +35,7 @@ const TransactionTypeMenu = ({ onSelectType, onClose }) => {
                         <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mb-2">
                             <Repeat size={32} className="text-blue-600" />
                         </div>
-                        <span className="text-sm font-medium text-gray-700">Перевод</span>
+                        <span className="text-sm font-medium text-gray-900">Перевод</span>
                     </button>
                 </div>
 
