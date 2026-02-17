@@ -239,7 +239,7 @@ const TransactionForm = ({
                       {loadingAccounts ? (
                           <div className="h-12 bg-gray-200 animate-pulse rounded-lg"></div>
                       ) : (
-                          <div className="flex gap-2 overflow-x-auto pl-2 py-2 scrollbar-hide">
+                          <div className="flex overflow-x-auto gap-2 pl-2 py-2 scrollbar-hide flex-nowrap">
                             {accounts.map((acc) => {
                               const icon = getIconById(acc.icon_id);
                               const color = getColorById(acc.color_id);
@@ -267,7 +267,7 @@ const TransactionForm = ({
                       {loadingAccounts ? (
                           <div className="h-12 bg-gray-200 animate-pulse rounded-lg"></div>
                       ) : (
-                          <div className="flex gap-2 overflow-x-auto pl-2 py-2 scrollbar-hide">
+                          <div className="flex overflow-x-auto gap-2 pl-2 py-2 scrollbar-hide flex-nowrap">
                             {accounts.map((acc) => {
                               const icon = getIconById(acc.icon_id);
                               const color = getColorById(acc.color_id);
@@ -303,7 +303,7 @@ const TransactionForm = ({
                             ))}
                           </div>
                       ) : (
-                          <div className="flex gap-2 overflow-x-auto pl-2 py-2 scrollbar-hide">
+                          <div className="flex gap-2 overflow-x-auto pl-2 py-2 scrollbar-hide flex-nowrap">
                             {accounts.map((acc) => {
                               const icon = getIconById(acc.icon_id);
                               const color = getColorById(acc.color_id);

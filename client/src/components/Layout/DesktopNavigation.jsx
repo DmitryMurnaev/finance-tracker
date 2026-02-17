@@ -19,7 +19,7 @@ const DesktopNavigation = ({ activeTab, setActiveTab, onAddClick, isMenuOpen }) 
                 <div className={`bg-blue-500 text-white rounded-full p-4 shadow-lg shadow-blue-500/30 transition-transform duration-300 ${isMenuOpen ? 'rotate-45' : 'rotate-0'}`}>
                     <Plus size={28} />
                 </div>
-                <span className="text-xs mt-2 text-gray-700">Добавить</span>
+                {/* Надпись удалена */}
             </button>
         </div>
         <div className="flex justify-center">
