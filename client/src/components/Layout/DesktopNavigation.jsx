@@ -1,6 +1,6 @@
 import { Wallet, TrendingUp, Plus } from 'lucide-react';
 
-console.log('MobileNavigation isMenuOpen:', isMenuOpen);
+
 const DesktopNavigation = ({ activeTab, setActiveTab, onAddClick, isMenuOpen = false}) => (
     <nav className="grid grid-cols-3 bg-white border-t border-gray-200 px-4 pt-3 pb-3">
         <div className="flex justify-center">
@@ -33,5 +33,6 @@ const DesktopNavigation = ({ activeTab, setActiveTab, onAddClick, isMenuOpen = f
         </div>
     </nav>
 );
+
 
 export default DesktopNavigation;
