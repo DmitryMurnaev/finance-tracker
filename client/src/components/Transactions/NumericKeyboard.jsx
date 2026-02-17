@@ -1,6 +1,6 @@
 import React from 'react';
 
-const NumericKeyboard = ({ value, onChange, onSubmit }) => {
+const NumericKeyboard = ({ value, onChange }) => {
     const handleButton = (key) => {
         if (key === '⌫') {
             onChange(value.slice(0, -1));
@@ -11,7 +11,7 @@ const NumericKeyboard = ({ value, onChange, onSubmit }) => {
         } else if (!isNaN(key) || key === '') {
             onChange(value + key);
         }
-        // Кнопки +, −, ×, ÷ игнорируются – они только для отображения
+        // Кнопки +, −, ×, ÷ игнорируются – только для отображения
     };
 
     const buttons = [
@@ -26,6 +26,7 @@ const NumericKeyboard = ({ value, onChange, onSubmit }) => {
             {buttons.flat().map((btn, idx) => (
                 <button
                     key={idx}
+                    type="button" // ← важно!
                     onClick={() => handleButton(btn)}
                     className="p-4 bg-gray-100 rounded-xl text-xl font-medium hover:bg-gray-200 active:bg-gray-300 transition"
                 >
