@@ -31,6 +31,7 @@ const TransactionForm = ({
   const [fromAccountId, setFromAccountId] = useState(null);
   const [toAccountId, setToAccountId] = useState(null);
 
+  // Загрузка данных при открытии
   useEffect(() => {
     if (isOpen) {
       const fetchData = async () => {
@@ -43,19 +44,22 @@ const TransactionForm = ({
           ]);
           setCategories(categoriesData);
           setAccounts(accountsData);
-          // Автовыбор
+
+          // Автовыбор, если не редактируем
           if (!editingTransaction) {
-            if (mode !== 'transfer') {
+            // Счёт
+            if (!accountId && accountsData.length > 0) {
+              setAccountId(accountsData[0].id);
+            }
+            // Категория
+            if (!categoryId && mode !== 'transfer') {
               const defaultCat = categoriesData.find(c => c.type === type || c.type === 'both');
               if (defaultCat) setCategoryId(defaultCat.id);
             }
-            if (accountsData.length > 0) {
-              if (mode === 'transfer') {
-                setFromAccountId(accountsData[0].id);
-                setToAccountId(accountsData[1]?.id || accountsData[0].id);
-              } else {
-                setAccountId(accountsData[0].id);
-              }
+            // Для перевода
+            if (mode === 'transfer' && accountsData.length > 0) {
+              setFromAccountId(accountsData[0].id);
+              setToAccountId(accountsData[1]?.id || accountsData[0].id);
             }
           }
         } catch (err) {
@@ -67,6 +71,7 @@ const TransactionForm = ({
       };
       fetchData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, mode, type, editingTransaction]);
 
   useEffect(() => {
@@ -77,6 +82,7 @@ const TransactionForm = ({
     }
   }, [isOpen]);
 
+  // Заполнение при редактировании
   useEffect(() => {
     if (editingTransaction) {
       setAmount(editingTransaction.amount.toString());
@@ -172,6 +178,11 @@ const TransactionForm = ({
   const filteredCategories = categories.filter(
       cat => cat.type === type || cat.type === 'both'
   );
+
+  // Флаг готовности данных (для блокировки кнопки)
+  const dataReady = mode === 'transfer'
+      ? fromAccountId && toAccountId
+      : categoryId && accountId;
 
   return (
       <div className="fixed inset-0 z-50">
@@ -373,8 +384,12 @@ const TransactionForm = ({
                 </button>
                 <button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="flex-1 bg-blue-500 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-600 disabled:opacity-50"
+                    disabled={isSubmitting || !dataReady}
+                    className={`flex-1 py-4 rounded-xl font-bold text-lg transition ${
+                        dataReady && !isSubmitting
+                            ? 'bg-blue-500 text-white hover:bg-blue-600'
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
                 >
                   {submitButtonText}
                 </button>

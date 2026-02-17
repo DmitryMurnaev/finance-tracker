@@ -35,12 +35,12 @@ const TransactionTypeMenu = ({ onSelectType, onClose }) => {
                         <span className="text-sm font-semibold text-white drop-shadow-lg">Перевод</span>
                     </button>
                 </div>
-                <div className="flex justify-center">
+                <div className="flex justify-center -mt-8">
                     <button
                         onClick={onClose}
                         className="w-14 h-14 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-gray-100 transition-transform duration-300 rotate-0 hover:rotate-90"
                     >
-                        <X size={28} className="text-gray-600" />
+                        <X size={28} className="text-gray-600"/>
                     </button>
                 </div>
             </div>
