@@ -16,8 +16,9 @@ const MobileNavigation = ({ activeTab, setActiveTab, onAddClick, isMenuOpen = fa
                 onClick={onAddClick}
                 className="flex flex-col items-center -mt-8"
             >
-                <div className={`bg-blue-500 text-white rounded-full p-4 shadow-lg shadow-blue-500/30 transition-transform duration-300 ${isMenuOpen ? 'rotate-45' : 'rotate-0'}`}>
-                    {isMenuOpen ? <X size={28} /> : <Plus size={28} />}
+                <div
+                    className={`bg-blue-500 text-white rounded-full p-4 shadow-lg shadow-blue-500/30 transition-transform duration-300 active:rotate-45 ${isMenuOpen ? 'rotate-45' : 'rotate-0'}`}>
+                    {isMenuOpen ? <X size={28}/> : <Plus size={28}/>}
                 </div>
                 {/* Убрана надпись "Добавить" */}
             </button>
