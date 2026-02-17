@@ -21,7 +21,7 @@ const DesktopLayout = ({
                            totalBalance,
                            activeTab,
                            setActiveTab,
-                           setIsFormOpen,
+                           setIsFormOpen,   // возможно, ещё нужно для других целей, оставим
                            periods,
                            selectedPeriod,
                            setSelectedPeriod,
@@ -30,6 +30,7 @@ const DesktopLayout = ({
                            onAddAccount,
                            onEditAccount,
                            onDeleteAccount,
+                           onAddClick,
                        }) => (
     <div className="hidden md:block bg-gray-50 min-h-screen pb-32">
         <div className="flex justify-between items-center p-4 bg-white shadow-sm border-b border-gray-100">
@@ -75,7 +76,7 @@ const DesktopLayout = ({
             <DesktopNavigation
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
-                setIsFormOpen={setIsFormOpen}
+                onAddClick={onAddClick}   // передаём сюда
             />
         </div>
     </div>

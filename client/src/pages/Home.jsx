@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { accountAPI, transactionAPI } from '../services/api';
 import TransactionForm from '../components/Transactions/TransactionForm';
+import TransactionTypeMenu from '../components/Transactions/TransactionTypeMenu';
 import MobileLayout from '../components/Layout/MobileLayout';
 import DesktopLayout from '../components/Layout/DesktopLayout';
 import ScrollToTopButton from '../components/UI/ScrollToTopButton';
@@ -20,6 +21,10 @@ function Home() {
     const [isAccountFormOpen, setIsAccountFormOpen] = useState(false);
     const [editingAccount, setEditingAccount] = useState(null);
 
+    // Новые состояния для меню выбора типа
+    const [showTypeMenu, setShowTypeMenu] = useState(false);
+    const [selectedType, setSelectedType] = useState(null);
+
     useEffect(() => {
         fetchAccounts();
     }, []);
@@ -28,8 +33,6 @@ function Home() {
         console.log('isAccountFormOpen =', isAccountFormOpen);
     }, [isAccountFormOpen]);
 
-
-    // Функция сохранения счета (создание/обновление)
     const handleSaveAccount = async (accountData, accountId) => {
         try {
             if (accountId) {
@@ -41,24 +44,21 @@ function Home() {
         } catch (err) {
             console.error('Ошибка сохранения счета:', err);
             alert('Ошибка при сохранении счета: ' + (err.response?.data?.error || err.message));
-            throw err; // пробрасываем, чтобы форма знала об ошибке
+            throw err;
         }
     };
 
-    // Функция открытия формы для создания
     const handleAddAccount = () => {
         console.log('📝 handleAddAccount вызван');
         setEditingAccount(null);
         setIsAccountFormOpen(true);
     };
 
-// Функция открытия формы для редактирования
     const handleEditAccount = (account) => {
         setEditingAccount(account);
         setIsAccountFormOpen(true);
     };
 
-// Функция удаления счета (пока не реализована, можно добавить позже)
     const handleDeleteAccount = async (id) => {
         if (!window.confirm('Удалить счёт? Все транзакции этого счета останутся без привязки.')) return;
         try {
@@ -68,6 +68,7 @@ function Home() {
             alert('Не удалось удалить счёт');
         }
     };
+
     const fetchAccounts = async () => {
         setAccountsLoading(true);
         try {
@@ -81,6 +82,7 @@ function Home() {
         }
     };
 
+    // Обработчики транзакций
     const updateTransaction = async (id, updateData) => {
         try {
             await transactionAPI.updateTransaction(id, updateData);
@@ -120,6 +122,7 @@ function Home() {
             await fetchTransactions();
             await fetchAccounts();
             setIsFormOpen(false);
+            setSelectedType(null);
         } catch { alert('Не удалось добавить операцию'); }
     };
 
@@ -157,6 +160,23 @@ function Home() {
 
     const totalBalance = accounts.reduce((sum, acc) => sum + parseFloat(acc.balance), 0);
 
+    // Обработчик открытия меню добавления
+    const handleAddClick = () => {
+        setShowTypeMenu(true);
+    };
+
+    const handleTypeSelect = (type) => {
+        setSelectedType(type);
+        setShowTypeMenu(false);
+        setIsFormOpen(true);
+    };
+
+    const handleCloseForm = () => {
+        setIsFormOpen(false);
+        setSelectedType(null);
+        setEditingTransaction(null);
+    };
+
     return (
         <>
             <MobileLayout
@@ -164,6 +184,7 @@ function Home() {
                 onEditAccount={handleEditAccount}
                 onDeleteAccount={handleDeleteAccount}
                 onAddAccount={handleAddAccount}
+                onAddClick={handleAddClick}  // передаём открытие меню
                 transactions={filteredTransactions}
                 allTransactions={transactions}
                 loading={loading}
@@ -172,10 +193,10 @@ function Home() {
                 deleteTransaction={deleteTransaction}
                 totalIncome={totalIncome}
                 totalExpenses={totalExpenses}
-                totalBalance={totalBalance}         // ✅ передаём общий баланс
+                totalBalance={totalBalance}
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
-                setIsFormOpen={setIsFormOpen}
+                setIsFormOpen={setIsFormOpen} // возможно не нужно
                 periods={periods}
                 selectedPeriod={selectedPeriod}
                 setSelectedPeriod={setSelectedPeriod}
@@ -186,6 +207,7 @@ function Home() {
                 onAddAccount={handleAddAccount}
                 onEditAccount={handleEditAccount}
                 onDeleteAccount={handleDeleteAccount}
+                onAddClick={handleAddClick}
                 transactions={filteredTransactions}
                 allTransactions={transactions}
                 loading={loading}
@@ -194,7 +216,7 @@ function Home() {
                 deleteTransaction={deleteTransaction}
                 totalIncome={totalIncome}
                 totalExpenses={totalExpenses}
-                totalBalance={totalBalance}         // ✅ передаём общий баланс
+                totalBalance={totalBalance}
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
                 setIsFormOpen={setIsFormOpen}
@@ -205,14 +227,18 @@ function Home() {
             />
             <TransactionForm
                 isOpen={isFormOpen}
-                onClose={() => {
-                    setIsFormOpen(false);
-                    setEditingTransaction(null);
-                }}
+                onClose={handleCloseForm}
                 onAddTransaction={addTransaction}
                 onUpdateTransaction={updateTransaction}
                 editingTransaction={editingTransaction}
+                mode={selectedType}
             />
+            {showTypeMenu && (
+                <TransactionTypeMenu
+                    onSelectType={handleTypeSelect}
+                    onClose={() => setShowTypeMenu(false)}
+                />
+            )}
             <ScrollToTopButton />
             <AccountForm
                 isOpen={isAccountFormOpen}

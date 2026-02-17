@@ -1,6 +1,6 @@
 import { Wallet, TrendingUp, Plus } from 'lucide-react';
 
-const DesktopNavigation = ({ activeTab, setActiveTab, setIsFormOpen }) => (
+const DesktopNavigation = ({ activeTab, setActiveTab, onAddClick }) => (
     <nav className="grid grid-cols-3 bg-white border-t border-gray-200 px-4 pt-3 pb-3">
         <div className="flex justify-center">
             <button
@@ -13,7 +13,7 @@ const DesktopNavigation = ({ activeTab, setActiveTab, setIsFormOpen }) => (
         </div>
         <div className="flex justify-center">
             <button
-                onClick={() => setIsFormOpen(true)}
+                onClick={onAddClick}
                 className="flex flex-col items-center"
             >
                 <div className="bg-blue-500 text-white rounded-full p-4 shadow-lg shadow-blue-500/30">
@@ -33,4 +33,5 @@ const DesktopNavigation = ({ activeTab, setActiveTab, setIsFormOpen }) => (
         </div>
     </nav>
 );
+
 export default DesktopNavigation;

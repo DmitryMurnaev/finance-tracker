@@ -22,7 +22,7 @@ const MobileLayout = ({
                           totalBalance,
                           activeTab,
                           setActiveTab,
-                          setIsFormOpen,
+                          // setIsFormOpen, // можно удалить, если не используется
                           periods,
                           selectedPeriod,
                           setSelectedPeriod,
@@ -31,6 +31,7 @@ const MobileLayout = ({
                           onAddAccount,
                           onEditAccount,
                           onDeleteAccount,
+                          onAddClick,          // новый проп
                       }) => (
     <div className="block md:hidden bg-gray-50 min-h-screen pb-32">
         <div className="flex justify-between items-center p-4">
@@ -88,7 +89,7 @@ const MobileLayout = ({
         <MobileNavigation
             activeTab={activeTab}
             setActiveTab={setActiveTab}
-            setIsFormOpen={setIsFormOpen}
+            onAddClick={onAddClick}   // передаём сюда
         />
     </div>
 );
