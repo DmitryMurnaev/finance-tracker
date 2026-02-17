@@ -27,6 +27,25 @@ router.post('/register', async (req, res) => {
             [email, passwordHash, name || null]
         );
         const user = userResult.rows[0];
+
+        // ✅ ВСТАВЛЯЕМ КАТЕГОРИИ ЗДЕСЬ (внутри try, после создания user)
+        const defaultCategories = [
+            { name: 'food', type: 'both' },
+            { name: 'transport', type: 'both' },
+            { name: 'freelance', type: 'both' },
+            { name: 'salary', type: 'both' },
+            { name: 'shopping', type: 'both' },
+            { name: 'bills', type: 'both' },
+            { name: 'entertainment', type: 'both' },
+            { name: 'Заниматься', type: 'both' }
+        ];
+        for (const cat of defaultCategories) {
+            await pool.query(
+                'INSERT INTO categories (user_id, name, type) VALUES ($1, $2, $3)',
+                [user.id, cat.name, cat.type]
+            );
+        }
+
         const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
 
         await pool.query('UPDATE transactions SET user_id = $1 WHERE user_id IS NULL', [user.id]);
@@ -117,22 +136,5 @@ router.post('/change-password', authMiddleware, async (req, res) => {
         res.status(500).json({ error: 'Ошибка сервера' });
     }
 });
-const defaultCategories = [
-    { name: 'food', type: 'both' },
-    { name: 'transport', type: 'both' },
-    { name: 'freelance', type: 'both' },
-    { name: 'salary', type: 'both' },
-    { name: 'shopping', type: 'both' },
-    { name: 'bills', type: 'both' },
-    { name: 'entertainment', type: 'both' },
-    { name: 'Заниматься', type: 'both' }
-];
-
-for (const cat of defaultCategories) {
-    await pool.query(
-        'INSERT INTO categories (user_id, name, type) VALUES ($1, $2, $3)',
-        [user.id, cat.name, cat.type]
-    );
-}
 
 module.exports = router;
