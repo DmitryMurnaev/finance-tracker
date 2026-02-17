@@ -51,7 +51,7 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
             </div>
 
             <div className="relative group">
-                {/* Левая стрелка (десктоп) */}
+                {/* Левая стрелка – теперь не перекрывает карточку */}
                 <button
                     onClick={() => scroll('left')}
                     className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full shadow-md items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-white transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
@@ -93,7 +93,7 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
                     </div>
                 )}
 
-                {/* Правая стрелка (десктоп) */}
+                {/* Правая стрелка */}
                 <button
                     onClick={() => scroll('right')}
                     className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full shadow-md items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-white transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"

@@ -14,13 +14,170 @@ const TransactionForm = ({
                            editingTransaction,
                            mode,
                          }) => {
-  // ... все хуки (без изменений)
+  const [amount, setAmount] = useState('');
+  const [description, setDescription] = useState('');
+  const [type, setType] = useState(mode === 'expense' ? 'expense' : 'income');
+  const [categoryId, setCategoryId] = useState(null);
+  const [date, setDate] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+  const [accounts, setAccounts] = useState([]);
+  const [loadingAccounts, setLoadingAccounts] = useState(false);
+  const [accountId, setAccountId] = useState(null);
+
+  // Для перевода
+  const [fromAccountId, setFromAccountId] = useState(null);
+  const [toAccountId, setToAccountId] = useState(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      const fetchData = async () => {
+        setLoadingCategories(true);
+        setLoadingAccounts(true);
+        try {
+          const [categoriesData, accountsData] = await Promise.all([
+            categoryAPI.getCategories(),
+            accountAPI.getAccounts()
+          ]);
+          setCategories(categoriesData);
+          setAccounts(accountsData);
+          // Автовыбор
+          if (!editingTransaction) {
+            if (mode !== 'transfer') {
+              const defaultCat = categoriesData.find(c => c.type === type || c.type === 'both');
+              if (defaultCat) setCategoryId(defaultCat.id);
+            }
+            if (accountsData.length > 0) {
+              if (mode === 'transfer') {
+                setFromAccountId(accountsData[0].id);
+                setToAccountId(accountsData[1]?.id || accountsData[0].id);
+              } else {
+                setAccountId(accountsData[0].id);
+              }
+            }
+          }
+        } catch (err) {
+          console.error('Ошибка загрузки данных', err);
+        } finally {
+          setLoadingCategories(false);
+          setLoadingAccounts(false);
+        }
+      };
+      fetchData();
+    }
+  }, [isOpen, mode, type, editingTransaction]);
+
+  useEffect(() => {
+    if (isOpen) {
+      const today = new Date().toISOString().split('T')[0];
+      setDate(today);
+      setError('');
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (editingTransaction) {
+      setAmount(editingTransaction.amount.toString());
+      setDescription(editingTransaction.description || '');
+      setType(editingTransaction.type);
+      setCategoryId(editingTransaction.category_id);
+      setAccountId(editingTransaction.account_id);
+      setDate(editingTransaction.date);
+    } else {
+      setAmount('');
+      setDescription('');
+      setType(mode === 'expense' ? 'expense' : 'income');
+      setCategoryId(null);
+      setAccountId(null);
+      setFromAccountId(null);
+      setToAccountId(null);
+      setDate(new Date().toISOString().split('T')[0]);
+    }
+  }, [editingTransaction, mode, isOpen]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setIsSubmitting(true);
+
+    try {
+      if (!amount || isNaN(amount) || Number(amount) <= 0) {
+        throw new Error('Введите корректную сумму (больше 0)');
+      }
+
+      if (mode === 'transfer') {
+        if (!fromAccountId || !toAccountId) {
+          throw new Error('Выберите счета');
+        }
+        if (fromAccountId === toAccountId) {
+          throw new Error('Счета должны отличаться');
+        }
+        // TODO: обработка перевода на бэкенде
+        alert('Перевод временно не реализован');
+        return;
+      } else {
+        if (!categoryId) throw new Error('Выберите категорию');
+        if (!accountId) throw new Error('Выберите счёт');
+      }
+
+      const transactionData = {
+        amount: parseFloat(amount),
+        description: description.trim(),
+        type,
+        category_id: categoryId,
+        account_id: accountId,
+        date
+      };
+
+      if (editingTransaction) {
+        await onUpdateTransaction(editingTransaction.id, transactionData);
+      } else {
+        await onAddTransaction(transactionData);
+      }
+      resetForm();
+      onClose();
+
+    } catch (error) {
+      setError(error.message || 'Не удалось добавить операцию');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const resetForm = () => {
+    setAmount('');
+    setDescription('');
+    setCategoryId(null);
+    setAccountId(null);
+    setFromAccountId(null);
+    setToAccountId(null);
+    setDate(new Date().toISOString().split('T')[0]);
+    setError('');
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  const modalTitle = editingTransaction ? 'Редактировать операцию' :
+      mode === 'transfer' ? 'Перевод' :
+          mode === 'expense' ? 'Расход' : 'Доход';
+  const submitButtonText = isSubmitting ? 'Сохранение...' : (editingTransaction ? 'Сохранить' : 'Добавить');
+
+  const filteredCategories = categories.filter(
+      cat => cat.type === type || cat.type === 'both'
+  );
 
   return (
       <div className="fixed inset-0 z-50">
         <div className="fixed inset-0 bg-black/50" onClick={handleClose} />
         <div className="fixed bottom-0 left-0 right-0 md:bottom-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2">
-          <div className="bg-white rounded-t-3xl md:rounded-2xl w-full max-w-md md:max-w-lg mx-auto flex flex-col max-h-[90vh]">
+          <div className="bg-white rounded-t-3xl md:rounded-2xl w-full max-w-md md:max-w-lg mx-auto flex flex-col max-h-[90vh] overflow-x-hidden">
             {/* Заголовок */}
             <div className="bg-white border-b border-gray-100 p-4 flex justify-between items-center">
               <h2 className="text-xl font-bold text-gray-900 truncate">{modalTitle}</h2>
@@ -71,7 +228,7 @@ const TransactionForm = ({
                       {loadingAccounts ? (
                           <div className="h-12 bg-gray-200 animate-pulse rounded-lg"></div>
                       ) : (
-                          <div className="flex gap-2 overflow-x-auto px-2 py-2 scrollbar-hide">
+                          <div className="flex gap-2 overflow-x-auto pl-2 py-2 scrollbar-hide">
                             {accounts.map((acc) => {
                               const icon = getIconById(acc.icon_id);
                               const color = getColorById(acc.color_id);
@@ -99,7 +256,7 @@ const TransactionForm = ({
                       {loadingAccounts ? (
                           <div className="h-12 bg-gray-200 animate-pulse rounded-lg"></div>
                       ) : (
-                          <div className="flex gap-2 overflow-x-auto px-2 py-2 scrollbar-hide">
+                          <div className="flex gap-2 overflow-x-auto pl-2 py-2 scrollbar-hide">
                             {accounts.map((acc) => {
                               const icon = getIconById(acc.icon_id);
                               const color = getColorById(acc.color_id);
@@ -129,13 +286,13 @@ const TransactionForm = ({
                     <div className="mb-4">
                       <label className="block text-gray-700 mb-2 font-medium">Счёт</label>
                       {loadingAccounts ? (
-                          <div className="flex gap-2 overflow-x-auto px-2 py-2">
+                          <div className="flex gap-2 overflow-x-auto pl-2 py-2">
                             {[...Array(5)].map((_, i) => (
                                 <div key={i} className="flex-shrink-0 w-24 h-12 bg-gray-200 animate-pulse rounded-lg"></div>
                             ))}
                           </div>
                       ) : (
-                          <div className="flex gap-2 overflow-x-auto px-2 py-2 scrollbar-hide">
+                          <div className="flex gap-2 overflow-x-auto pl-2 py-2 scrollbar-hide">
                             {accounts.map((acc) => {
                               const icon = getIconById(acc.icon_id);
                               const color = getColorById(acc.color_id);
@@ -163,7 +320,7 @@ const TransactionForm = ({
                     <div className="mb-4">
                       <label className="block text-gray-700 mb-2 font-medium">Категория</label>
                       {loadingCategories ? (
-                          <div className="flex gap-2 overflow-x-auto px-2 py-2">
+                          <div className="flex gap-2 overflow-x-auto pl-2 py-2">
                             {[...Array(6)].map((_, i) => (
                                 <div key={i} className="flex-shrink-0 w-20 h-20 bg-gray-200 animate-pulse rounded-xl"></div>
                             ))}

@@ -1,4 +1,4 @@
-import {Wallet, TrendingUp, Plus, X} from 'lucide-react';
+import { Wallet, TrendingUp, Plus } from 'lucide-react';
 
 const DesktopNavigation = ({ activeTab, setActiveTab, onAddClick, isMenuOpen }) => (
     <nav className="grid grid-cols-3 bg-white border-t border-gray-200 px-4 pt-3 pb-3">
@@ -14,15 +14,10 @@ const DesktopNavigation = ({ activeTab, setActiveTab, onAddClick, isMenuOpen }) 
         <div className="flex justify-center">
             <button
                 onClick={onAddClick}
-                className="flex flex-col items-center -mt-8"
+                className="flex flex-col items-center"
             >
-                <div
-                    className="bg-blue-500 text-white rounded-full p-4 shadow-lg shadow-blue-500/30 transition-transform duration-300 hover:scale-110">
-                    {isMenuOpen ? (
-                        <X size={28} className="animate-spin"/>
-                    ) : (
-                        <Plus size={28} className="animate-spin"/>
-                    )}
+                <div className={`bg-blue-500 text-white rounded-full p-4 shadow-lg shadow-blue-500/30 transition-transform duration-300 ${isMenuOpen ? 'rotate-45' : 'rotate-0'}`}>
+                    <Plus size={28} />
                 </div>
                 <span className="text-xs mt-2 text-gray-700">Добавить</span>
             </button>
@@ -32,11 +27,10 @@ const DesktopNavigation = ({ activeTab, setActiveTab, onAddClick, isMenuOpen }) 
                 onClick={() => setActiveTab('stats')}
                 className={`flex flex-col items-center ${activeTab === 'stats' ? 'text-blue-500' : 'text-gray-400'}`}
             >
-                <TrendingUp size={24}/>
+                <TrendingUp size={24} />
                 <span className="text-xs mt-1">Статистика</span>
             </button>
         </div>
     </nav>
 );
-
 export default DesktopNavigation;

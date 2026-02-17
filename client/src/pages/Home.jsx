@@ -189,7 +189,6 @@ function Home() {
     return (
         <>
             <MobileLayout
-                isMenuOpen={isMenuOpen}
                 accounts={accounts}
                 onEditAccount={handleEditAccount}
                 onDeleteAccount={handleDeleteAccount}
@@ -211,6 +210,7 @@ function Home() {
                 selectedPeriod={selectedPeriod}
                 setSelectedPeriod={setSelectedPeriod}
                 onEditTransaction={handleEdit}
+                isMenuOpen={isMenuOpen}
             />
             <DesktopLayout
                 isMenuOpen={isMenuOpen}
