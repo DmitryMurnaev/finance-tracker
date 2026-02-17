@@ -51,9 +51,10 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
             </div>
 
             <div className="relative group">
+                {/* Левая стрелка (десктоп) */}
                 <button
                     onClick={() => scroll('left')}
-                    className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 -ml-4 w-10 h-10 bg-white rounded-full shadow-md items-center justify-center text-gray-600 hover:text-blue-600 hover:shadow-lg transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                    className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full shadow-md items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-white transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
                 >
                     <ChevronLeft size={24} />
                 </button>
@@ -92,9 +93,10 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
                     </div>
                 )}
 
+                {/* Правая стрелка (десктоп) */}
                 <button
                     onClick={() => scroll('right')}
-                    className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 -mr-4 w-10 h-10 bg-white rounded-full shadow-md items-center justify-center text-gray-600 hover:text-blue-600 hover:shadow-lg transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                    className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full shadow-md items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-white transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
                 >
                     <ChevronRight size={24} />
                 </button>

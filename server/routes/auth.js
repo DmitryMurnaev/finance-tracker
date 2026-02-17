@@ -30,15 +30,34 @@ router.post('/register', async (req, res) => {
 
         // ✅ ВСТАВЛЯЕМ КАТЕГОРИИ ЗДЕСЬ (внутри try, после создания user)
         const defaultCategories = [
-            { name: 'food', type: 'both' },
-            { name: 'transport', type: 'both' },
-            { name: 'freelance', type: 'both' },
-            { name: 'salary', type: 'both' },
-            { name: 'shopping', type: 'both' },
-            { name: 'bills', type: 'both' },
-            { name: 'entertainment', type: 'both' },
-            { name: 'Заниматься', type: 'both' }
+            // Расходы
+            { name: 'groceries', type: 'expense' },
+            { name: 'cafe', type: 'expense' },
+            { name: 'transport', type: 'expense' },
+            { name: 'health', type: 'expense' },
+            { name: 'education', type: 'expense' },
+            { name: 'entertainment', type: 'expense' },
+            { name: 'clothing', type: 'expense' },
+            { name: 'travel', type: 'expense' },
+            { name: 'sport', type: 'expense' },
+            { name: 'beauty', type: 'expense' },
+            { name: 'car', type: 'expense' },
+            { name: 'electronics', type: 'expense' },
+            { name: 'gifts', type: 'expense' },
+            { name: 'hobby', type: 'expense' },
+            { name: 'repair', type: 'expense' },
+            { name: 'utilities', type: 'expense' },
+            { name: 'home', type: 'expense' },
+            { name: 'credit', type: 'expense' },
+            // Доходы
+            { name: 'salary', type: 'income' },
+            { name: 'gift', type: 'income' },
+            { name: 'cashback', type: 'income' },
+            { name: 'business', type: 'income' },
+            // Общая категория «Другое» (будет отображаться и в доходах, и в расходах)
+            { name: 'other', type: 'both' }
         ];
+
         for (const cat of defaultCategories) {
             await pool.query(
                 'INSERT INTO categories (user_id, name, type) VALUES ($1, $2, $3)',

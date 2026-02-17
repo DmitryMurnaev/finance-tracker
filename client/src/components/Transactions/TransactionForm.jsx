@@ -156,12 +156,13 @@ const TransactionForm = ({
       <div className="fixed inset-0 z-50">
         <div className="fixed inset-0 bg-black/50" onClick={handleClose} />
         <div className="fixed bottom-0 left-0 right-0 md:bottom-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2">
-          <div className="bg-white rounded-t-3xl md:rounded-2xl w-full max-w-md md:max-w-lg mx-auto flex flex-col max-h-[90vh]">
+          <div
+              className="bg-white rounded-t-3xl md:rounded-2xl w-full max-w-md md:max-w-lg mx-auto flex flex-col max-h-[90vh] overflow-x-hidden">
             {/* Заголовок */}
             <div className="bg-white border-b border-gray-100 p-4 flex justify-between items-center">
               <h2 className="text-xl font-bold text-gray-900">{modalTitle}</h2>
               <button onClick={handleClose} className="p-2 text-gray-500 hover:text-gray-700" disabled={isSubmitting}>
-                <X size={24} />
+                <X size={24}/>
               </button>
             </div>
 
@@ -305,7 +306,7 @@ const TransactionForm = ({
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm md:text-base"
+                    className="w-full p-2 sm:p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm md:text-base box-border"
                     disabled={isSubmitting}
                     max={new Date().toISOString().split('T')[0]}
                 />
