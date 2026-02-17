@@ -31,7 +31,8 @@ const MobileLayout = ({
                           onAddAccount,
                           onEditAccount,
                           onDeleteAccount,
-                          onAddClick,          // новый проп
+                          onAddClick,
+                          isMenuOpen// новый проп
                       }) => (
     <div className="block md:hidden bg-gray-50 min-h-screen pb-32">
         <div className="flex justify-between items-center p-4">
@@ -89,7 +90,8 @@ const MobileLayout = ({
         <MobileNavigation
             activeTab={activeTab}
             setActiveTab={setActiveTab}
-            onAddClick={onAddClick}   // передаём сюда
+            onAddClick={onAddClick}
+            isMenuOpen={isMenuOpen}// передаём сюда
         />
     </div>
 );

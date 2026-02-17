@@ -31,6 +31,7 @@ const DesktopLayout = ({
                            onEditAccount,
                            onDeleteAccount,
                            onAddClick,
+                           isMenuOpen
                        }) => (
     <div className="hidden md:block bg-gray-50 min-h-screen pb-32">
         <div className="flex justify-between items-center p-4 bg-white shadow-sm border-b border-gray-100">
@@ -76,7 +77,8 @@ const DesktopLayout = ({
             <DesktopNavigation
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
-                onAddClick={onAddClick}   // передаём сюда
+                onAddClick={onAddClick}
+                isMenuOpen={isMenuOpen}// передаём сюда
             />
         </div>
     </div>

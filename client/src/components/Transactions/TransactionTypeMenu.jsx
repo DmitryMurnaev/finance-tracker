@@ -1,45 +1,51 @@
-import { Wallet, TrendingUp, Plus } from 'lucide-react';
+import React from 'react';
+import { ArrowDown, ArrowUp, Repeat, X } from 'lucide-react';
 
-const MobileNavigation = ({ activeTab, setActiveTab, onAddClick, isMenuOpen }) => {
+const TransactionTypeMenu = ({ onSelectType, onClose }) => {
     return (
-        <nav className="
-            fixed bottom-0 left-0 right-0
-            bg-white border-t border-gray-200
-            px-4 pt-3
-            pb-[max(0.75rem,env(safe-area-inset-bottom,0.75rem))]
-            grid grid-cols-3
-            z-20
-        ">
-            <div className="flex justify-center">
-                <button
-                    onClick={() => setActiveTab('home')}
-                    className={`flex flex-col items-center ${activeTab === 'home' ? 'text-blue-500' : 'text-gray-400'}`}
-                >
-                    <Wallet size={24} />
-                    <span className="text-xs mt-1">Главная</span>
-                </button>
+        <div className="fixed inset-0 z-50 flex items-end justify-center">
+            <div className="fixed inset-0 bg-black/70" onClick={onClose} />
+            <div className="relative bg-transparent w-full max-w-md p-6 pb-12 z-10">
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                    <button
+                        onClick={() => onSelectType('expense')}
+                        className="flex flex-col items-center group"
+                    >
+                        <div className="w-16 h-16 rounded-full bg-red-100 group-hover:bg-red-200 flex items-center justify-center mb-2 transition">
+                            <ArrowDown size={32} className="text-red-600" />
+                        </div>
+                        <span className="text-sm font-semibold text-white drop-shadow-lg">Расход</span>
+                    </button>
+                    <button
+                        onClick={() => onSelectType('income')}
+                        className="flex flex-col items-center group"
+                    >
+                        <div className="w-16 h-16 rounded-full bg-green-100 group-hover:bg-green-200 flex items-center justify-center mb-2 transition">
+                            <ArrowUp size={32} className="text-green-600" />
+                        </div>
+                        <span className="text-sm font-semibold text-white drop-shadow-lg">Доход</span>
+                    </button>
+                    <button
+                        onClick={() => onSelectType('transfer')}
+                        className="flex flex-col items-center group"
+                    >
+                        <div className="w-16 h-16 rounded-full bg-blue-100 group-hover:bg-blue-200 flex items-center justify-center mb-2 transition">
+                            <Repeat size={32} className="text-blue-600" />
+                        </div>
+                        <span className="text-sm font-semibold text-white drop-shadow-lg">Перевод</span>
+                    </button>
+                </div>
+                <div className="flex justify-center">
+                    <button
+                        onClick={onClose}
+                        className="w-14 h-14 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-gray-100 transition-transform duration-300 rotate-0 hover:rotate-90"
+                    >
+                        <X size={28} className="text-gray-600" />
+                    </button>
+                </div>
             </div>
-            <div className="flex justify-center">
-                <button
-                    onClick={onAddClick}
-                    className="flex flex-col items-center -mt-8"
-                >
-                    <div className={`bg-blue-500 text-white rounded-full p-4 shadow-lg shadow-blue-500/30 transition-transform duration-300 ${isMenuOpen ? 'rotate-45' : 'rotate-0'}`}>
-                        <Plus size={28} />
-                    </div>
-                    <span className="text-xs mt-2 text-gray-700">Добавить</span>
-                </button>
-            </div>
-            <div className="flex justify-center">
-                <button
-                    onClick={() => setActiveTab('stats')}
-                    className={`flex flex-col items-center ${activeTab === 'stats' ? 'text-blue-500' : 'text-gray-400'}`}
-                >
-                    <TrendingUp size={24} />
-                    <span className="text-xs mt-1">Статистика</span>
-                </button>
-            </div>
-        </nav>
+        </div>
     );
 };
-export default MobileNavigation;
+
+export default TransactionTypeMenu;
