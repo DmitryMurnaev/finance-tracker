@@ -3,7 +3,7 @@ import { getCategoryConfig } from '../../config/categoryConfig';
 
 const CategoryCarousel = ({ categories, selectedCategoryId, onSelect }) => {
     return (
-        <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
+        <div className="flex overflow-x-auto gap-2 py-2 scrollbar-hide">
             {categories.map((cat) => {
                 const config = getCategoryConfig(cat.name);
                 return (

@@ -180,9 +180,10 @@ const TransactionForm = ({
           <div className="bg-white rounded-t-3xl md:rounded-2xl w-full max-w-md md:max-w-lg mx-auto flex flex-col max-h-[90vh] overflow-x-hidden">
             {/* Заголовок с крестиком */}
             <div className="bg-white border-b border-gray-100 p-4 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-900">{modalTitle}</h2>
-              <button onClick={handleClose} className="p-2 text-gray-500 hover:text-gray-700" disabled={isSubmitting}>
-                <X size={24} />
+              <h2 className="text-xl font-bold text-gray-900 truncate">{modalTitle}</h2>
+              <button onClick={handleClose} className="p-2 text-gray-500 hover:text-gray-700 flex-shrink-0"
+                      disabled={isSubmitting}>
+                <X size={24}/>
               </button>
             </div>
 
@@ -229,26 +230,7 @@ const TransactionForm = ({
                       {loadingAccounts ? (
                           <div className="h-12 bg-gray-200 animate-pulse rounded-lg"></div>
                       ) : (
-                          <div className="flex gap-2 overflow-x-auto pb-2">
-                            {accounts.map((acc) => {
-                              const icon = getIconById(acc.icon_id);
-                              const color = getColorById(acc.color_id);
-                              return (
-                                  <button
-                                      key={acc.id}
-                                      type="button"
-                                      onClick={() => setFromAccountId(acc.id)}
-                                      className={`flex-shrink-0 p-2 rounded-lg flex items-center gap-1 ${
-                                          fromAccountId === acc.id ? `ring-2 ring-blue-500 ${color.bg}` : color.bg
-                                      }`}
-                                  >
-                                    <span className="text-xl">{icon.emoji}</span>
-                                    <span className={`text-sm font-medium whitespace-nowrap ${color.text}`}>
-                                                            {acc.name}
-                                                        </span>
-                                  </button>
-                              );
-                            })}
+                          <div className="flex gap-2 overflow-x-auto py-2 scrollbar-hide">
                           </div>
                       )}
                     </div>
@@ -257,26 +239,7 @@ const TransactionForm = ({
                       {loadingAccounts ? (
                           <div className="h-12 bg-gray-200 animate-pulse rounded-lg"></div>
                       ) : (
-                          <div className="flex gap-2 overflow-x-auto pb-2">
-                            {accounts.map((acc) => {
-                              const icon = getIconById(acc.icon_id);
-                              const color = getColorById(acc.color_id);
-                              return (
-                                  <button
-                                      key={acc.id}
-                                      type="button"
-                                      onClick={() => setToAccountId(acc.id)}
-                                      className={`flex-shrink-0 p-2 rounded-lg flex items-center gap-1 ${
-                                          toAccountId === acc.id ? `ring-2 ring-blue-500 ${color.bg}` : color.bg
-                                      }`}
-                                  >
-                                    <span className="text-xl">{icon.emoji}</span>
-                                    <span className={`text-sm font-medium whitespace-nowrap ${color.text}`}>
-                                                            {acc.name}
-                                                        </span>
-                                  </button>
-                              );
-                            })}
+                          <div className="flex gap-2 overflow-x-auto py-2 scrollbar-hide">
                           </div>
                       )}
                     </div>
@@ -287,32 +250,13 @@ const TransactionForm = ({
                     <div className="mb-4">
                       <label className="block text-gray-700 mb-2 font-medium">Счёт</label>
                       {loadingAccounts ? (
-                          <div className="flex gap-2 overflow-x-auto pb-2">
+                          <div className="flex gap-2 overflow-x-auto py-2">
                             {[...Array(5)].map((_, i) => (
                                 <div key={i} className="flex-shrink-0 w-24 h-12 bg-gray-200 animate-pulse rounded-lg"></div>
                             ))}
                           </div>
                       ) : (
-                          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                            {accounts.map((acc) => {
-                              const icon = getIconById(acc.icon_id);
-                              const color = getColorById(acc.color_id);
-                              return (
-                                  <button
-                                      key={acc.id}
-                                      type="button"
-                                      onClick={() => setAccountId(acc.id)}
-                                      className={`flex-shrink-0 p-2 rounded-lg flex items-center gap-1 ${
-                                          accountId === acc.id ? `ring-2 ring-blue-500 ${color.bg}` : color.bg
-                                      }`}
-                                  >
-                                    <span className="text-xl">{icon.emoji}</span>
-                                    <span className={`text-sm font-medium whitespace-nowrap ${color.text}`}>
-                                                            {acc.name}
-                                                        </span>
-                                  </button>
-                              );
-                            })}
+                          <div className="flex gap-2 overflow-x-auto py-2 scrollbar-hide">
                           </div>
                       )}
                     </div>
@@ -321,7 +265,7 @@ const TransactionForm = ({
                     <div className="mb-4">
                       <label className="block text-gray-700 mb-2 font-medium">Категория</label>
                       {loadingCategories ? (
-                          <div className="flex gap-2 overflow-x-auto pb-2">
+                          <div className="flex gap-2 overflow-x-auto py-2">
                             {[...Array(6)].map((_, i) => (
                                 <div key={i} className="flex-shrink-0 w-20 h-20 bg-gray-200 animate-pulse rounded-xl"></div>
                             ))}
@@ -353,12 +297,7 @@ const TransactionForm = ({
                     max={new Date().toISOString().split('T')[0]}
                 />
               </div>
-
-              {error && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-                    {error}
-                  </div>
-              )}
+              {/* Ошибка */}
             </form>
 
             {/* Фиксированные кнопки */}
@@ -375,10 +314,6 @@ const TransactionForm = ({
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleSubmit(e);
-                    }}
                     className="flex-1 bg-blue-500 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-600 disabled:opacity-50"
                 >
                   {submitButtonText}

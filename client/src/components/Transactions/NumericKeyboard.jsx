@@ -8,18 +8,17 @@ const NumericKeyboard = ({ value, onChange, onSubmit }) => {
             if (!value.includes('.')) {
                 onChange(value + '.');
             }
-        } else if (key === '✓') {
-            onSubmit?.();
         } else if (!isNaN(key) || key === '') {
             onChange(value + key);
         }
+        // Кнопки +, −, ×, ÷ игнорируются – они только для отображения
     };
 
     const buttons = [
         ['1', '2', '3', '+'],
         ['4', '5', '6', '−'],
         ['7', '8', '9', '×'],
-        [',', '0', '⌫', '✓']
+        [',', '0', '⌫', '÷']
     ];
 
     return (

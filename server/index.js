@@ -76,6 +76,23 @@ app.post('/api/transactions', authMiddleware, async (req, res) => {
     try {
         await client.query('BEGIN');
 
+        // Для расхода проверяем достаточность средств
+        if (type === 'expense') {
+            const accountRes = await client.query(
+                'SELECT balance FROM accounts WHERE id = $1 AND user_id = $2',
+                [account_id, req.user.id]
+            );
+            if (accountRes.rows.length === 0) {
+                await client.query('ROLLBACK');
+                return res.status(404).json({ error: 'Счёт не найден' });
+            }
+            const currentBalance = parseFloat(accountRes.rows[0].balance);
+            if (currentBalance < amount) {
+                await client.query('ROLLBACK');
+                return res.status(400).json({ error: 'Недостаточно средств на счёте' });
+            }
+        }
+
         // Вставляем транзакцию
         const insertRes = await client.query(
             `INSERT INTO transactions (amount, type, category_id, account_id, description, date, user_id)
@@ -102,6 +119,7 @@ app.post('/api/transactions', authMiddleware, async (req, res) => {
 });
 
 // ✏️ Обновить транзакцию
+// ✏️ Обновить транзакцию
 app.put('/api/transactions/:id', authMiddleware, async (req, res) => {
     const id = req.params.id;
     const { amount, type, category_id, account_id, description, date } = req.body;
@@ -127,7 +145,41 @@ app.put('/api/transactions/:id', authMiddleware, async (req, res) => {
         }
         const old = oldRes.rows[0];
 
-        // 2. Обновляем транзакцию
+        // 2. Получаем текущий баланс счёта, с которым будем работать (новый счёт)
+        const accountRes = await client.query(
+            'SELECT balance FROM accounts WHERE id = $1 AND user_id = $2',
+            [account_id, req.user.id]
+        );
+        if (accountRes.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: 'Новый счёт не найден' });
+        }
+        const newAccountBalance = parseFloat(accountRes.rows[0].balance);
+
+        // 3. Рассчитываем, как изменится баланс нового счёта после применения новой транзакции
+        const newChange = type === 'income' ? amount : -amount;
+
+        // 4. Если новый счёт совпадает со старым, нужно учесть отмену старой транзакции
+        let finalNewBalance;
+        if (account_id === old.account_id) {
+            // Старый баланс после отмены старой транзакции: newAccountBalance (он уже содержит старую)
+            // Отменяем старую: newAccountBalance - oldChange? Но проще вычислить итог:
+            // Итоговый баланс = текущий баланс + oldChange (отмена) + newChange
+            // oldChange = (old.type === 'income' ? -old.amount : old.amount) – как мы используем ниже
+            const oldChange = old.type === 'income' ? -old.amount : old.amount;
+            finalNewBalance = newAccountBalance + oldChange + newChange;
+        } else {
+            // Счета разные: старый счёт будет скорректирован позже, а новый должен выдержать newChange
+            finalNewBalance = newAccountBalance + newChange;
+        }
+
+        // 5. Проверка отрицательного баланса (только если newChange отрицательное)
+        if (newChange < 0 && finalNewBalance < 0) {
+            await client.query('ROLLBACK');
+            return res.status(400).json({ error: 'Недостаточно средств на счёте для выполнения операции' });
+        }
+
+        // 6. Обновляем транзакцию
         const updateRes = await client.query(
             `UPDATE transactions 
              SET amount = $1, type = $2, category_id = $3, account_id = $4, description = $5, date = $6
@@ -145,16 +197,15 @@ app.put('/api/transactions/:id', authMiddleware, async (req, res) => {
             ]
         );
 
-        // 3. Корректируем балансы счетов
+        // 7. Корректируем балансы счетов
         // Сначала отменяем влияние старой транзакции
-        const oldChange = old.type === 'income' ? -old.amount : old.amount; // если был расход, то баланс нужно увеличить (вернуть)
+        const oldChange = old.type === 'income' ? -old.amount : old.amount;
         await client.query(
             'UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3',
             [oldChange, old.account_id, req.user.id]
         );
 
         // Затем применяем влияние новой транзакции
-        const newChange = type === 'income' ? amount : -amount;
         await client.query(
             'UPDATE accounts SET balance = balance + $1 WHERE id = $2 AND user_id = $3',
             [newChange, account_id, req.user.id]
