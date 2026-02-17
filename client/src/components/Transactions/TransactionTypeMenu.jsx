@@ -5,7 +5,7 @@ const TransactionTypeMenu = ({ onSelectType, onClose }) => {
     return (
         <div className="fixed inset-0 z-50 flex items-end justify-center">
             <div className="fixed inset-0 bg-black/70" onClick={onClose} />
-            <div className="relative bg-transparent w-full max-w-md p-6 pb-24 z-10">
+            <div className="relative bg-transparent w-full max-w-md p-6 pb-10 z-10">
                 <div className="grid grid-cols-3 gap-4 mb-6">
                     <button
                         onClick={() => onSelectType('expense')}
