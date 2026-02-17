@@ -61,8 +61,8 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
 
                 <div
                     ref={sliderRef}
-                    className="flex overflow-x-auto gap-4 pb-4 px-4 scrollbar-hide scroll-smooth snap-x snap-mandatory"
-                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                    className="flex overflow-x-auto md:justify-between gap-4 pb-4 scrollbar-hide scroll-smooth snap-x snap-mandatory"
+                    style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}
                 >
                     {accounts.map((account) => {
                         const icon = getIconById(account.icon_id);
@@ -88,7 +88,8 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
                 </div>
 
                 {showHint && (
-                    <div className="md:hidden absolute right-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-lg animate-pulse">
+                    <div
+                        className="md:hidden absolute right-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-lg animate-pulse">
                         <Hand className="text-blue-500" size={24} />
                     </div>
                 )}

@@ -2,13 +2,13 @@ import React from 'react';
 
 const NumericKeyboard = ({ value, onChange }) => {
     const handleButton = (key) => {
-        if (key === '⌫') {
+        if (key === 'с') {
             onChange(value.slice(0, -1));
         } else if (key === '.' || key === ',') {
             if (!value.includes('.')) {
                 onChange(value + '.');
             }
-        } else if (!isNaN(key) || key === '') {
+        } else if (!isNaN(key)) {
             onChange(value + key);
         }
         // Кнопки +, −, ×, ÷ игнорируются – только для отображения
@@ -18,7 +18,7 @@ const NumericKeyboard = ({ value, onChange }) => {
         ['1', '2', '3', '+'],
         ['4', '5', '6', '−'],
         ['7', '8', '9', '×'],
-        [',', '0', 'С', '÷']
+        [',', '0', 'с', '÷']
     ];
 
     return (
@@ -26,7 +26,7 @@ const NumericKeyboard = ({ value, onChange }) => {
             {buttons.flat().map((btn, idx) => (
                 <button
                     key={idx}
-                    type="button" // ← важно!
+                    type="button"
                     onClick={() => handleButton(btn)}
                     className="p-4 bg-gray-100 rounded-xl text-xl font-medium hover:bg-gray-200 active:bg-gray-300 transition"
                 >
