@@ -56,7 +56,7 @@ const PlanForm = ({ isOpen, onClose, onSave, editingPlan }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50">
+        <div className="fixed inset-0 z-60">
             <div className="fixed inset-0 bg-black/50" onClick={onClose} />
             <div className="fixed bottom-0 left-0 right-0 md:bottom-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2">
                 <div className="bg-white rounded-t-3xl md:rounded-2xl w-full max-w-md mx-auto flex flex-col md:shadow-xl">
@@ -90,15 +90,18 @@ const PlanForm = ({ isOpen, onClose, onSave, editingPlan }) => {
                                 disabled={isSubmitting}
                             />
                         </div>
+                        {/* Иконки */}
                         <div className="mb-4">
-                            <label className="block mb-1 font-medium">Иконка</label>
+                            <label className="block text-gray-700 mb-2 font-medium">Иконка</label>
                             <div className="grid grid-cols-4 gap-2">
                                 {planIconOptions.map(icon => (
                                     <button
                                         key={icon.id}
                                         type="button"
                                         onClick={() => setIconId(icon.id)}
-                                        className={`p-2 rounded-lg flex flex-col items-center ${iconId === icon.id ? 'ring-2 ring-blue-500 bg-blue-50' : 'bg-gray-100'}`}
+                                        className={`p-2 rounded-lg flex flex-col items-center ${
+                                            iconId === icon.id ? 'ring-2 ring-blue-500 bg-blue-50' : 'bg-gray-100'
+                                        }`}
                                     >
                                         <span className="text-2xl">{icon.emoji}</span>
                                         <span className="text-xs mt-1">{icon.name}</span>
@@ -106,15 +109,18 @@ const PlanForm = ({ isOpen, onClose, onSave, editingPlan }) => {
                                 ))}
                             </div>
                         </div>
+                        {/* Цвета */}
                         <div className="mb-4">
-                            <label className="block mb-1 font-medium">Цвет</label>
+                            <label className="block text-gray-700 mb-2 font-medium">Цвет</label>
                             <div className="grid grid-cols-4 gap-2">
                                 {planColorOptions.map(color => (
                                     <button
                                         key={color.id}
                                         type="button"
                                         onClick={() => setColorId(color.id)}
-                                        className={`p-2 rounded-lg flex flex-col items-center ${colorId === color.id ? 'ring-2 ring-blue-500' : ''} ${color.bg}`}
+                                        className={`p-2 rounded-lg flex flex-col items-center ${
+                                            colorId === color.id ? 'ring-2 ring-blue-500' : ''
+                                        } ${color.bg}`}
                                     >
                                         <span className={`text-sm font-medium ${color.text}`}>{color.name}</span>
                                     </button>

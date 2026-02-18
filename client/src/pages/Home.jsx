@@ -14,10 +14,11 @@ import ScrollToTopButton from '../components/UI/ScrollToTopButton';
 import AccountForm from '../components/Accounts/AccountForm';
 import '../index.css';
 
-function Home() {
+function Home({ isMenuOpen, onCloseMenu }) { // ✅ принимаем пропсы
+    const { activeTab, setActiveTab, showTypeMenu, setShowTypeMenu } = useOutletContext();
+
     const [transactions, setTransactions] = useState([]);
     const [isFormOpen, setIsFormOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState('home');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [editingTransaction, setEditingTransaction] = useState(null);
@@ -25,63 +26,18 @@ function Home() {
     const [accountsLoading, setAccountsLoading] = useState(false);
     const [isAccountFormOpen, setIsAccountFormOpen] = useState(false);
     const [editingAccount, setEditingAccount] = useState(null);
-
-    // Новые состояния для меню выбора типа
-    const [showTypeMenu, setShowTypeMenu] = useState(false);
     const [selectedType, setSelectedType] = useState(null);
+    const [selectedPeriod, setSelectedPeriod] = useState('all');
 
     useEffect(() => {
         fetchAccounts();
+        fetchTransactions();
     }, []);
-
-    useEffect(() => {
-        console.log('isAccountFormOpen =', isAccountFormOpen);
-    }, [isAccountFormOpen]);
-
-    // отслеживать состояние меню
-    const [isMenuOpen, setIsMenuOpen] = useState(false)
-
-    const handleSaveAccount = async (accountData, accountId) => {
-        try {
-            if (accountId) {
-                await accountAPI.updateAccount(accountId, accountData);
-            } else {
-                await accountAPI.createAccount(accountData);
-            }
-            await fetchAccounts();
-        } catch (err) {
-            console.error('Ошибка сохранения счета:', err);
-            alert('Ошибка при сохранении счета: ' + (err.response?.data?.error || err.message));
-            throw err;
-        }
-    };
-
-    const handleAddAccount = () => {
-        console.log('📝 handleAddAccount вызван');
-        setEditingAccount(null);
-        setIsAccountFormOpen(true);
-    };
-
-    const handleEditAccount = (account) => {
-        setEditingAccount(account);
-        setIsAccountFormOpen(true);
-    };
-
-    const handleDeleteAccount = async (id) => {
-        if (!window.confirm('Удалить счёт? Все транзакции этого счета останутся без привязки.')) return;
-        try {
-            await accountAPI.deleteAccount(id);
-            await fetchAccounts();
-        } catch (err) {
-            alert('Не удалось удалить счёт');
-        }
-    };
 
     const fetchAccounts = async () => {
         setAccountsLoading(true);
         try {
             const data = await accountAPI.getAccounts();
-            console.log('📥 fetchAccounts получил данные:', data);
             setAccounts(data);
         } catch (err) {
             console.error('Ошибка загрузки счетов', err);
@@ -89,8 +45,33 @@ function Home() {
             setAccountsLoading(false);
         }
     };
+    const fetchTransactions = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const data = await transactionAPI.getTransactions();
+            setTransactions(data);
+        } catch {
+            setError('Не удалось загрузить данные');
+            setTransactions([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // Обработчики транзакций
+    const addTransaction = async (newTransaction) => {
+        try {
+            await transactionAPI.createTransaction(newTransaction);
+            await fetchTransactions();
+            await fetchAccounts();
+            setIsFormOpen(false);
+            setSelectedType(null);
+        } catch {
+            alert('Не удалось добавить операцию');
+        }
+    };
+
     const updateTransaction = async (id, updateData) => {
         try {
             await transactionAPI.updateTransaction(id, updateData);
@@ -103,53 +84,54 @@ function Home() {
         }
     };
 
-    const handleEdit = (transaction) => {
-        setEditingTransaction(transaction);
-        setIsFormOpen(true);
-    };
-
-    const [selectedPeriod, setSelectedPeriod] = useState('all');
-
-    useEffect(() => { fetchTransactions(); }, []);
-
-    const fetchTransactions = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const data = await transactionAPI.getTransactions();
-            setTransactions(data);
-        } catch {
-            setError('Не удалось загрузить данные');
-            setTransactions([]);
-        } finally { setLoading(false); }
-    };
-
-    const addTransaction = async (newTransaction) => {
-        console.log('addTransaction called with', newTransaction);
-        try {
-            await transactionAPI.createTransaction(newTransaction);
-            console.log('createTransaction succeeded');
-            await fetchTransactions();
-            await fetchAccounts();
-            setIsFormOpen(false);
-            setSelectedType(null);
-        } catch (error) {
-            console.error('addTransaction error', error);
-            alert('Не удалось добавить операцию');
-        }
-    };
-
     const deleteTransaction = async (id) => {
         if (!window.confirm('Удалить операцию?')) return;
         try {
             await transactionAPI.deleteTransaction(id);
             await fetchTransactions();
             await fetchAccounts();
-        } catch { alert('Не удалось удалить операцию'); }
+        } catch {
+            alert('Не удалось удалить операцию');
+        }
     };
 
+    const handleEdit = (transaction) => {
+        setEditingTransaction(transaction);
+        setIsFormOpen(true);
+    };
+
+    // Обработчики счетов
+    const handleAddAccount = () => {
+        setEditingAccount(null);
+        setIsAccountFormOpen(true);
+    };
+
+    const handleEditAccount = (account) => {
+        setEditingAccount(account);
+        setIsAccountFormOpen(true);
+    };
+
+    const handleDeleteAccount = async (id) => {
+        if (!window.confirm('Удалить счёт?')) return;
+        try {
+            await accountAPI.deleteAccount(id);
+            await fetchAccounts();
+        } catch {
+            alert('Не удалось удалить счёт');
+        }
+    };
+
+    const handleSaveAccount = async (accountData, accountId) => {
+        if (accountId) {
+            await accountAPI.updateAccount(accountId, accountData);
+        } else {
+            await accountAPI.createAccount(accountData);
+        }
+        await fetchAccounts();
+    };
+
+    // Статистика
     const calculateStats = () => {
-        if (!Array.isArray(transactions)) return { totalIncome: 0, totalExpenses: 0 };
         const totalIncome = transactions
             .filter(t => t?.type === 'income')
             .reduce((sum, t) => sum + parseFloat(t.amount), 0);
@@ -173,9 +155,7 @@ function Home() {
 
     const totalBalance = accounts.reduce((sum, acc) => sum + parseFloat(acc.balance), 0);
 
-    // Обработчик открытия меню добавления
     const handleAddClick = () => {
-        setIsMenuOpen(true);
         setShowTypeMenu(true);
     };
 
@@ -192,12 +172,60 @@ function Home() {
     };
 
     const handleCloseMenu = () => {
-        setIsMenuOpen(false);
         setShowTypeMenu(false);
+        if (onCloseMenu) onCloseMenu();
     };
 
     return (
         <>
+            {/* Основной контент */}
+            <div className="p-4">
+                {activeTab === 'home' && (
+                    <>
+                        <AccountsSlider
+                            accounts={accounts}
+                            onAddClick={handleAddAccount}
+                            onEditAccount={handleEditAccount}
+                            onDeleteAccount={handleDeleteAccount}
+                        />
+                        <BalanceCard balance={totalBalance} totalIncome={totalIncome} />
+                        <StatsBlocks totalIncome={totalIncome} totalExpenses={totalExpenses} />
+                    </>
+                )}
+
+                {activeTab === 'home' ? (
+                    <>
+                        <div className="bg-white rounded-xl shadow border border-gray-100 p-3 sm:p-4 mb-4">
+                            <div className="flex flex-col min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between gap-3">
+                                <div className="flex items-center gap-1">
+                                    <HistoryIcon size={20} className="text-gray-600" />
+                                    <h2 className="font-semibold text-sm sm:text-base">
+                                        Последние операции
+                                    </h2>
+                                </div>
+                                <PeriodSelector
+                                    periods={periods}
+                                    selectedPeriod={selectedPeriod}
+                                    onChange={setSelectedPeriod}
+                                    className="flex flex-wrap gap-1 sm:gap-2 min-[380px]:justify-end"
+                                />
+                            </div>
+                        </div>
+                        <TransactionList
+                            transactions={filteredTransactions}
+                            loading={loading}
+                            error={error}
+                            onDelete={deleteTransaction}
+                            onRetry={fetchTransactions}
+                            onEdit={handleEdit}
+                        />
+                    </>
+                ) : (
+                    <Statistics transactions={transactions} />
+                )}
+            </div>
+
+            {/* Модальные окна */}
             <TransactionForm
                 isOpen={isFormOpen}
                 onClose={handleCloseForm}

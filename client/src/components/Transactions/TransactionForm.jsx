@@ -201,7 +201,7 @@ const TransactionForm = ({
   console.log('isSubmitting:', isSubmitting, 'dataReady:', dataReady);
 
   return (
-      <div className="fixed inset-0 z-50">
+      <div className="fixed inset-0 z-60">
         <div className="fixed inset-0 bg-black/50" onClick={handleClose} />
         <div className="fixed bottom-0 left-0 right-0 md:bottom-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2">
           <div className="bg-white rounded-t-3xl md:rounded-2xl w-full max-w-md md:max-w-lg mx-auto flex flex-col max-h-[90vh] overflow-x-hidden">

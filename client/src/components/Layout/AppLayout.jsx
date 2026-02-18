@@ -1,15 +1,18 @@
+import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import GlassNavigation from '../UI/GlassNavigation';
 
-const AppLayout = ({ isMenuOpen, onAddClick, activeTab, setActiveTab }) => {
+const AppLayout = ({ activeTab, setActiveTab }) => {
+    const [showTypeMenu, setShowTypeMenu] = useState(false);
+
     return (
         <div className="min-h-screen bg-gray-50 pb-32">
-            <Outlet context={{ isMenuOpen, onAddClick, activeTab, setActiveTab }} />
+            <Outlet context={{ activeTab, setActiveTab, showTypeMenu, setShowTypeMenu }} />
             <GlassNavigation
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
-                onAddClick={onAddClick}
-                isMenuOpen={isMenuOpen}
+                showTypeMenu={showTypeMenu}
+                setShowTypeMenu={setShowTypeMenu}
             />
         </div>
     );

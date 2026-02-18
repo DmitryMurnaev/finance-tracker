@@ -13,16 +13,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/Layout/AppLayout';
 
 function App() {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('home');
-
-    const handleAddClick = () => {
-        setIsMenuOpen(true);
-    };
-
-    const handleCloseMenu = () => {
-        setIsMenuOpen(false);
-    };
 
     return (
         <AuthProvider>
@@ -33,15 +24,13 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <AppLayout
-                                isMenuOpen={isMenuOpen}
-                                onAddClick={handleAddClick}
                                 activeTab={activeTab}
                                 setActiveTab={setActiveTab}
                             />
                         </ProtectedRoute>
                     }
                 >
-                    <Route path="/" element={<Home isMenuOpen={isMenuOpen} onCloseMenu={handleCloseMenu} />} />
+                    <Route path="/" element={<Home />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/plans" element={<Plans />} />
                     <Route path="/more" element={<More />} />
