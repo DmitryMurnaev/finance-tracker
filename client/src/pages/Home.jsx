@@ -1,11 +1,16 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { accountAPI, transactionAPI } from '../services/api';
 import TransactionForm from '../components/Transactions/TransactionForm';
 import TransactionTypeMenu from '../components/Transactions/TransactionTypeMenu';
-import MobileLayout from '../components/Layout/MobileLayout';
-import DesktopLayout from '../components/Layout/DesktopLayout';
-import ScrollToTopButton from '../components/UI/ScrollToTopButton';
+import AccountsSlider from '../components/Accounts/AccountsSlider';
 import BalanceCard from '../components/Layout/BalanceCard';
+import StatsBlocks from '../components/Layout/StatsBlocks';
+import TransactionList from '../components/Transactions/TransactionList';
+import Statistics from '../components/Statistics/Statistics';
+import PeriodSelector from '../components/UI/PeriodSelector';
+import { History as HistoryIcon } from 'lucide-react';
+import ScrollToTopButton from '../components/UI/ScrollToTopButton';
 import AccountForm from '../components/Accounts/AccountForm';
 import '../index.css';
 
@@ -193,54 +198,6 @@ function Home() {
 
     return (
         <>
-            <MobileLayout
-                accounts={accounts}
-                onEditAccount={handleEditAccount}
-                onDeleteAccount={handleDeleteAccount}
-                onAddAccount={handleAddAccount}
-                onAddClick={handleAddClick}  // передаём открытие меню
-                transactions={filteredTransactions}
-                allTransactions={transactions}
-                loading={loading}
-                error={error}
-                fetchTransactions={fetchTransactions}
-                deleteTransaction={deleteTransaction}
-                totalIncome={totalIncome}
-                totalExpenses={totalExpenses}
-                totalBalance={totalBalance}
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                setIsFormOpen={setIsFormOpen} // возможно не нужно
-                periods={periods}
-                selectedPeriod={selectedPeriod}
-                setSelectedPeriod={setSelectedPeriod}
-                onEditTransaction={handleEdit}
-                isMenuOpen={isMenuOpen}
-            />
-            <DesktopLayout
-                isMenuOpen={isMenuOpen}
-                accounts={accounts}
-                onAddAccount={handleAddAccount}
-                onEditAccount={handleEditAccount}
-                onDeleteAccount={handleDeleteAccount}
-                onAddClick={handleAddClick}
-                transactions={filteredTransactions}
-                allTransactions={transactions}
-                loading={loading}
-                error={error}
-                fetchTransactions={fetchTransactions}
-                deleteTransaction={deleteTransaction}
-                totalIncome={totalIncome}
-                totalExpenses={totalExpenses}
-                totalBalance={totalBalance}
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                setIsFormOpen={setIsFormOpen}
-                periods={periods}
-                selectedPeriod={selectedPeriod}
-                setSelectedPeriod={setSelectedPeriod}
-                onEditTransaction={handleEdit}
-            />
             <TransactionForm
                 isOpen={isFormOpen}
                 onClose={handleCloseForm}

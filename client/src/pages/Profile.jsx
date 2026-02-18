@@ -65,7 +65,7 @@ const Profile = () => {
         <div className="max-w-2xl mx-auto p-6">
             {/* Шапка */}
             <div className="flex items-center gap-4 mb-8">
-                <Link to="/" className="p-2 rounded-lg hover:bg-gray-100 transition">
+                <Link to="/more" className="p-2 rounded-lg hover:bg-gray-100 transition">
                     <ArrowLeft size={20} className="text-gray-600" />
                 </Link>
                 <h1 className="text-2xl font-semibold text-gray-900">Профиль</h1>

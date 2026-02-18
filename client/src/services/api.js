@@ -169,4 +169,34 @@ export const accountAPI = {
     }
 };
 
+export const planAPI = {
+    getPlans: async () => {
+        const response = await api.get('/plans');
+        return response.data;
+    },
+    createPlan: async (data) => {
+        const response = await api.post('/plans', data);
+        return response.data;
+    },
+    updatePlan: async (id, data) => {
+        const response = await api.put(`/plans/${id}`, data);
+        return response.data;
+    },
+    contributeToPlan: async (id, data) => {
+        const response = await api.post(`/plans/${id}/contribute`, data);
+        return response.data;
+    },
+    deletePlan: async (id) => {
+        const response = await api.delete(`/plans/${id}`);
+        return response.data;
+    }
+};
+
+export const supportAPI = {
+    sendMessage: async (message) => {
+        const response = await api.post('/support', { message });
+        return response.data;
+    }
+};
+
 export { API_URL };

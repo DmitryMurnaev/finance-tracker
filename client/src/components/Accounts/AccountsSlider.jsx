@@ -61,7 +61,7 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
 
                 <div
                     ref={sliderRef}
-                    className="flex overflow-x-auto md:justify-between gap-4 pb-4 scrollbar-hide scroll-smooth snap-x snap-mandatory"
+                    className="flex overflow-x-auto dd:justify-between gap-4 pb-4 scrollbar-hide scroll-smooth snap-x snap-mandatory"
                     style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}
                 >
                     {accounts.map((account) => {

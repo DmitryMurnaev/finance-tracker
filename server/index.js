@@ -19,8 +19,6 @@ const allowedOrigins = [
     'http://localhost:5173'
 ];
 
-
-
 app.use(cors({
     origin: allowedOrigins,
     credentials: true,
@@ -29,6 +27,12 @@ app.use(cors({
 app.options('*', cors());
 app.use(express.json());
 
+
+const plansRoutes = require('./routes/plans');
+const supportRoutes = require('./routes/support');
+
+app.use('/api/plans', plansRoutes);
+app.use('/api/support', supportRoutes);
 
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/accounts', accountsRoutes)
