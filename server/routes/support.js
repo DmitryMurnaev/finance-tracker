@@ -27,7 +27,8 @@ router.post('/', authMiddleware, async (req, res) => {
 
         const userName = req.user.name ? ` (${req.user.name})` : '';
         const text = `📬 *Новое обращение в поддержку*\n\n` +
-            `*Пользователь:* ${req.user.id}${userName}\n` +
+            `*Пользователь:* ${userName}\n` +
+            `*id:* ${req.user.id}\n` +
             `*Email:* ${req.user.email}\n` +
             `*Тема:* ${topicText}\n` +
             `*Контакт:* ${contact || 'не указан'}\n\n` +
