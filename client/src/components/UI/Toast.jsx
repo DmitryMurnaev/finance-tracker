@@ -26,7 +26,7 @@ const Toast = ({ isOpen, message, type, duration, onClose }) => {
     };
 
     return (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] animate-slide-up">
             <div className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border ${bgColors[type]}`}>
                 {icons[type]}
                 <span className="text-gray-800">{message}</span>
