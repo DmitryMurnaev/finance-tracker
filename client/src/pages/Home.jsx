@@ -12,11 +12,12 @@ import PeriodSelector from '../components/UI/PeriodSelector';
 import { History as HistoryIcon } from 'lucide-react';
 import ScrollToTopButton from '../components/UI/ScrollToTopButton';
 import AccountForm from '../components/Accounts/AccountForm';
+import { useModal } from "../context/ModalContext.jsx";
 import '../index.css';
 
 function Home({ isMenuOpen, onCloseMenu }) { // ✅ принимаем пропсы
     const { activeTab, setActiveTab, showTypeMenu, setShowTypeMenu } = useOutletContext();
-
+    const { showConfirm, showToast } = useModal();
     const [transactions, setTransactions] = useState([]);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -67,8 +68,9 @@ function Home({ isMenuOpen, onCloseMenu }) { // ✅ принимаем проп�
             await fetchAccounts();
             setIsFormOpen(false);
             setSelectedType(null);
+            showToast({ message: 'Операция добавлена', type: 'success' });
         } catch {
-            alert('Не удалось добавить операцию');
+            showToast({ message: 'Не удалось добавить операцию', type: 'error' });
         }
     };
 
@@ -79,20 +81,26 @@ function Home({ isMenuOpen, onCloseMenu }) { // ✅ принимаем проп�
             await fetchAccounts();
             setEditingTransaction(null);
             setIsFormOpen(false);
+            showToast({ message: 'Операция обновлена', type: 'success' });
         } catch {
-            alert('Не удалось обновить операцию');
+            showToast({ message: 'Не удалось обновить операцию', type: 'error' });
         }
     };
 
     const deleteTransaction = async (id) => {
-        if (!window.confirm('Удалить операцию?')) return;
-        try {
-            await transactionAPI.deleteTransaction(id);
-            await fetchTransactions();
-            await fetchAccounts();
-        } catch {
-            alert('Не удалось удалить операцию');
-        }
+        showConfirm({
+            title: 'Удаление операции',
+            message: 'Вы уверены, что хотите удалить эту операцию?',
+            onConfirm: async () => {
+                try {
+                    await transactionAPI.deleteTransaction(id);
+                    await fetchTransactions();
+                    await fetchAccounts();
+                } catch {
+                    showToast({ message: 'Не удалось удалить операцию', type: 'error' });
+                }
+            },
+        });
     };
 
     const handleEdit = (transaction) => {
@@ -112,22 +120,33 @@ function Home({ isMenuOpen, onCloseMenu }) { // ✅ принимаем проп�
     };
 
     const handleDeleteAccount = async (id) => {
-        if (!window.confirm('Удалить счёт?')) return;
-        try {
-            await accountAPI.deleteAccount(id);
-            await fetchAccounts();
-        } catch {
-            alert('Не удалось удалить счёт');
-        }
+        showConfirm({
+            title: 'Удаление счета',
+            message: 'Удалить счет ?',
+            onConfirm: async () => {
+                try {
+                    await accountAPI.deleteAccount(id);
+                    await fetchAccounts();
+                } catch {
+                    showToast({ message: 'Не удалось удалить счёт', type: 'error' });
+                }
+            },
+        });
     };
 
     const handleSaveAccount = async (accountData, accountId) => {
-        if (accountId) {
-            await accountAPI.updateAccount(accountId, accountData);
-        } else {
-            await accountAPI.createAccount(accountData);
+        try {
+            if (accountId) {
+                await accountAPI.updateAccount(accountId, accountData);
+                showToast({ message: 'Счёт обновлён', type: 'success' });
+            } else {
+                await accountAPI.createAccount(accountData);
+                showToast({ message: 'Счёт создан', type: 'success' });
+            }
+            await fetchAccounts();
+        } catch {
+            showToast({ message: 'Ошибка сохранения счёта', type: 'error' });
         }
-        await fetchAccounts();
     };
 
     // Статистика

@@ -5,8 +5,10 @@ import { getPlanIconById, getPlanColorById } from '../config/plansConfig';
 import PlanCard from '../components/Plans/PlanCard';
 import PlanForm from '../components/Plans/PlanForm';
 import ContributeForm from '../components/Plans/ContributeForm';
+import { useModal } from '../context/ModalContext';
 
 const Plans = () => {
+    const { showConfirm, showToast } = useModal();
     const [plans, setPlans] = useState([]);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [isContributeOpen, setIsContributeOpen] = useState(false);
@@ -24,6 +26,7 @@ const Plans = () => {
             setPlans(data);
         } catch (err) {
             console.error('Ошибка загрузки планов', err);
+            showToast({ message: 'Не удалось загрузить планы', type: 'error' });
         } finally {
             setLoading(false);
         }
@@ -45,33 +48,51 @@ const Plans = () => {
     };
 
     const handleSave = async (planData, planId) => {
-        if (planId) {
-            await planAPI.updatePlan(planId, planData);
-        } else {
-            await planAPI.createPlan(planData);
+        try {
+            if (planId) {
+                await planAPI.updatePlan(planId, planData);
+                showToast({ message: 'Цель обновлена', type: 'success' });
+            } else {
+                await planAPI.createPlan(planData);
+                showToast({ message: 'Цель создана', type: 'success' });
+            }
+            await fetchPlans();
+        } catch (err) {
+            showToast({ message: 'Ошибка сохранения', type: 'error' });
         }
-        await fetchPlans();
     };
 
     const handleContribute = async (amount, accountId, description) => {
-        await planAPI.contributeToPlan(selectedPlan.id, { amount, account_id: accountId, description });
-        await fetchPlans();
+        try {
+            await planAPI.contributeToPlan(selectedPlan.id, { amount, account_id: accountId, description });
+            await fetchPlans();
+            showToast({ message: 'Средства внесены', type: 'success' });
+        } catch (err) {
+            showToast({ message: 'Ошибка внесения', type: 'error' });
+        }
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm('Удалить цель?')) return;
-        await planAPI.deletePlan(id);
-        await fetchPlans();
+        showConfirm({
+            title: 'Удаление цели',
+            message: 'Вы уверены, что хотите удалить эту цель?',
+            onConfirm: async () => {
+                try {
+                    await planAPI.deletePlan(id);
+                    await fetchPlans();
+                    showToast({ message: 'Цель удалена', type: 'success' });
+                } catch {
+                    showToast({ message: 'Ошибка удаления', type: 'error' });
+                }
+            },
+        });
     };
 
     return (
         <div className="p-4">
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold">Планы</h1>
-                <button
-                    onClick={handleAddClick}
-                    className="bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition"
-                >
+                <button onClick={handleAddClick} className="bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition">
                     <Plus size={24} />
                 </button>
             </div>

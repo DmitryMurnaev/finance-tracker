@@ -2,23 +2,23 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { supportAPI } from '../services/api';
+import { useModal } from '../context/ModalContext';
 
 const Support = () => {
+    const { showToast } = useModal();
     const [message, setMessage] = useState('');
-    const [status, setStatus] = useState({ type: '', text: '' });
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setStatus({ type: '', text: '' });
         setLoading(true);
         try {
             await supportAPI.sendMessage(message);
-            setStatus({ type: 'success', text: 'Сообщение отправлено! Мы ответим вам в ближайшее время.' });
+            showToast({ message: 'Сообщение отправлено! Мы ответим вам в ближайшее время.', type: 'success' });
             setMessage('');
-        } catch (err) {
-            setStatus({ type: 'error', text: 'Ошибка отправки. Попробуйте позже.' });
+        } catch {
+            showToast({ message: 'Ошибка отправки. Попробуйте позже.', type: 'error' });
         } finally {
             setLoading(false);
         }
@@ -41,11 +41,6 @@ const Support = () => {
                     className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
                     required
                 />
-                {status.text && (
-                    <div className={`p-3 rounded-lg ${status.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-                        {status.text}
-                    </div>
-                )}
                 <button
                     type="submit"
                     disabled={loading}

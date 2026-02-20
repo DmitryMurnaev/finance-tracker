@@ -2,15 +2,16 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { accountAPI } from '../../services/api';
 import { getPlanIconById, getPlanColorById } from '../../config/plansConfig';
+import { useModal } from '../../context/ModalContext';
 
 const ContributeForm = ({ isOpen, onClose, onContribute, plan }) => {
+    const { showToast } = useModal();
     const [amount, setAmount] = useState('');
     const [accountId, setAccountId] = useState(null);
     const [description, setDescription] = useState('');
     const [accounts, setAccounts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState('');
 
     useEffect(() => {
         if (isOpen) {
@@ -32,7 +33,6 @@ const ContributeForm = ({ isOpen, onClose, onContribute, plan }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
         setIsSubmitting(true);
 
         try {
@@ -40,9 +40,10 @@ const ContributeForm = ({ isOpen, onClose, onContribute, plan }) => {
             if (!accountId) throw new Error('Выберите счёт');
 
             await onContribute(parseFloat(amount), accountId, description.trim() || 'Пополнение плана');
+            showToast({ message: 'Средства внесены', type: 'success' });
             onClose();
         } catch (err) {
-            setError(err.message);
+            showToast({ message: err.message, type: 'error' });
         } finally {
             setIsSubmitting(false);
         }
@@ -115,7 +116,6 @@ const ContributeForm = ({ isOpen, onClose, onContribute, plan }) => {
                                 placeholder="Например, откладываю на машину"
                             />
                         </div>
-                        {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg">{error}</div>}
                         <div className="flex gap-3">
                             <button type="button" onClick={onClose} className="flex-1 bg-gray-100 py-3 rounded-lg">Отмена</button>
                             <button type="submit" disabled={isSubmitting} className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 disabled:opacity-50">

@@ -5,6 +5,7 @@ import { getCategoryConfig } from '../../config/categoryConfig';
 import { getIconById, getColorById } from '../../config/accountsConfig';
 import NumericKeyboard from './NumericKeyboard';
 import CategoryCarousel from './CategoryCarousel';
+import { useModal } from '../../context/ModalContext';
 
 const TransactionForm = ({
                            isOpen,
@@ -15,6 +16,7 @@ const TransactionForm = ({
                            mode,
                          }) => {
   const [amount, setAmount] = useState('');
+  const { showToast } = useModal();
   const [description, setDescription] = useState('');
   const [type, setType] = useState(mode === 'expense' ? 'expense' : 'income');
   const [categoryId, setCategoryId] = useState(null);
@@ -128,12 +130,8 @@ const TransactionForm = ({
         if (fromAccountId === toAccountId) {
           throw new Error('Счета должны отличаться');
         }
-        // TODO: обработка перевода на бэкенде
-        alert('Перевод временно не реализован');
+        showToast({ message: 'Перевод временно не реализован', type: 'info' });
         return;
-      } else {
-        if (!categoryId) throw new Error('Выберите категорию');
-        if (!accountId) throw new Error('Выберите счёт');
       }
 
       const transactionData = {

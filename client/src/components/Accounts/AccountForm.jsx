@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { iconOptions, colorOptions } from '../../config/accountsConfig';
+import { useModal } from '../../context/ModalContext';
 
 const AccountForm = ({
                          isOpen,
                          onClose,
                          onSave,
-                         onDelete,        // новый проп
+                         onDelete,
                          editingAccount,
                      }) => {
+    const { showConfirm, showToast } = useModal();
     const [name, setName] = useState('');
     const [iconId, setIconId] = useState(1);
     const [colorId, setColorId] = useState(1);
@@ -16,7 +18,6 @@ const AccountForm = ({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
 
-    // Заполнение формы при редактировании
     useEffect(() => {
         if (editingAccount) {
             setName(editingAccount.name);
@@ -37,9 +38,7 @@ const AccountForm = ({
         setIsSubmitting(true);
 
         try {
-            if (!name.trim()) {
-                throw new Error('Введите название счета');
-            }
+            if (!name.trim()) throw new Error('Введите название счета');
 
             const accountData = {
                 name: name.trim(),
@@ -66,13 +65,19 @@ const AccountForm = ({
 
     const handleDelete = async () => {
         if (!editingAccount) return;
-        if (!window.confirm('Удалить счёт? Все транзакции этого счета останутся без привязки.')) return;
-        try {
-            await onDelete(editingAccount.id);
-            onClose();
-        } catch (err) {
-            alert('Не удалось удалить счёт');
-        }
+        showConfirm({
+            title: 'Удаление счёта',
+            message: 'Удалить счёт? Все транзакции этого счета останутся без привязки.',
+            onConfirm: async () => {
+                try {
+                    await onDelete(editingAccount.id);
+                    onClose();
+                    showToast({ message: 'Счёт удалён', type: 'success' });
+                } catch {
+                    showToast({ message: 'Не удалось удалить счёт', type: 'error' });
+                }
+            },
+        });
     };
 
     if (!isOpen) return null;
@@ -87,6 +92,7 @@ const AccountForm = ({
             <div className="fixed inset-0 bg-black/50" onClick={onClose} />
             <div className="fixed bottom-0 left-0 right-0 md:bottom-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2">
                 <div className="bg-white rounded-t-3xl md:rounded-2xl w-full max-w-md mx-auto flex flex-col md:shadow-xl">
+                    {/* заголовок */}
                     <div className="bg-white border-b border-gray-100 p-4 flex justify-between items-center">
                         <h2 className="text-xl font-bold text-gray-900">{modalTitle}</h2>
                         <button onClick={onClose} className="p-2 text-gray-500 hover:text-gray-700">
@@ -95,7 +101,7 @@ const AccountForm = ({
                     </div>
 
                     <form onSubmit={handleSubmit} className="p-4">
-                        {/* Название */}
+                        {/* название */}
                         <div className="mb-4">
                             <label className="block text-gray-700 mb-2 font-medium">Название</label>
                             <input
@@ -109,7 +115,7 @@ const AccountForm = ({
                             />
                         </div>
 
-                        {/* Иконка */}
+                        {/* иконка */}
                         <div className="mb-4">
                             <label className="block text-gray-700 mb-2 font-medium">Иконка</label>
                             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -118,11 +124,7 @@ const AccountForm = ({
                                         key={icon.id}
                                         type="button"
                                         onClick={() => setIconId(icon.id)}
-                                        className={`p-2 rounded-lg flex flex-col items-center ${
-                                            iconId === icon.id
-                                                ? 'ring-2 ring-blue-500 bg-blue-50'
-                                                : 'bg-gray-100'
-                                        }`}
+                                        className={`p-2 rounded-lg flex flex-col items-center ${iconId === icon.id ? 'ring-2 ring-blue-500 bg-blue-50' : 'bg-gray-100'}`}
                                     >
                                         <span className="text-2xl">{icon.emoji}</span>
                                         <span className="text-xs mt-1">{icon.name}</span>
@@ -131,7 +133,7 @@ const AccountForm = ({
                             </div>
                         </div>
 
-                        {/* Цвет */}
+                        {/* цвет */}
                         <div className="mb-4">
                             <label className="block text-gray-700 mb-2 font-medium">Цвет</label>
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -140,24 +142,18 @@ const AccountForm = ({
                                         key={color.id}
                                         type="button"
                                         onClick={() => setColorId(color.id)}
-                                        className={`p-2 rounded-lg flex flex-col items-center ${
-                                            colorId === color.id ? 'ring-2 ring-blue-500' : ''
-                                        } ${color.bg}`}
+                                        className={`p-2 rounded-lg flex flex-col items-center ${colorId === color.id ? 'ring-2 ring-blue-500' : ''} ${color.bg}`}
                                     >
-                                        <span className={`text-xs sm:text-sm font-medium ${color.text}`}>
-                                            {color.name}
-                                        </span>
+                                        <span className={`text-xs sm:text-sm font-medium ${color.text}`}>{color.name}</span>
                                     </button>
                                 ))}
                             </div>
                         </div>
 
-                        {/* Начальный баланс (только при создании) */}
+                        {/* начальный баланс */}
                         {!editingAccount && (
                             <div className="mb-4">
-                                <label className="block text-gray-700 mb-2 font-medium">
-                                    Начальный баланс (₽, необязательно)
-                                </label>
+                                <label className="block text-gray-700 mb-2 font-medium">Начальный баланс (₽, необязательно)</label>
                                 <input
                                     type="number"
                                     value={balance}
@@ -172,38 +168,21 @@ const AccountForm = ({
                         )}
 
                         {error && (
-                            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-                                {error}
-                            </div>
+                            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">{error}</div>
                         )}
 
                         <div className="flex gap-3">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                disabled={isSubmitting}
-                                className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200"
-                            >
+                            <button type="button" onClick={onClose} disabled={isSubmitting} className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200">
                                 Отмена
                             </button>
-                            <button
-                                type="submit"
-                                disabled={isSubmitting}
-                                className="flex-1 bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50"
-                            >
+                            <button type="submit" disabled={isSubmitting} className="flex-1 bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50">
                                 {submitText}
                             </button>
                         </div>
 
-                        {/* Кнопка удаления (только для редактирования) */}
                         {editingAccount && (
                             <div className="mt-4">
-                                <button
-                                    type="button"
-                                    onClick={handleDelete}
-                                    disabled={isSubmitting}
-                                    className="w-full bg-red-50 text-red-600 py-3 rounded-lg font-medium hover:bg-red-100 transition-colors border border-red-200"
-                                >
+                                <button type="button" onClick={handleDelete} disabled={isSubmitting} className="w-full bg-red-50 text-red-600 py-3 rounded-lg font-medium hover:bg-red-100 transition-colors border border-red-200">
                                     Удалить счёт
                                 </button>
                             </div>
