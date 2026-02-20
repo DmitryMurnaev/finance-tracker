@@ -29,7 +29,11 @@ router.post('/register', async (req, res) => {
         const user = userResult.rows[0];
 
 
-        const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
+        const token = jwt.sign(
+            { userId: user.id, email: user.email },  // добавили email
+            JWT_SECRET,
+            { expiresIn: '7d' }
+        );
 
         await pool.query('UPDATE transactions SET user_id = $1 WHERE user_id IS NULL', [user.id]);
 
@@ -58,11 +62,11 @@ router.post('/login', async (req, res) => {
         if (!valid) {
             return res.status(401).json({ error: 'Неверный email или пароль' });
         }
-        const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
-        res.json({
-            user: { id: user.id, email: user.email, name: user.name, created_at: user.created_at },
-            token
-        });
+        const token = jwt.sign(
+            { userId: user.id, email: user.email },  // добавили email
+            JWT_SECRET,
+            { expiresIn: '7d' }
+        );
     } catch (error) {
         console.error('❌ Ошибка входа:', error.message);
         res.status(500).json({ error: 'Ошибка входа' });

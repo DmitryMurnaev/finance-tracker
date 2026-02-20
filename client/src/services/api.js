@@ -198,8 +198,8 @@ export const planAPI = {
 };
 
 export const supportAPI = {
-    sendMessage: async (message) => {
-        const response = await api.post('/support', { message });
+    sendMessage: async (data) => {
+        const response = await api.post('/support', data);
         return response.data;
     }
 };

@@ -8,7 +8,7 @@ const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 router.post('/', authMiddleware, async (req, res) => {
-    const { message } = req.body;
+    const { topic, message, contact } = req.body;
     if (!message) {
         return res.status(400).json({ error: 'Сообщение не может быть пустым' });
     }
@@ -18,14 +18,33 @@ router.post('/', authMiddleware, async (req, res) => {
     }
 
     try {
-        const text = `📬 Сообщение от пользователя ${req.user.id} (${req.user.email}):\n\n${message}`;
+        const topicText = {
+            question: '❓ Вопрос',
+            problem: '⚠️ Техническая проблема',
+            wish: '✨ Пожелание',
+            other: '📝 Другое'
+        }[topic] || '📝 Сообщение';
+
+        const text = `📬 *Новое обращение в поддержку*\n\n` +
+            `*Тема:* ${topicText}\n` +
+            `*Пользователь:* ${req.user.id}\n` +
+            `*Email:* ${req.user.email}\n` +
+            `*Контакт:* ${contact || 'не указан'}\n\n` +
+            `*Сообщение:*\n${message}`;
+
         await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
             chat_id: TELEGRAM_CHAT_ID,
             text: text,
-        });
+            parse_mode: 'Markdown'
+        }, { timeout: 5000 });
+
         res.json({ success: true });
     } catch (err) {
-        console.error('❌ Ошибка отправки в Telegram:', err.message);
+        console.error('❌ Ошибка отправки в Telegram:', {
+            message: err.message,
+            response: err.response?.data,
+            status: err.response?.status
+        });
         res.status(500).json({ error: 'Ошибка отправки' });
     }
 });

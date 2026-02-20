@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken'); // ← этого не хватало!
+const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
@@ -13,7 +13,11 @@ const authMiddleware = (req, res, next) => {
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
         console.log('✅ Decoded:', decoded);
-        req.user = { id: parseInt(decoded.userId, 10) };
+        // Добавляем и id, и email
+        req.user = {
+            id: parseInt(decoded.userId, 10),
+            email: decoded.email
+        };
         next();
     } catch (err) {
         console.error('❌ JWT Error:', err.message);
