@@ -27,6 +27,8 @@ app.use(cors({
 app.options('*', cors());
 app.use(express.json());
 
+const crypto = require('crypto');
+
 
 const plansRoutes = require('./routes/plans');
 const supportRoutes = require('./routes/support');
@@ -271,6 +273,7 @@ app.delete('/api/transactions/:id', authMiddleware, async (req, res) => {
 
 // 💸 Перевод между счетами
 app.post('/api/transactions/transfer', authMiddleware, async (req, res) => {
+    console.log('💰 Перевод, тело запроса:', req.body);
     const { fromAccountId, toAccountId, amount, description } = req.body;
     if (!fromAccountId || !toAccountId || !amount || amount <= 0) {
         return res.status(400).json({ error: 'Необходимо указать счета и сумму' });
@@ -308,21 +311,25 @@ app.post('/api/transactions/transfer', authMiddleware, async (req, res) => {
             return res.status(404).json({ error: 'Счёт пополнения не найден' });
         }
 
-        // Генерируем общий transfer_id (уникальный идентификатор для пары)
-        const transferId = require('crypto').randomUUID();
+        // Генерируем общий transfer_id
+        const transferId = crypto.randomUUID();
+        console.log('🆔 transferId:', transferId);
+
+        // Описание по умолчанию
+        const finalDescription = description?.trim() || 'Перевод между счетами';
 
         // Создаём расходную транзакцию
         await client.query(
             `INSERT INTO transactions (amount, type, account_id, description, date, user_id, transfer_id)
              VALUES ($1, 'expense', $2, $3, CURRENT_DATE, $4, $5)`,
-            [amount, fromAccountId, description || `Перевод на счёт ${toAccountId}`, req.user.id, transferId]
+            [amount, fromAccountId, finalDescription, req.user.id, transferId]
         );
 
         // Создаём доходную транзакцию
         await client.query(
             `INSERT INTO transactions (amount, type, account_id, description, date, user_id, transfer_id)
              VALUES ($1, 'income', $2, $3, CURRENT_DATE, $4, $5)`,
-            [amount, toAccountId, description || `Перевод со счёта ${fromAccountId}`, req.user.id, transferId]
+            [amount, toAccountId, finalDescription, req.user.id, transferId]
         );
 
         // Обновляем балансы счетов
@@ -336,10 +343,11 @@ app.post('/api/transactions/transfer', authMiddleware, async (req, res) => {
         );
 
         await client.query('COMMIT');
+        console.log('✅ Перевод выполнен');
         res.json({ success: true, message: 'Перевод выполнен' });
     } catch (error) {
         await client.query('ROLLBACK');
-        console.error('❌ Ошибка перевода:', error.message);
+        console.error('❌ Ошибка перевода:', error.message, error.stack);
         res.status(500).json({ error: error.message });
     } finally {
         client.release();
