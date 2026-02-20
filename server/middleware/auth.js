@@ -13,7 +13,6 @@ const authMiddleware = (req, res, next) => {
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
         console.log('✅ Decoded:', decoded);
-        // Добавляем и id, и email
         req.user = {
             id: parseInt(decoded.userId, 10),
             email: decoded.email
