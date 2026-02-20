@@ -282,21 +282,9 @@ app.post('/api/transactions/transfer', authMiddleware, async (req, res) => {
         return res.status(400).json({ error: 'Счета должны отличаться' });
     }
 
-
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-
-        // Получаем id общей категории "Перевод"
-        const catRes = await client.query(
-            'SELECT id FROM categories WHERE name = $1 AND user_id IS NULL',
-            ['Перевод']
-        );
-        if (catRes.rows.length === 0) {
-            await client.query('ROLLBACK');
-            return res.status(500).json({ error: 'Категория "Перевод" не найдена' });
-        }
-        const transferCategoryId = catRes.rows[0].id;
 
         // Проверяем баланс исходного счёта
         const fromRes = await client.query(
@@ -323,6 +311,17 @@ app.post('/api/transactions/transfer', authMiddleware, async (req, res) => {
             return res.status(404).json({ error: 'Счёт пополнения не найден' });
         }
 
+        // Получаем ID категории "transfer"
+        const catRes = await client.query(
+            'SELECT id FROM categories WHERE name = $1',
+            ['transfer']
+        );
+        if (catRes.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(500).json({ error: 'Категория "transfer" не найдена' });
+        }
+        const transferCategoryId = catRes.rows[0].id;
+
         // Генерируем общий transfer_id
         const transferId = crypto.randomUUID();
         console.log('🆔 transferId:', transferId);
@@ -332,16 +331,16 @@ app.post('/api/transactions/transfer', authMiddleware, async (req, res) => {
 
         // Создаём расходную транзакцию
         await client.query(
-            `INSERT INTO transactions (amount, type, account_id, description, date, user_id, transfer_id)
-             VALUES ($1, 'expense', $2, $3, CURRENT_DATE, $4, $5)`,
-            [amount, fromAccountId, finalDescription, req.user.id, transferId]
+            `INSERT INTO transactions (amount, type, account_id, description, date, user_id, transfer_id, category_id)
+             VALUES ($1, 'expense', $2, $3, CURRENT_DATE, $4, $5, $6)`,
+            [amount, fromAccountId, finalDescription, req.user.id, transferId, transferCategoryId]
         );
 
         // Создаём доходную транзакцию
         await client.query(
-            `INSERT INTO transactions (amount, type, account_id, description, date, user_id, transfer_id)
-             VALUES ($1, 'income', $2, $3, CURRENT_DATE, $4, $5)`,
-            [amount, toAccountId, finalDescription, req.user.id, transferId]
+            `INSERT INTO transactions (amount, type, account_id, description, date, user_id, transfer_id, category_id)
+             VALUES ($1, 'income', $2, $3, CURRENT_DATE, $4, $5, $6)`,
+            [amount, toAccountId, finalDescription, req.user.id, transferId, transferCategoryId]
         );
 
         // Обновляем балансы счетов

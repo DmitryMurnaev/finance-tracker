@@ -139,7 +139,13 @@ export const categoryConfig = {
         color: 'bg-gray-100 text-gray-800',
         name: 'Другое',
         chartColor: '#6B7280'
-    }
+    },
+    transfer: {
+        icon: '🔄',
+        color: 'bg-blue-100 text-blue-800',
+        name: 'Перевод',
+        chartColor: '#3B82F6'
+    },
 };
 
 export const getCategoryConfig = (categoryName) => {
