@@ -14,7 +14,9 @@ import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/Layout/AppLayout';
-import IndexRedirect from './pages/IndexRedirect';
+
+console.log('welcomeShown:', localStorage.getItem('welcomeShown'));
+console.log('showWelcome:', showWelcome);
 
 function App() {
     const [showWelcome, setShowWelcome] = useState(
@@ -33,8 +35,9 @@ function App() {
                     {showWelcome ? (
                         <Route path="/" element={<Welcome onFinish={handleWelcomeFinish} />} />
                     ) : (
-                        <Route path="/" element={<IndexRedirect />} />
-                    )}
+                    //     <Route path="/" element={<IndexRedirect />} />
+                    // )}
+                    <Route path="/" element={<Welcome onFinish={handleWelcomeFinish} />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/privacy" element={<Privacy />} />
