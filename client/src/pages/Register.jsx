@@ -11,6 +11,7 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [name, setName] = useState('');
+    const [agreed, setAgreed] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -18,6 +19,9 @@ const Register = () => {
         e.preventDefault();
         setError('');
 
+        if (!agreed) {
+            return setError('Необходимо согласие с политикой конфиденциальности');
+        }
         if (password !== confirmPassword) {
             return setError('Пароли не совпадают');
         }
@@ -83,6 +87,7 @@ const Register = () => {
                             placeholder="минимум 6 символов"
                             required
                         />
+                        <p className="text-xs text-gray-500 mt-1">Латиница, цифры, минимум 6 символов</p>
                     </div>
 
                     <div>
@@ -97,10 +102,30 @@ const Register = () => {
                         />
                     </div>
 
+                    <div className="flex items-start gap-2">
+                        <input
+                            type="checkbox"
+                            id="agree"
+                            checked={agreed}
+                            onChange={(e) => setAgreed(e.target.checked)}
+                            className="mt-1"
+                        />
+                        <label htmlFor="agree" className="text-sm text-gray-600">
+                            Я принимаю{' '}
+                            <Link to="/privacy" target="_blank" className="text-blue-600 hover:underline">
+                                Политику конфиденциальности
+                            </Link>{' '}
+                            и{' '}
+                            <Link to="/terms" target="_blank" className="text-blue-600 hover:underline">
+                                Пользовательское соглашение
+                            </Link>
+                        </label>
+                    </div>
+
                     <button
                         type="submit"
-                        disabled={loading}
-                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blueo-700 disabled:opacity-50"
+                        disabled={loading || !agreed}
+                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50"
                     >
                         {loading ? 'Регистрация...' : 'Зарегистрироваться'}
                     </button>

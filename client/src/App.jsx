@@ -1,9 +1,8 @@
-import { useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { ModalProvider, useModal } from './context/ModalContext';
-import ConfirmModal from './components/UI/ConfirmModal';
-import Toast from './components/UI/Toast';
+import { ModalProvider } from './context/ModalContext';
+import Welcome from './pages/Welcome';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
@@ -12,56 +11,49 @@ import Plans from './pages/Plans';
 import More from './pages/More';
 import Support from './pages/Support';
 import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/Layout/AppLayout';
-
-function ModalContainer() {
-    const { confirmState, hideConfirm, toastState, hideToast } = useModal();
-    return (
-        <>
-            <ConfirmModal
-                isOpen={confirmState.isOpen}
-                title={confirmState.title}
-                message={confirmState.message}
-                onConfirm={confirmState.onConfirm}
-                onCancel={hideConfirm}
-            />
-            <Toast
-                isOpen={toastState.isOpen}
-                message={toastState.message}
-                type={toastState.type}
-                duration={toastState.duration}
-                onClose={hideToast}
-            />
-        </>
-    );
-}
+import IndexRedirect from './pages/IndexRedirect';
 
 function App() {
-    const [activeTab, setActiveTab] = useState('home');
+    const [showWelcome, setShowWelcome] = useState(
+        !localStorage.getItem('welcomeShown')
+    );
+
+    const handleWelcomeFinish = () => {
+        localStorage.setItem('welcomeShown', 'true');
+        setShowWelcome(false);
+    };
 
     return (
         <AuthProvider>
             <ModalProvider>
                 <Routes>
+                    {showWelcome ? (
+                        <Route path="/" element={<Welcome onFinish={handleWelcomeFinish} />} />
+                    ) : (
+                        <Route path="/" element={<IndexRedirect />} />
+                    )}
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/terms" element={<Terms />} />
                     <Route
                         element={
                             <ProtectedRoute>
-                                <AppLayout activeTab={activeTab} setActiveTab={setActiveTab} />
+                                <AppLayout />
                             </ProtectedRoute>
                         }
                     >
-                        <Route path="/" element={<Home />} />
+                        <Route path="/home" element={<Home />} />
                         <Route path="/profile" element={<Profile />} />
                         <Route path="/plans" element={<Plans />} />
                         <Route path="/more" element={<More />} />
                         <Route path="/support" element={<Support />} />
-                        <Route path="/privacy" element={<Privacy />} />
                     </Route>
+                    <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
-                <ModalContainer />
             </ModalProvider>
         </AuthProvider>
     );
