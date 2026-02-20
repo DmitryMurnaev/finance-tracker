@@ -30,10 +30,11 @@ router.post('/register', async (req, res) => {
 
 
         const token = jwt.sign(
-            { userId: user.id, email: user.email },   // добавили email
+            { userId: user.id, email: user.email, name: user.name },
             JWT_SECRET,
             { expiresIn: '7d' }
         );
+
 
         await pool.query('UPDATE transactions SET user_id = $1 WHERE user_id IS NULL', [user.id]);
 
@@ -63,7 +64,7 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ error: 'Неверный email или пароль' });
         }
         const token = jwt.sign(
-            { userId: user.id, email: user.email },   // добавили email
+            { userId: user.id, email: user.email, name: user.name },
             JWT_SECRET,
             { expiresIn: '7d' }
         );

@@ -25,10 +25,11 @@ router.post('/', authMiddleware, async (req, res) => {
             other: '📝 Другое'
         }[topic] || '📝 Сообщение';
 
+        const userName = req.user.name ? ` (${req.user.name})` : '';
         const text = `📬 *Новое обращение в поддержку*\n\n` +
-            `*Тема:* ${topicText}\n` +
-            `*Пользователь:* ${req.user.id}\n` +
+            `*Пользователь:* ${req.user.id}${userName}\n` +
             `*Email:* ${req.user.email}\n` +
+            `*Тема:* ${topicText}\n` +
             `*Контакт:* ${contact || 'не указан'}\n\n` +
             `*Сообщение:*\n${message}`;
 

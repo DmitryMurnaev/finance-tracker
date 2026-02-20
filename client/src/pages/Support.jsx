@@ -44,12 +44,19 @@ const Support = () => {
                     <select
                         value={topic}
                         onChange={(e) => setTopic(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-base appearance-none"
+                        style={{
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20' stroke='%236B7280'%3E%3Cpath strokeLinecap='round' strokeLinejoin='round' strokeWidth='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
+                            backgroundPosition: 'right 0.75rem center',
+                            backgroundRepeat: 'no-repeat',
+                            backgroundSize: '1.5em 1.5em',
+                            paddingRight: '2.5rem'
+                        }}
                     >
-                        <option value="question">Вопрос</option>
-                        <option value="problem">Техническая проблема</option>
-                        <option value="wish">Пожелание</option>
-                        <option value="other">Другое</option>
+                        <option value="question">❓ Вопрос</option>
+                        <option value="problem">⚠️ Техническая проблема</option>
+                        <option value="wish">✨ Пожелание</option>
+                        <option value="other">📝 Другое</option>
                     </select>
                 </div>
 
