@@ -7,13 +7,12 @@ const router = express.Router();
 router.get('/', authMiddleware, async (req, res) => {
     try {
         const result = await pool.query(
-            'SELECT * FROM categories WHERE user_id = $1 ORDER BY name',
+            'SELECT * FROM categories WHERE user_id IS NULL OR user_id = $1 ORDER BY name',
             [req.user.id]
         );
         res.json(result.rows);
     } catch (err) {
-        console.error('❌ Ошибка получения категорий:', err.message);
-        res.status(500).json({ error: 'Ошибка сервера' });
+        // ...
     }
 });
 

@@ -282,9 +282,21 @@ app.post('/api/transactions/transfer', authMiddleware, async (req, res) => {
         return res.status(400).json({ error: 'Счета должны отличаться' });
     }
 
+
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
+
+        // Получаем id общей категории "Перевод"
+        const catRes = await client.query(
+            'SELECT id FROM categories WHERE name = $1 AND user_id IS NULL',
+            ['Перевод']
+        );
+        if (catRes.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(500).json({ error: 'Категория "Перевод" не найдена' });
+        }
+        const transferCategoryId = catRes.rows[0].id;
 
         // Проверяем баланс исходного счёта
         const fromRes = await client.query(
