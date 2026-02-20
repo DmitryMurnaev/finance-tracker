@@ -123,7 +123,6 @@ app.post('/api/transactions', authMiddleware, async (req, res) => {
 });
 
 // ✏️ Обновить транзакцию
-// ✏️ Обновить транзакцию
 app.put('/api/transactions/:id', authMiddleware, async (req, res) => {
     const id = req.params.id;
     const { amount, type, category_id, account_id, description, date } = req.body;
@@ -264,6 +263,83 @@ app.delete('/api/transactions/:id', authMiddleware, async (req, res) => {
     } catch (error) {
         await client.query('ROLLBACK');
         console.error('❌ Ошибка DELETE:', error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        client.release();
+    }
+});
+
+// 💸 Перевод между счетами
+app.post('/api/transactions/transfer', authMiddleware, async (req, res) => {
+    const { fromAccountId, toAccountId, amount, description } = req.body;
+    if (!fromAccountId || !toAccountId || !amount || amount <= 0) {
+        return res.status(400).json({ error: 'Необходимо указать счета и сумму' });
+    }
+    if (fromAccountId === toAccountId) {
+        return res.status(400).json({ error: 'Счета должны отличаться' });
+    }
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        // Проверяем баланс исходного счёта
+        const fromRes = await client.query(
+            'SELECT balance FROM accounts WHERE id = $1 AND user_id = $2',
+            [fromAccountId, req.user.id]
+        );
+        if (fromRes.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: 'Счёт списания не найден' });
+        }
+        const fromBalance = parseFloat(fromRes.rows[0].balance);
+        if (fromBalance < amount) {
+            await client.query('ROLLBACK');
+            return res.status(400).json({ error: 'Недостаточно средств на счёте списания' });
+        }
+
+        // Проверяем существование целевого счёта
+        const toRes = await client.query(
+            'SELECT id FROM accounts WHERE id = $1 AND user_id = $2',
+            [toAccountId, req.user.id]
+        );
+        if (toRes.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: 'Счёт пополнения не найден' });
+        }
+
+        // Генерируем общий transfer_id (уникальный идентификатор для пары)
+        const transferId = require('crypto').randomUUID();
+
+        // Создаём расходную транзакцию
+        await client.query(
+            `INSERT INTO transactions (amount, type, account_id, description, date, user_id, transfer_id)
+             VALUES ($1, 'expense', $2, $3, CURRENT_DATE, $4, $5)`,
+            [amount, fromAccountId, description || `Перевод на счёт ${toAccountId}`, req.user.id, transferId]
+        );
+
+        // Создаём доходную транзакцию
+        await client.query(
+            `INSERT INTO transactions (amount, type, account_id, description, date, user_id, transfer_id)
+             VALUES ($1, 'income', $2, $3, CURRENT_DATE, $4, $5)`,
+            [amount, toAccountId, description || `Перевод со счёта ${fromAccountId}`, req.user.id, transferId]
+        );
+
+        // Обновляем балансы счетов
+        await client.query(
+            'UPDATE accounts SET balance = balance - $1 WHERE id = $2',
+            [amount, fromAccountId]
+        );
+        await client.query(
+            'UPDATE accounts SET balance = balance + $1 WHERE id = $2',
+            [amount, toAccountId]
+        );
+
+        await client.query('COMMIT');
+        res.json({ success: true, message: 'Перевод выполнен' });
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error('❌ Ошибка перевода:', error.message);
         res.status(500).json({ error: error.message });
     } finally {
         client.release();

@@ -80,6 +80,11 @@ export const authAPI = {
 // API ДЛЯ ТРАНЗАКЦИЙ (без изменений)
 // ============================================
 export const transactionAPI = {
+
+    transfer: async (data) => {
+        const response = await api.post('/transactions/transfer', data);
+        return response.data;
+    },
     getTransactions: async () => {
         try {
             const response = await api.get('/transactions');

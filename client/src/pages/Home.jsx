@@ -190,6 +190,17 @@ function Home({ isMenuOpen, onCloseMenu }) { // ✅ принимаем проп�
         setEditingTransaction(null);
     };
 
+    const handleTransfer = async (transferData) => {
+        try {
+            await transactionAPI.transfer(transferData);
+            await fetchTransactions();
+            await fetchAccounts();
+            showToast({ message: 'Перевод выполнен', type: 'success' });
+        } catch {
+            showToast({ message: 'Ошибка перевода', type: 'error' });
+        }
+    };
+
     const handleCloseMenu = () => {
         setShowTypeMenu(false);
         if (onCloseMenu) onCloseMenu();
@@ -249,6 +260,7 @@ function Home({ isMenuOpen, onCloseMenu }) { // ✅ принимаем проп�
                 isOpen={isFormOpen}
                 onClose={handleCloseForm}
                 onAddTransaction={addTransaction}
+                onTransfer={handleTransfer}
                 onUpdateTransaction={updateTransaction}
                 editingTransaction={editingTransaction}
                 mode={selectedType}

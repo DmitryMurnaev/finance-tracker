@@ -14,6 +14,7 @@ const TransactionForm = ({
                            onUpdateTransaction,
                            editingTransaction,
                            mode,
+                           onTransfer,
                          }) => {
   const [amount, setAmount] = useState('');
   const { showToast } = useModal();
@@ -130,7 +131,14 @@ const TransactionForm = ({
         if (fromAccountId === toAccountId) {
           throw new Error('Счета должны отличаться');
         }
-        showToast({ message: 'Перевод временно не реализован', type: 'info' });
+        await onTransfer({
+          fromAccountId,
+          toAccountId,
+          amount: parseFloat(amount),
+          description: description.trim() || undefined,
+        });
+        resetForm();
+        onClose();
         return;
       }
 
