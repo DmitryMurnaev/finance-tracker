@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ModalProvider } from './context/ModalContext';
@@ -14,9 +14,7 @@ import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/Layout/AppLayout';
-
-console.log('welcomeShown:', localStorage.getItem('welcomeShown'));
-console.log('showWelcome:', showWelcome);
+import IndexRedirect from './pages/IndexRedirect';
 
 function App() {
     const [showWelcome, setShowWelcome] = useState(
@@ -28,6 +26,9 @@ function App() {
         setShowWelcome(false);
     };
 
+    console.log('welcomeShown:', localStorage.getItem('welcomeShown'));
+    console.log('showWelcome:', showWelcome);
+
     return (
         <AuthProvider>
             <ModalProvider>
@@ -35,9 +36,8 @@ function App() {
                     {showWelcome ? (
                         <Route path="/" element={<Welcome onFinish={handleWelcomeFinish} />} />
                     ) : (
-                    //     <Route path="/" element={<IndexRedirect />} />
-                    // )}
-                    <Route path="/" element={<Welcome onFinish={handleWelcomeFinish} />} />
+                        <Route path="/" element={<IndexRedirect />} />
+                    )}
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/privacy" element={<Privacy />} />
