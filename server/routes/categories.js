@@ -6,7 +6,10 @@ const router = express.Router();
 // Получить все категории (общие для всех пользователей)
 router.get('/', authMiddleware, async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM categories ORDER BY name');
+        const result = await pool.query(
+            'SELECT * FROM categories WHERE name != $1 ORDER BY name',
+            ['transfer']
+        );
         res.json(result.rows);
     } catch (err) {
         console.error('❌ Ошибка получения категорий:', err.message);
