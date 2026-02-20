@@ -17,6 +17,7 @@ import AppLayout from './components/Layout/AppLayout';
 import IndexRedirect from './pages/IndexRedirect';
 
 function App() {
+    const [activeTab, setActiveTab] = useState('home'); // ✅ состояние для вкладок
     const [showWelcome, setShowWelcome] = useState(
         !localStorage.getItem('welcomeShown')
     );
@@ -45,7 +46,7 @@ function App() {
                     <Route
                         element={
                             <ProtectedRoute>
-                                <AppLayout />
+                                <AppLayout activeTab={activeTab} setActiveTab={setActiveTab} />
                             </ProtectedRoute>
                         }
                     >
