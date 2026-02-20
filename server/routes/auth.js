@@ -68,6 +68,11 @@ router.post('/login', async (req, res) => {
             JWT_SECRET,
             { expiresIn: '7d' }
         );
+        // ✅ ОТПРАВЛЯЕМ ОТВЕТ КЛИЕНТУ
+        res.json({
+            user: { id: user.id, email: user.email, name: user.name, created_at: user.created_at },
+            token
+        });
     } catch (error) {
         console.error('❌ Ошибка входа:', error.message);
         res.status(500).json({ error: 'Ошибка входа' });
