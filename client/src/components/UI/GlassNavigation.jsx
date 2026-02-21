@@ -8,7 +8,6 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
     const navRef = useRef(null);
     const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
 
-    // Все пункты по порядку
     const items = [
         { id: 'home', icon: Home, label: 'Главная', path: '/home' },
         { id: 'plans', icon: Target, label: 'Планы', path: '/plans' },
@@ -53,6 +52,7 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
             setShowTypeMenu(true);
             return;
         }
+        console.log(`Navigating to ${item.path} with activeTab=${item.id}`);
         setActiveTab(item.id);
         navigate(item.path);
     };
@@ -61,18 +61,17 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
         <div className="fixed bottom-4 left-0 right-0 flex justify-center z-50 pointer-events-none px-4">
             <div
                 ref={navRef}
-                className="relative backdrop-blur-xl bg-gray-700/70 border border-gray-600 shadow-2xl rounded-2xl py-2 px-2 flex items-center pointer-events-auto w-full max-w-md"
+                className="relative backdrop-blur-xl bg-white/30 border border-white/30 shadow-2xl rounded-2xl py-2 px-2 flex items-center pointer-events-auto w-full max-w-md"
             >
-                {/* Индикатор активного пункта */}
+                {/* Индикатор активного пункта (полупрозрачный) */}
                 <div
-                    className="absolute bottom-1 top-1 bg-blue-500/60 backdrop-blur-sm rounded-xl transition-all duration-300 ease-out"
+                    className="absolute bottom-1 top-1 bg-white/40 backdrop-blur-sm rounded-xl transition-all duration-300 ease-out"
                     style={{
                         left: indicatorStyle.left,
                         width: indicatorStyle.width,
                     }}
                 />
 
-                {/* Рендер всех пунктов */}
                 {items.map((item, index) => {
                     if (item.isPlus) {
                         return (
@@ -96,7 +95,7 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
                             ref={el => itemRefs.current[index] = el}
                             onClick={() => handleItemClick(item)}
                             className={`flex-1 flex flex-col items-center py-1 px-1 rounded-lg transition-colors z-10 ${
-                                activeTab === item.id ? 'text-white' : 'text-gray-200 hover:text-white'
+                                activeTab === item.id ? 'text-blue-600' : 'text-gray-600 hover:text-gray-900'
                             }`}
                         >
                             <Icon size={24} />
