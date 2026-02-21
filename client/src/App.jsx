@@ -16,6 +16,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/Layout/AppLayout';
 import IndexRedirect from './pages/IndexRedirect';
 import OfflineDetector from './components/UI/OfflineDetector';
+import { CurrencyProvider } from "./context/CurrencyContext.jsx";
 
 function App() {
     const [activeTab, setActiveTab] = useState('home'); // ✅ состояние для вкладок
@@ -34,6 +35,7 @@ function App() {
     return (
         <AuthProvider>
             <ModalProvider>
+                <CurrencyProvider>
                 <Routes>
                     {showWelcome ? (
                         <Route path="/" element={<Welcome onFinish={handleWelcomeFinish} />} />
@@ -60,6 +62,7 @@ function App() {
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
                 <OfflineDetector/>
+                </CurrencyProvider>
             </ModalProvider>
         </AuthProvider>
     );

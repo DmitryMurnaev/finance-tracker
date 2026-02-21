@@ -1,3 +1,4 @@
+// client/src/context/AuthContext.jsx
 import { createContext, useState, useEffect, useContext } from 'react';
 import { authAPI } from '../services/api';
 
@@ -35,9 +36,9 @@ export const AuthProvider = ({ children }) => {
         return data;
     };
 
-    // ✅ Регистрация без code
-    const register = async (email, password, name) => {
-        const data = await authAPI.register(email, password, name);
+    // Регистрация с валютой
+    const register = async (email, password, name, preferredCurrency = 'RUB') => {
+        const data = await authAPI.register(email, password, name, preferredCurrency);
         localStorage.setItem('token', data.token);
         setUser(data.user);
         return data;
@@ -53,6 +54,13 @@ export const AuthProvider = ({ children }) => {
         return data;
     };
 
+    // Метод для обновления валюты
+    const updatePreferredCurrency = async (currency) => {
+        const data = await authAPI.updatePreferredCurrency(currency);
+        setUser(data.user);
+        return data;
+    };
+
     return (
         <AuthContext.Provider value={{
             user,
@@ -60,7 +68,8 @@ export const AuthProvider = ({ children }) => {
             login,
             register,
             logout,
-            changePassword
+            changePassword,
+            updatePreferredCurrency
         }}>
             {children}
         </AuthContext.Provider>

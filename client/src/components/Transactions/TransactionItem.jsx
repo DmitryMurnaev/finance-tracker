@@ -1,7 +1,9 @@
 import { Pencil, Trash2 } from 'lucide-react';
 import { getCategoryConfig } from '../../config/categoryConfig';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const TransactionItem = ({ transaction, onDelete, onEdit }) => {
+    const { formatCurrency } = useCurrency();
     if (!transaction) return null;
 
     const isExpense = transaction.type === 'expense';
@@ -13,13 +15,6 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
             month: 'short',
         })
         : 'Дата не указана';
-
-    const formattedAmount = transaction.amount
-        ? transaction.amount.toLocaleString('ru-RU', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        })
-        : '0.00';
 
     return (
         <div className="flex items-center justify-between p-3 sm:p-4 bg-white rounded-xl shadow-sm mb-2 hover:shadow-md transition-shadow">
@@ -48,7 +43,7 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
                         isExpense ? 'text-red-600' : 'text-green-600'
                     }`}
                 >
-                    {isExpense ? '-' : '+'} {formattedAmount} ₽
+                    {isExpense ? '-' : '+'} {formatCurrency(transaction.amount)}
                 </span>
                 <div className="flex gap-1">
                     <button

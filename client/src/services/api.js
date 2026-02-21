@@ -58,8 +58,12 @@ api.interceptors.response.use(
 // API ДЛЯ АУТЕНТИФИКАЦИИ (без кода)
 // ============================================
 export const authAPI = {
-    register: async (email, password, name) => {
-        const response = await api.post('/auth/register', { email, password, name });
+    register: async (email, password, name, preferredCurrency = 'RUB') => {
+        const response = await api.post('/auth/register', { email, password, name, preferredCurrency });
+        return response.data;
+    },
+    updatePreferredCurrency: async (currency) => {
+        const response = await api.put('/auth/preferred-currency', { currency });
         return response.data;
     },
     login: async (email, password) => {
@@ -73,6 +77,15 @@ export const authAPI = {
     changePassword: async (oldPassword, newPassword) => {
         const response = await api.post('/auth/change-password', { oldPassword, newPassword });
         return response.data;
+    }
+};
+
+// API для курсов валют (можно вынести отдельно)
+export const currencyAPI = {
+    getRates: async () => {
+        // Используем открытое API, например exchangerate.host
+        const response = await axios.get('https://api.exchangerate.host/latest?base=RUB');
+        return response.data; // содержит rates.USD, rates.EUR и т.д.
     }
 };
 

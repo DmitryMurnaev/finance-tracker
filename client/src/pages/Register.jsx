@@ -1,3 +1,4 @@
+// client/src/pages/Register.jsx
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
@@ -11,7 +12,7 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [name, setName] = useState('');
-    const [agreed, setAgreed] = useState(false);
+    const [currency, setCurrency] = useState('RUB'); // Добавлено
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -19,9 +20,6 @@ const Register = () => {
         e.preventDefault();
         setError('');
 
-        if (!agreed) {
-            return setError('Необходимо согласие с политикой конфиденциальности');
-        }
         if (password !== confirmPassword) {
             return setError('Пароли не совпадают');
         }
@@ -31,7 +29,7 @@ const Register = () => {
 
         setLoading(true);
         try {
-            await register(email, password, name.trim() || undefined);
+            await register(email, password, name.trim() || undefined, currency);
             navigate('/');
         } catch (err) {
             setError(err.response?.data?.error || 'Ошибка регистрации');
@@ -52,6 +50,7 @@ const Register = () => {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
+                    {/* Имя */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Имя (необязательно)
@@ -64,6 +63,7 @@ const Register = () => {
                         />
                     </div>
 
+                    {/* Email */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Email
@@ -77,6 +77,7 @@ const Register = () => {
                         />
                     </div>
 
+                    {/* Пароль */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Пароль
@@ -87,9 +88,9 @@ const Register = () => {
                             placeholder="минимум 6 символов"
                             required
                         />
-                        <p className="text-xs text-gray-500 mt-1">Латиница, цифры, минимум 6 символов</p>
                     </div>
 
+                    {/* Подтверждение пароля */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Подтвердите пароль
@@ -102,29 +103,26 @@ const Register = () => {
                         />
                     </div>
 
-                    <div className="flex items-start gap-2">
-                        <input
-                            type="checkbox"
-                            id="agree"
-                            checked={agreed}
-                            onChange={(e) => setAgreed(e.target.checked)}
-                            className="mt-1"
-                        />
-                        <label htmlFor="agree" className="text-sm text-gray-600">
-                            Я принимаю{' '}
-                            <Link to="/privacy" target="_blank" className="text-blue-600 hover:underline">
-                                Политику конфиденциальности
-                            </Link>{' '}
-                            и{' '}
-                            <Link to="/terms" target="_blank" className="text-blue-600 hover:underline">
-                                Пользовательское соглашение
-                            </Link>
+                    {/* Выбор валюты */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Основная валюта
                         </label>
+                        <select
+                            value={currency}
+                            onChange={(e) => setCurrency(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="RUB">🇷🇺 Российский рубль (RUB)</option>
+                            <option value="USD">🇺🇸 Доллар США (USD)</option>
+                            <option value="EUR">🇪🇺 Евро (EUR)</option>
+                        </select>
                     </div>
 
+                    {/* Кнопка */}
                     <button
                         type="submit"
-                        disabled={loading || !agreed}
+                        disabled={loading}
                         className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50"
                     >
                         {loading ? 'Регистрация...' : 'Зарегистрироваться'}

@@ -5,20 +5,21 @@ import { ArrowLeft } from 'lucide-react';
 import PasswordInput from '../components/UI/PasswordInput';
 
 const Profile = () => {
-    const { user, logout, changePassword } = useAuth();
+    const { user, logout, changePassword, updatePreferredCurrency } = useAuth();
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [message, setMessage] = useState({ text: '', type: '' });
     const [loading, setLoading] = useState(false);
+    const [selectedCurrency, setSelectedCurrency] = useState(user?.preferred_currency || 'RUB');
+    const [currencyUpdating, setCurrencyUpdating] = useState(false);
+    const [currencyMessage, setCurrencyMessage] = useState({ text: '', type: '' });
     const navigate = useNavigate();
 
-    // ✅ ПОЛНАЯ РЕАЛИЗАЦИЯ СМЕНЫ ПАРОЛЯ
+    // ... существующая функция handleChangePassword (без изменений)
     const handleChangePassword = async (e) => {
         e.preventDefault();
         setMessage({ text: '', type: '' });
-
-        // Валидация
         if (!oldPassword || !newPassword || !confirmPassword) {
             return setMessage({ text: 'Заполните все поля', type: 'error' });
         }
@@ -28,27 +29,19 @@ const Profile = () => {
         if (newPassword.length < 6) {
             return setMessage({ text: 'Пароль должен быть не менее 6 символов', type: 'error' });
         }
-
         setLoading(true);
         try {
             await changePassword(oldPassword, newPassword);
             setMessage({ text: '✅ Пароль успешно изменён. Сейчас вы будете перенаправлены на страницу входа.', type: 'success' });
-
-            // Очищаем поля
             setOldPassword('');
             setNewPassword('');
             setConfirmPassword('');
-
-            // Через 2 секунды выходим и перенаправляем на /login
             setTimeout(() => {
                 logout();
                 navigate('/login');
             }, 2000);
         } catch (err) {
-            setMessage({
-                text: err.response?.data?.error || '❌ Ошибка при смене пароля',
-                type: 'error'
-            });
+            setMessage({ text: err.response?.data?.error || '❌ Ошибка при смене пароля', type: 'error' });
         } finally {
             setLoading(false);
         }
@@ -57,6 +50,19 @@ const Profile = () => {
     const handleLogout = () => {
         logout();
         navigate('/login');
+    };
+
+    const handleCurrencyChange = async () => {
+        setCurrencyMessage({ text: '', type: '' });
+        setCurrencyUpdating(true);
+        try {
+            await updatePreferredCurrency(selectedCurrency);
+            setCurrencyMessage({ text: 'Валюта успешно обновлена', type: 'success' });
+        } catch {
+            setCurrencyMessage({ text: 'Ошибка при обновлении валюты', type: 'error' });
+        } finally {
+            setCurrencyUpdating(false);
+        }
     };
 
     if (!user) return null;
@@ -90,24 +96,18 @@ const Profile = () => {
             </div>
 
             {/* Смена пароля */}
-            <div className="bg-white rounded-2xl shadow-sm p-6">
+            <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
                 <h2 className="text-lg font-medium text-gray-900 mb-5">Сменить пароль</h2>
-
                 {message.text && (
                     <div className={`mb-5 p-3 rounded-lg text-sm ${
-                        message.type === 'success'
-                            ? 'bg-green-50 text-green-700'
-                            : 'bg-red-50 text-red-700'
+                        message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
                     }`}>
                         {message.text}
                     </div>
                 )}
-
                 <form onSubmit={handleChangePassword} className="space-y-5">
                     <div>
-                        <label className="block text-sm font-medium text-gray-600 mb-1.5">
-                            Текущий пароль
-                        </label>
+                        <label className="block text-sm font-medium text-gray-600 mb-1.5">Текущий пароль</label>
                         <PasswordInput
                             id="oldPassword"
                             value={oldPassword}
@@ -118,9 +118,7 @@ const Profile = () => {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-600 mb-1.5">
-                            Новый пароль
-                        </label>
+                        <label className="block text-sm font-medium text-gray-600 mb-1.5">Новый пароль</label>
                         <PasswordInput
                             id="newPassword"
                             value={newPassword}
@@ -131,9 +129,7 @@ const Profile = () => {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-600 mb-1.5">
-                            Подтвердите пароль
-                        </label>
+                        <label className="block text-sm font-medium text-gray-600 mb-1.5">Подтвердите пароль</label>
                         <PasswordInput
                             id="confirmPassword"
                             value={confirmPassword}
@@ -143,7 +139,6 @@ const Profile = () => {
                             autoComplete="new-password"
                         />
                     </div>
-
                     <button
                         type="submit"
                         disabled={loading}
@@ -152,15 +147,49 @@ const Profile = () => {
                         {loading ? 'Сохранение...' : 'Обновить пароль'}
                     </button>
                 </form>
+            </div>
 
-                <div className="mt-6 pt-5 border-t border-gray-100">
-                    <button
-                        onClick={handleLogout}
-                        className="w-full bg-white hover:bg-gray-50 text-red-600 font-medium py-2.5 px-4 rounded-xl transition shadow-sm border border-gray-200"
-                    >
-                        Выйти из аккаунта
-                    </button>
+            {/* Основная валюта (НОВЫЙ БЛОК) */}
+            <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
+                <h2 className="text-lg font-medium text-gray-900 mb-5">Основная валюта</h2>
+                <div className="flex gap-4 mb-4">
+                    {['RUB', 'USD', 'EUR'].map(curr => (
+                        <label key={curr} className="flex items-center gap-2">
+                            <input
+                                type="radio"
+                                value={curr}
+                                checked={selectedCurrency === curr}
+                                onChange={() => setSelectedCurrency(curr)}
+                                disabled={currencyUpdating}
+                            />
+                            <span>{curr}</span>
+                        </label>
+                    ))}
                 </div>
+                {currencyMessage.text && (
+                    <div className={`mb-4 p-3 rounded-lg text-sm ${
+                        currencyMessage.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                    }`}>
+                        {currencyMessage.text}
+                    </div>
+                )}
+                <button
+                    onClick={handleCurrencyChange}
+                    disabled={currencyUpdating || selectedCurrency === user?.preferred_currency}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50"
+                >
+                    Сохранить валюту
+                </button>
+            </div>
+
+            {/* Выход */}
+            <div className="bg-white rounded-2xl shadow-sm p-6">
+                <button
+                    onClick={handleLogout}
+                    className="w-full bg-white hover:bg-gray-50 text-red-600 font-medium py-2.5 px-4 rounded-xl transition shadow-sm border border-gray-200"
+                >
+                    Выйти из аккаунта
+                </button>
             </div>
         </div>
     );

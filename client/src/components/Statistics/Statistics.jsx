@@ -6,8 +6,10 @@ import {
     PieChart as PieChartIcon,
     ChevronDown,
 } from 'lucide-react';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const Statistics = ({ transactions }) => {
+    const { formatCurrency } = useCurrency();
     const [activeType, setActiveType] = useState('expense');
     const [selectedPeriod, setSelectedPeriod] = useState('all');
     const [isPeriodOpen, setIsPeriodOpen] = useState(false);
@@ -44,7 +46,6 @@ const Statistics = ({ transactions }) => {
         return { income, expense, balance: income - expense };
     }, [filteredTransactions]);
 
-    // Группировка по категориям с учётом иконок/цветов
     const categoryStats = useMemo(() => {
         const filtered = filteredTransactions.filter((t) => t.type === activeType);
         const stats = {};
@@ -93,7 +94,7 @@ const Statistics = ({ transactions }) => {
         let cumulativeAngle = 0;
         return (
             <svg viewBox="0 0 100 100" className="w-full h-full">
-                {data.map((item, index) => {
+                {data.map((item) => {
                     const percentage = item.value / total;
                     const angle = percentage * 360;
                     const startAngle = cumulativeAngle;
@@ -112,7 +113,7 @@ const Statistics = ({ transactions }) => {
 
                     return (
                         <path
-                            key={index.name}
+                            key={item.name}
                             d={`M 50 50 L ${x1} ${y1} A 40 40 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
                             fill={item.color}
                             stroke="white"
@@ -131,7 +132,7 @@ const Statistics = ({ transactions }) => {
         return categoryStats.map((cat) => ({
             name: cat.name,
             value: cat.total,
-            color: cat.chartColor, // теперь это HEX
+            color: cat.chartColor,
         }));
     }, [categoryStats]);
 
@@ -201,19 +202,19 @@ const Statistics = ({ transactions }) => {
                     <div className="bg-green-50 rounded-lg p-3">
                         <div className="text-green-600 text-xs uppercase tracking-wider mb-1">Доходы</div>
                         <div className="font-bold text-green-700 text-sm sm:text-base lg:text-lg truncate">
-                            +{periodStats.income.toLocaleString('ru-RU')} ₽
+                            +{formatCurrency(periodStats.income)}
                         </div>
                     </div>
                     <div className="bg-red-50 rounded-lg p-3">
                         <div className="text-red-600 text-xs uppercase tracking-wider mb-1">Расходы</div>
                         <div className="font-bold text-red-700 text-sm sm:text-base lg:text-lg truncate">
-                            -{periodStats.expense.toLocaleString('ru-RU')} ₽
+                            -{formatCurrency(periodStats.expense)}
                         </div>
                     </div>
                     <div className="col-span-2 sm:col-span-1 bg-blue-50 rounded-lg p-3">
                         <div className="text-blue-600 text-xs uppercase tracking-wider mb-1">Баланс</div>
                         <div className={`font-bold text-blue-600 text-sm sm:text-base lg:text-lg truncate`}>
-                            {periodStats.balance.toLocaleString('ru-RU')} ₽
+                            {formatCurrency(periodStats.balance)}
                         </div>
                     </div>
                 </div>
@@ -288,7 +289,7 @@ const Statistics = ({ transactions }) => {
                                             </div>
                                         </div>
                                         <div className="text-sm font-medium whitespace-nowrap">
-                                            {cat.total.toLocaleString('ru-RU')} ₽
+                                            {formatCurrency(cat.total)}
                                         </div>
                                         <div className="text-xs text-gray-500 ml-2 w-12 text-right">{percentage}%</div>
                                     </div>
@@ -296,7 +297,7 @@ const Statistics = ({ transactions }) => {
                             })}
                             <div className="pt-3 mt-3 border-t border-gray-100 flex justify-between font-bold">
                                 <span>Итого:</span>
-                                <span>{totalAmount.toLocaleString('ru-RU')} ₽</span>
+                                <span>{formatCurrency(totalAmount)}</span>
                             </div>
                         </div>
                     </div>
