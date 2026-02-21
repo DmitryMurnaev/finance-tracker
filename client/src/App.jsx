@@ -15,6 +15,7 @@ import Terms from './pages/Terms';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/Layout/AppLayout';
 import IndexRedirect from './pages/IndexRedirect';
+import OfflineDetector from './components/UI/OfflineDetector';
 
 function App() {
     const [activeTab, setActiveTab] = useState('home'); // ✅ состояние для вкладок
@@ -58,6 +59,7 @@ function App() {
                     </Route>
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
+                <OfflineDetector/>
             </ModalProvider>
         </AuthProvider>
     );
