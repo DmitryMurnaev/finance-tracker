@@ -6,14 +6,14 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
     const navigate = useNavigate();
     const location = useLocation();
     const navRef = useRef(null);
+    const itemRefs = useRef({});
     const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
 
-    // Определяем, какой пункт должен быть активен в зависимости от пути
+    // Синхронизация activeTab с путём
     useEffect(() => {
         const path = location.pathname;
         if (path === '/home' || path === '/') {
-            // На главной странице активная вкладка определяется через activeTab (home/stats)
-            // Если activeTab не совпадает, оставляем как есть
+            // На главной оставляем как есть
         } else if (path === '/plans') {
             setActiveTab('plans');
         } else if (path === '/more') {
@@ -21,23 +21,16 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
         }
     }, [location.pathname, setActiveTab]);
 
-    // Список основных пунктов (без центральной кнопки)
     const items = [
         { id: 'home', icon: Home, label: 'Главная', path: '/home' },
         { id: 'plans', icon: Target, label: 'Планы', path: '/plans' },
-        { id: 'stats', icon: BarChart3, label: 'Аналитика', path: '/home' }, // ведёт на главную, но активность своя
+        { id: 'stats', icon: BarChart3, label: 'Аналитика', path: '/home' },
         { id: 'more', icon: MoreHorizontal, label: 'Ещё', path: '/more' },
     ];
 
-    // Ссылки на DOM-элементы пунктов
-    const itemRefs = useRef([]);
-
     // Обновление позиции индикатора
     useEffect(() => {
-        const activeIndex = items.findIndex(item => item.id === activeTab);
-        if (activeIndex === -1) return;
-
-        const activeEl = itemRefs.current[activeIndex];
+        const activeEl = itemRefs.current[activeTab];
         const navEl = navRef.current;
         if (activeEl && navEl) {
             const navRect = navEl.getBoundingClientRect();
@@ -47,18 +40,15 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
                 width: activeRect.width,
             });
         }
-    }, [activeTab, items]);
+    }, [activeTab, location.pathname]);
 
-    // Обработчик клика на пункт
     const handleItemClick = (item) => {
         if (item.id === 'home' || item.id === 'stats') {
-            // Для главной и аналитики просто меняем activeTab и остаёмся на /home
             setActiveTab(item.id);
             if (location.pathname !== '/home') {
                 navigate('/home');
             }
         } else {
-            // Для планов и ещё – переходим на соответствующий путь и устанавливаем activeTab
             setActiveTab(item.id);
             navigate(item.path);
         }
@@ -80,25 +70,31 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
                     }}
                 />
 
-                {/* Основные пункты меню */}
-                {items.map((item, index) => {
-                    const Icon = item.icon;
-                    return (
-                        <button
-                            key={item.id}
-                            ref={el => itemRefs.current[index] = el}
-                            onClick={() => handleItemClick(item)}
-                            className={`relative flex flex-col items-center px-3 py-1 rounded-lg transition-colors z-10 ${
-                                activeTab === item.id ? 'text-blue-600' : 'text-gray-500 hover:text-gray-800'
-                            }`}
-                        >
-                            <Icon size={24} />
-                            <span className="text-xs mt-1">{item.label}</span>
-                        </button>
-                    );
-                })}
+                {/* Главная */}
+                <button
+                    ref={el => itemRefs.current.home = el}
+                    onClick={() => handleItemClick(items[0])}
+                    className={`relative flex flex-col items-center px-3 py-1 rounded-lg transition-colors z-10 ${
+                        activeTab === 'home' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-800'
+                    }`}
+                >
+                    <Home size={24} />
+                    <span className="text-xs mt-1">Главная</span>
+                </button>
 
-                {/* Центральная кнопка «+» (отдельно, всегда по центру) */}
+                {/* Планы */}
+                <button
+                    ref={el => itemRefs.current.plans = el}
+                    onClick={() => handleItemClick(items[1])}
+                    className={`relative flex flex-col items-center px-3 py-1 rounded-lg transition-colors z-10 ${
+                        activeTab === 'plans' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-800'
+                    }`}
+                >
+                    <Target size={24} />
+                    <span className="text-xs mt-1">Планы</span>
+                </button>
+
+                {/* Центральная кнопка «+» (между планами и аналитикой) */}
                 <div className="flex items-center justify-center w-16">
                     <button
                         onClick={() => setShowTypeMenu(true)}
@@ -109,6 +105,30 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
                         </div>
                     </button>
                 </div>
+
+                {/* Аналитика */}
+                <button
+                    ref={el => itemRefs.current.stats = el}
+                    onClick={() => handleItemClick(items[2])}
+                    className={`relative flex flex-col items-center px-3 py-1 rounded-lg transition-colors z-10 ${
+                        activeTab === 'stats' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-800'
+                    }`}
+                >
+                    <BarChart3 size={24} />
+                    <span className="text-xs mt-1">Аналитика</span>
+                </button>
+
+                {/* Ещё */}
+                <button
+                    ref={el => itemRefs.current.more = el}
+                    onClick={() => handleItemClick(items[3])}
+                    className={`relative flex flex-col items-center px-3 py-1 rounded-lg transition-colors z-10 ${
+                        activeTab === 'more' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-800'
+                    }`}
+                >
+                    <MoreHorizontal size={24} />
+                    <span className="text-xs mt-1">Ещё</span>
+                </button>
             </div>
         </div>
     );
