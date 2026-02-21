@@ -1,19 +1,24 @@
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { Home, Target, BarChart3, MoreHorizontal, Plus } from 'lucide-react';
 
 const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMenu }) => {
     const navigate = useNavigate();
-    const location = useLocation();
-    const isHomePath = location.pathname === '/';
 
     const handleHomeClick = () => {
         setActiveTab('home');
-        navigate('/');
+        // Остаёмся на текущем URL – не делаем navigate
     };
 
     const handleStatsClick = () => {
         setActiveTab('stats');
-        navigate('/');
+    };
+
+    const handlePlansClick = () => {
+        navigate('/plans');
+    };
+
+    const handleMoreClick = () => {
+        navigate('/more');
     };
 
     return (
@@ -23,24 +28,20 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
                 <button
                     onClick={handleHomeClick}
                     className={`flex flex-col items-center py-1 px-3 rounded-lg transition-colors ${
-                        isHomePath && activeTab === 'home' ? 'text-blue-500' : 'text-gray-500'
+                        activeTab === 'home' ? 'text-blue-500' : 'text-gray-500'
                     }`}
                 >
                     <Home size={24} />
                     <span className="text-xs mt-1">Главная</span>
                 </button>
 
-                <NavLink
-                    to="/plans"
-                    className={({ isActive }) =>
-                        `flex flex-col items-center py-1 px-3 rounded-lg transition-colors ${
-                            isActive ? 'text-blue-500' : 'text-gray-500'
-                        }`
-                    }
+                <button
+                    onClick={handlePlansClick}
+                    className="flex flex-col items-center py-1 px-3 rounded-lg transition-colors text-gray-500"
                 >
                     <Target size={24} />
                     <span className="text-xs mt-1">Планы</span>
-                </NavLink>
+                </button>
 
                 <button
                     onClick={() => setShowTypeMenu(true)}
@@ -54,24 +55,20 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
                 <button
                     onClick={handleStatsClick}
                     className={`flex flex-col items-center py-1 px-3 rounded-lg transition-colors ${
-                        isHomePath && activeTab === 'stats' ? 'text-blue-500' : 'text-gray-500'
+                        activeTab === 'stats' ? 'text-blue-500' : 'text-gray-500'
                     }`}
                 >
                     <BarChart3 size={24} />
                     <span className="text-xs mt-1">Аналитика</span>
                 </button>
 
-                <NavLink
-                    to="/more"
-                    className={({ isActive }) =>
-                        `flex flex-col items-center py-1 px-3 rounded-lg transition-colors ${
-                            isActive ? 'text-blue-500' : 'text-gray-500'
-                        }`
-                    }
+                <button
+                    onClick={handleMoreClick}
+                    className="flex flex-col items-center py-1 px-3 rounded-lg transition-colors text-gray-500"
                 >
                     <MoreHorizontal size={24} />
                     <span className="text-xs mt-1">Ещё</span>
-                </NavLink>
+                </button>
             </div>
         </nav>
     );

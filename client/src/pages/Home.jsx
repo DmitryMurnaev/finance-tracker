@@ -14,6 +14,7 @@ import ScrollToTopButton from '../components/UI/ScrollToTopButton';
 import AccountForm from '../components/Accounts/AccountForm';
 import { useModal } from "../context/ModalContext.jsx";
 import '../index.css';
+import Header from '../components/Layout/Header.jsx'
 
 function Home({ isMenuOpen, onCloseMenu }) { // ✅ принимаем пропсы
     const { activeTab, setActiveTab, showTypeMenu, setShowTypeMenu } = useOutletContext();
@@ -210,6 +211,7 @@ function Home({ isMenuOpen, onCloseMenu }) { // ✅ принимаем проп�
         <>
             {/* Основной контент */}
             <div className="p-4">
+                <Header/>
                 {activeTab === 'home' && (
                     <>
                         <AccountsSlider
