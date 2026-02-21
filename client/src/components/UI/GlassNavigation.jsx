@@ -8,6 +8,17 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
     const navRef = useRef(null);
     const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
 
+    // Все пункты по порядку
+    const items = [
+        { id: 'home', icon: Home, label: 'Главная', path: '/home' },
+        { id: 'plans', icon: Target, label: 'Планы', path: '/plans' },
+        { id: 'plus', isPlus: true },
+        { id: 'stats', icon: BarChart3, label: 'Аналитика', path: '/home' },
+        { id: 'more', icon: MoreHorizontal, label: 'Ещё', path: '/more' },
+    ];
+
+    const itemRefs = useRef([]);
+
     // Синхронизация activeTab с путём
     useEffect(() => {
         const path = location.pathname;
@@ -20,32 +31,12 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
         }
     }, [location.pathname, setActiveTab]);
 
-    // Основные пункты: сначала home, plans, потом плюс отдельно, потом stats, more
-    const leftItems = [
-        { id: 'home', icon: Home, label: 'Главная', path: '/home' },
-        { id: 'plans', icon: Target, label: 'Планы', path: '/plans' },
-    ];
-    const rightItems = [
-        { id: 'stats', icon: BarChart3, label: 'Аналитика', path: '/home' },
-        { id: 'more', icon: MoreHorizontal, label: 'Ещё', path: '/more' },
-    ];
-
-    const leftRefs = useRef([]);
-    const rightRefs = useRef([]);
-    const plusRef = useRef(null);
-
     // Обновление позиции индикатора
     useEffect(() => {
-        // Определяем, какой пункт активен и в какой группе он находится
-        let activeEl = null;
-        if (activeTab === 'home' || activeTab === 'plans') {
-            const idx = leftItems.findIndex(i => i.id === activeTab);
-            if (idx !== -1) activeEl = leftRefs.current[idx];
-        } else if (activeTab === 'stats' || activeTab === 'more') {
-            const idx = rightItems.findIndex(i => i.id === activeTab);
-            if (idx !== -1) activeEl = rightRefs.current[idx];
-        }
+        const activeIndex = items.findIndex(item => !item.isPlus && item.id === activeTab);
+        if (activeIndex === -1) return;
 
+        const activeEl = itemRefs.current[activeIndex];
         const navEl = navRef.current;
         if (activeEl && navEl) {
             const navRect = navEl.getBoundingClientRect();
@@ -55,35 +46,24 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
                 width: activeRect.width,
             });
         }
-    }, [activeTab, leftItems, rightItems]);
+    }, [activeTab, items]);
 
-    // Обработчик клика на левый пункт
-    const handleLeftClick = (item) => {
-        setActiveTab(item.id);
-        if (item.id === 'home') {
-            if (location.pathname !== '/home') navigate('/home');
-        } else if (item.id === 'plans') {
-            navigate('/plans');
+    const handleItemClick = (item) => {
+        if (item.isPlus) {
+            setShowTypeMenu(true);
+            return;
         }
-    };
-
-    // Обработчик клика на правый пункт
-    const handleRightClick = (item) => {
         setActiveTab(item.id);
-        if (item.id === 'stats') {
-            if (location.pathname !== '/home') navigate('/home');
-        } else if (item.id === 'more') {
-            navigate('/more');
-        }
+        navigate(item.path);
     };
 
     return (
         <div className="fixed bottom-4 left-0 right-0 flex justify-center z-50 pointer-events-none px-4">
             <div
                 ref={navRef}
-                className="relative backdrop-blur-xl bg-gray-900/80 border border-gray-700 shadow-2xl rounded-2xl py-2 px-4 flex items-center gap-2 pointer-events-auto w-full max-w-md"
+                className="relative backdrop-blur-xl bg-gray-700/70 border border-gray-600 shadow-2xl rounded-2xl py-2 px-2 flex items-center pointer-events-auto w-full max-w-md"
             >
-                {/* Индикатор активного пункта (более тёмный) */}
+                {/* Индикатор активного пункта */}
                 <div
                     className="absolute bottom-1 top-1 bg-blue-500/60 backdrop-blur-sm rounded-xl transition-all duration-300 ease-out"
                     style={{
@@ -92,47 +72,31 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
                     }}
                 />
 
-                {/* Левые пункты */}
-                {leftItems.map((item, index) => {
+                {/* Рендер всех пунктов */}
+                {items.map((item, index) => {
+                    if (item.isPlus) {
+                        return (
+                            <div key="plus" className="flex items-center justify-center w-16">
+                                <button
+                                    onClick={() => handleItemClick(item)}
+                                    className="relative flex flex-col items-center -mt-8 z-20"
+                                >
+                                    <div className={`bg-blue-500 text-white rounded-full p-4 shadow-lg shadow-blue-500/30 transition-transform duration-300 ${showTypeMenu ? 'rotate-45' : 'rotate-0'}`}>
+                                        <Plus size={28} />
+                                    </div>
+                                </button>
+                            </div>
+                        );
+                    }
+
                     const Icon = item.icon;
                     return (
                         <button
                             key={item.id}
-                            ref={el => leftRefs.current[index] = el}
-                            onClick={() => handleLeftClick(item)}
-                            className={`relative flex flex-col items-center px-3 py-1 rounded-lg transition-colors z-10 ${
-                                activeTab === item.id ? 'text-white' : 'text-gray-300 hover:text-white'
-                            }`}
-                        >
-                            <Icon size={24} />
-                            <span className="text-xs mt-1">{item.label}</span>
-                        </button>
-                    );
-                })}
-
-                {/* Кнопка "+" по центру */}
-                <div className="flex items-center justify-center w-16">
-                    <button
-                        ref={plusRef}
-                        onClick={() => setShowTypeMenu(true)}
-                        className="relative flex flex-col items-center -mt-8 z-20"
-                    >
-                        <div className={`bg-blue-500 text-white rounded-full p-4 shadow-lg shadow-blue-500/30 transition-transform duration-300 ${showTypeMenu ? 'rotate-45' : 'rotate-0'}`}>
-                            <Plus size={28} />
-                        </div>
-                    </button>
-                </div>
-
-                {/* Правые пункты */}
-                {rightItems.map((item, index) => {
-                    const Icon = item.icon;
-                    return (
-                        <button
-                            key={item.id}
-                            ref={el => rightRefs.current[index] = el}
-                            onClick={() => handleRightClick(item)}
-                            className={`relative flex flex-col items-center px-3 py-1 rounded-lg transition-colors z-10 ${
-                                activeTab === item.id ? 'text-white' : 'text-gray-300 hover:text-white'
+                            ref={el => itemRefs.current[index] = el}
+                            onClick={() => handleItemClick(item)}
+                            className={`flex-1 flex flex-col items-center py-1 px-1 rounded-lg transition-colors z-10 ${
+                                activeTab === item.id ? 'text-white' : 'text-gray-200 hover:text-white'
                             }`}
                         >
                             <Icon size={24} />
