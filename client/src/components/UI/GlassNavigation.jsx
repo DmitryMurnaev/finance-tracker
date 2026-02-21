@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Home, Target, BarChart3, MoreHorizontal, Plus } from 'lucide-react';
 
 const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMenu }) => {
@@ -6,11 +6,12 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
 
     const handleHomeClick = () => {
         setActiveTab('home');
-        // Остаёмся на текущем URL – не делаем navigate
+        navigate('/home');
     };
 
     const handleStatsClick = () => {
         setActiveTab('stats');
+        navigate('/home');
     };
 
     const handlePlansClick = () => {
