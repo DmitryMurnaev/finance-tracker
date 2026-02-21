@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Target, BarChart3, MoreHorizontal, Plus } from 'lucide-react';
 
@@ -8,30 +8,29 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
     const navRef = useRef(null);
     const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
 
-    // Определяем пункты меню: левая группа, плюс, правая группа
-    const leftItems = [
+    // Мемоизируем массивы, чтобы они не менялись при каждом рендере
+    const leftItems = useMemo(() => [
         { id: 'home', icon: Home, label: 'Главная', path: '/home' },
         { id: 'plans', icon: Target, label: 'Планы', path: '/plans' },
-    ];
-    const rightItems = [
+    ], []);
+
+    const rightItems = useMemo(() => [
         { id: 'stats', icon: BarChart3, label: 'Аналитика', path: '/home' },
         { id: 'more', icon: MoreHorizontal, label: 'Ещё', path: '/more' },
-    ];
+    ], []);
 
     const leftRefs = useRef([]);
     const rightRefs = useRef([]);
-    const plusRef = useRef(null);
 
-    // Синхронизация activeTab с путём
+    // Синхронизация activeTab с путём (только при изменении пути)
     useEffect(() => {
         const path = location.pathname;
         if (path === '/plans') {
             setActiveTab('plans');
         } else if (path === '/more') {
             setActiveTab('more');
-        } else if (path === '/home' || path === '/') {
-            // остаёмся на текущем activeTab (home/stats)
         }
+        // Для /home и / оставляем текущий activeTab (home/stats)
     }, [location.pathname, setActiveTab]);
 
     // Обновление позиции индикатора
@@ -75,19 +74,16 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
                 {/* Индикатор активного пункта */}
                 <div
                     className="absolute bottom-1 top-1 bg-[#eaeaec] rounded-xl transition-all duration-300 ease-out"
-                    style={{
-                        left: indicatorStyle.left,
-                        width: indicatorStyle.width,
-                    }}
+                    style={{ left: indicatorStyle.left, width: indicatorStyle.width }}
                 />
 
-                {/* Левая группа */}
+                {/* Левая группа (Главная, Планы) */}
                 {leftItems.map((item, index) => {
                     const Icon = item.icon;
                     return (
                         <button
                             key={item.id}
-                            ref={el => leftRefs.current[index] = el}
+                            ref={el => (leftRefs.current[index] = el)}
                             onClick={() => handleLeftClick(item)}
                             className="flex-1 flex flex-col items-center py-1 px-1 rounded-lg transition-colors z-10"
                         >
@@ -102,7 +98,6 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
                 {/* Центральная кнопка "+" */}
                 <div className="flex items-center justify-center w-16">
                     <button
-                        ref={plusRef}
                         onClick={() => setShowTypeMenu(true)}
                         className="relative flex flex-col items-center -mt-8 z-20"
                     >
@@ -112,13 +107,13 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
                     </button>
                 </div>
 
-                {/* Правая группа */}
+                {/* Правая группа (Аналитика, Ещё) */}
                 {rightItems.map((item, index) => {
                     const Icon = item.icon;
                     return (
                         <button
                             key={item.id}
-                            ref={el => rightRefs.current[index] = el}
+                            ref={el => (rightRefs.current[index] = el)}
                             onClick={() => handleRightClick(item)}
                             className="flex-1 flex flex-col items-center py-1 px-1 rounded-lg transition-colors z-10"
                         >

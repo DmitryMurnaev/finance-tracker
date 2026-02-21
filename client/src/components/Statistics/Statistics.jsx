@@ -112,7 +112,7 @@ const Statistics = ({ transactions }) => {
 
                     return (
                         <path
-                            key={index}
+                            key={index.name}
                             d={`M 50 50 L ${x1} ${y1} A 40 40 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
                             fill={item.color}
                             stroke="white"
@@ -272,7 +272,7 @@ const Statistics = ({ transactions }) => {
                             {categoryStats.map((cat) => {
                                 const percentage = totalAmount ? ((cat.total / totalAmount) * 100).toFixed(1) : 0;
                                 return (
-                                    <div key={cat.id} className="flex items-center">
+                                    <div key={cat.name} className="flex items-center">
                                         <div
                                             className={`w-24 sm:w-32 px-2 py-1 rounded-full text-xs font-medium ${cat.color} truncate flex items-center gap-1`}
                                         >
