@@ -6,7 +6,7 @@ const AppLayout = ({ activeTab, setActiveTab }) => {
     const [showTypeMenu, setShowTypeMenu] = useState(false);
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-32">
+        <div className="min-h-screen pb-32">
             <Outlet context={{ activeTab, setActiveTab, showTypeMenu, setShowTypeMenu }} />
             <GlassNavigation
                 activeTab={activeTab}
