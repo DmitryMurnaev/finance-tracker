@@ -228,6 +228,7 @@ const TransactionForm = ({
                     value={amount}
                     onChange={(e) => {
                       const value = e.target.value;
+                      // Разрешаем только цифры и одну точку
                       if (/^\d*\.?\d*$/.test(value) || value === '') {
                         setAmount(value);
                       }
@@ -238,12 +239,7 @@ const TransactionForm = ({
                     inputMode="decimal"
                 />
                 <div className="h-1 bg-gray-200 rounded-full mt-1"></div>
-                <div className="md:hidden">
-                  <NumericKeyboard
-                      value={amount}
-                      onChange={setAmount}
-                  />
-                </div>
+                {/* Клавиатура полностью удалена */}
               </div>
 
               {/* Описание */}

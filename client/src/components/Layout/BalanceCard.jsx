@@ -11,12 +11,12 @@ const BalanceCard = ({ balance, totalIncome }) => {
                     <Wallet className="mr-3 flex-shrink-0" size={24} />
                     <h2 className="text-base sm:text-lg font-semibold whitespace-nowrap">Текущий баланс</h2>
                 </div>
-                <div className="text-blue-100 text-sm bg-white/20 px-3 py-1 rounded-full truncate max-w-full">
+                <div className="text-blue-100 text-sm bg-white/20 px-3 py-1 rounded-full truncate max-w-full text-center">
                     {formatCurrency(balance)}
                 </div>
             </div>
             <div className="text-center">
-                <div className="text-3xl min-[400px]:text-4xl sm:text-5xl font-bold mb-2 break-words">
+                <div className="text-3xl min-[400px]:text-4xl sm:text-4xl font-bold mb-2 break-words">
                     {formatCurrency(balance)}
                 </div>
                 <div className="text-blue-100 text-xs min-[400px]:text-sm sm:text-base break-words">
