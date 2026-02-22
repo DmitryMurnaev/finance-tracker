@@ -228,7 +228,6 @@ const TransactionForm = ({
                     value={amount}
                     onChange={(e) => {
                       const value = e.target.value;
-                      // Разрешаем только цифры и одну точку
                       if (/^\d*\.?\d*$/.test(value) || value === '') {
                         setAmount(value);
                       }
@@ -249,7 +248,7 @@ const TransactionForm = ({
 
               {/* Описание */}
               <div className="mb-4">
-                <label className="block text-gray-700 mb-2 font-medium">Описание</label>
+              <label className="block text-gray-700 mb-2 font-medium">Описание</label>
                 <input
                     type="text"
                     value={description}
@@ -388,7 +387,8 @@ const TransactionForm = ({
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm box-border"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
+                    style={{ boxSizing: 'border-box', width: '100%' }}
                     disabled={isSubmitting}
                     max={new Date().toISOString().split('T')[0]}
                 />

@@ -2,8 +2,20 @@
 
 /* Можно добавить кастомные стили если нужно */
 
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+}
+
 body {
     background-color: #dfdee3;
+}
+
+input[type="date"] {
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 @keyframes fadeIn {
