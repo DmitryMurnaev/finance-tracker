@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { planAPI } from '../services/api';
-import { getPlanIconById, getPlanColorById } from '../config/plansConfig';
 import PlanCard from '../components/Plans/PlanCard';
 import PlanForm from '../components/Plans/PlanForm';
 import ContributeForm from '../components/Plans/ContributeForm';
@@ -92,7 +91,10 @@ const Plans = () => {
         <div className="p-4">
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold">Планы</h1>
-                <button onClick={handleAddClick} className="bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition">
+                <button
+                    onClick={handleAddClick}
+                    className="bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition"
+                >
                     <Plus size={24} />
                 </button>
             </div>
@@ -107,7 +109,7 @@ const Plans = () => {
                     </button>
                 </div>
             ) : (
-                <div className="space-y-4">
+                <div className="grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-3 gap-4">
                     {plans.map(plan => (
                         <PlanCard
                             key={plan.id}

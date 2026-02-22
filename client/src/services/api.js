@@ -58,7 +58,7 @@ api.interceptors.response.use(
 // API ДЛЯ АУТЕНТИФИКАЦИИ (без кода)
 // ============================================
 export const authAPI = {
-    register: async (email, password, name, preferredCurrency = 'RUB') => {
+    register: async (email, password, name, preferredCurrency) => {
         const response = await api.post('/auth/register', { email, password, name, preferredCurrency });
         return response.data;
     },

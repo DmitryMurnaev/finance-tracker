@@ -155,9 +155,7 @@ const Statistics = ({ transactions }) => {
                             <span>{getPeriodLabel(selectedPeriod)}</span>
                             <ChevronDown
                                 size={16}
-                                className={`text-gray-500 transition-transform ${
-                                    isPeriodOpen ? 'rotate-180' : ''
-                                }`}
+                                className={`text-gray-500 transition-transform ${isPeriodOpen ? 'rotate-180' : ''}`}
                             />
                         </button>
 
@@ -169,9 +167,7 @@ const Statistics = ({ transactions }) => {
                                         setIsPeriodOpen(false);
                                     }}
                                     className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors ${
-                                        selectedPeriod === 'all'
-                                            ? 'bg-blue-50 text-blue-600 font-medium'
-                                            : 'text-gray-700'
+                                        selectedPeriod === 'all' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'
                                     }`}
                                 >
                                     📅 За всё время
@@ -184,9 +180,7 @@ const Statistics = ({ transactions }) => {
                                             setIsPeriodOpen(false);
                                         }}
                                         className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors ${
-                                            selectedPeriod === period
-                                                ? 'bg-blue-50 text-blue-600 font-medium'
-                                                : 'text-gray-700'
+                                            selectedPeriod === period ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'
                                         }`}
                                     >
                                         {getPeriodLabel(period)}
@@ -248,10 +242,7 @@ const Statistics = ({ transactions }) => {
             {categoryStats.length === 0 ? (
                 <div className="bg-white rounded-xl shadow border border-gray-100 p-8 text-center text-gray-500">
                     <PieChartIcon size={32} className="mx-auto mb-2 text-gray-400" />
-                    <p>
-                        Нет операций по {activeType === 'expense' ? 'расходам' : 'доходам'} за выбранный
-                        период
-                    </p>
+                    <p>Нет операций по {activeType === 'expense' ? 'расходам' : 'доходам'} за выбранный период</p>
                 </div>
             ) : (
                 <div className="bg-white rounded-xl shadow border border-gray-100 p-4">
@@ -269,29 +260,27 @@ const Statistics = ({ transactions }) => {
                         </div>
 
                         {/* Список категорий */}
-                        <div className="w-full lg:w-1/2 space-y-3 flex flex-col justify-start">
+                        <div className="w-full lg:w-1/2 space-y-3">
                             {categoryStats.map((cat) => {
                                 const percentage = totalAmount ? ((cat.total / totalAmount) * 100).toFixed(1) : 0;
                                 return (
-                                    <div key={cat.name} className="flex items-center">
+                                    <div key={cat.name} className="flex items-center gap-2 flex-wrap">
                                         <div
-                                            className={`w-24 sm:w-32 px-2 py-1 rounded-full text-xs font-medium ${cat.color} truncate flex items-center gap-1`}
+                                            className={`w-20 sm:w-24 px-2 py-1 rounded-full text-xs font-medium ${cat.color} truncate flex items-center gap-1`}
                                         >
                                             <span>{cat.icon}</span>
-                                            <span className="truncate">{cat.name}</span>
+                                            <span className="truncate">{cat.displayName}</span>
                                         </div>
-                                        <div className="flex-1 mx-3">
-                                            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                                                <div
-                                                    className="h-full bg-blue-500 rounded-full"
-                                                    style={{ width: `${percentage}%` }}
-                                                />
-                                            </div>
+                                        <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-blue-500 rounded-full"
+                                                style={{ width: `${percentage}%` }}
+                                            />
                                         </div>
                                         <div className="text-sm font-medium whitespace-nowrap">
                                             {formatCurrency(cat.total)}
                                         </div>
-                                        <div className="text-xs text-gray-500 ml-2 w-12 text-right">{percentage}%</div>
+                                        <div className="text-xs text-gray-500 w-10 text-right">{percentage}%</div>
                                     </div>
                                 );
                             })}

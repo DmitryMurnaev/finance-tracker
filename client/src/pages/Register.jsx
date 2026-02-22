@@ -20,6 +20,9 @@ const Register = () => {
         e.preventDefault();
         setError('');
 
+        if (!agreed) {
+            return setError('Необходимо согласие с политикой конфиденциальности');
+        }
         if (password !== confirmPassword) {
             return setError('Пароли не совпадают');
         }
@@ -29,7 +32,8 @@ const Register = () => {
 
         setLoading(true);
         try {
-            await register(email, password, name.trim() || undefined, currency);
+            const preferredCurrency = localStorage.getItem('preferredCurrency') || 'RUB';
+            await register(email, password, name.trim() || undefined, preferredCurrency);
             navigate('/');
         } catch (err) {
             setError(err.response?.data?.error || 'Ошибка регистрации');

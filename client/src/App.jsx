@@ -24,10 +24,13 @@ function App() {
         !localStorage.getItem('welcomeShown')
     );
 
-    const handleWelcomeFinish = () => {
+    const handleWelcomeFinish = (selectedCurrency) => {
         localStorage.setItem('welcomeShown', 'true');
+        // Сохраняем валюту в localStorage или в состояние для передачи в регистрацию
+        localStorage.setItem('preferredCurrency', selectedCurrency);
         setShowWelcome(false);
     };
+
 
     console.log('welcomeShown:', localStorage.getItem('welcomeShown'));
     console.log('showWelcome:', showWelcome);
