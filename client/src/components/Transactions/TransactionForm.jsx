@@ -388,7 +388,7 @@ const TransactionForm = ({
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full min-w-0 max-w-full p-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 box-border"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm box-border"
                     disabled={isSubmitting}
                     max={new Date().toISOString().split('T')[0]}
                 />

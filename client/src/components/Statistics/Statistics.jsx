@@ -198,22 +198,22 @@ const Statistics = ({ transactions }) => {
                 </div>
 
                 {/* Адаптивные карточки итогов за период */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                <div className="grid grid-cols-1 min-[370px]:grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                     <div className="bg-green-50 rounded-lg p-3">
                         <div className="text-green-600 text-xs uppercase tracking-wider mb-1">Доходы</div>
-                        <div className="font-bold text-green-700 text-sm sm:text-base lg:text-lg truncate">
+                        <div className="font-bold text-green-700 text-sm sm:text-base lg:text-lg break-words">
                             +{formatCurrency(periodStats.income)}
                         </div>
                     </div>
                     <div className="bg-red-50 rounded-lg p-3">
                         <div className="text-red-600 text-xs uppercase tracking-wider mb-1">Расходы</div>
-                        <div className="font-bold text-red-700 text-sm sm:text-base lg:text-lg truncate">
+                        <div className="font-bold text-red-700 text-sm sm:text-base lg:text-lg break-words">
                             -{formatCurrency(periodStats.expense)}
                         </div>
                     </div>
-                    <div className="col-span-2 sm:col-span-1 bg-blue-50 rounded-lg p-3">
+                    <div className="col-span-1 min-[370px]:col-span-2 sm:col-span-1 bg-blue-50 rounded-lg p-3">
                         <div className="text-blue-600 text-xs uppercase tracking-wider mb-1">Баланс</div>
-                        <div className={`font-bold text-blue-600 text-sm sm:text-base lg:text-lg truncate`}>
+                        <div className="font-bold text-blue-600 text-sm sm:text-base lg:text-lg break-words">
                             {formatCurrency(periodStats.balance)}
                         </div>
                     </div>
