@@ -1,10 +1,12 @@
 import { useRef, useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Hand } from 'lucide-react';
 import { getIconById, getColorById } from '../../config/accountsConfig';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }) => {
     const sliderRef = useRef(null);
     const [showHint, setShowHint] = useState(false);
+    const { formatCurrency } = useCurrency();
 
     useEffect(() => {
         if (!accounts.length || !sliderRef.current) return;
@@ -79,8 +81,8 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
                                         {account.name}
                                     </span>
                                 </div>
-                                <div className={`text-2xl font-bold ${color.text}`}>
-                                    {account.balance.toLocaleString('ru-RU')} ₽
+                                <div className={`text-lg font-bold ${color.text}`}>
+                                    {formatCurrency(account.balance)}
                                 </div>
                             </div>
                         );
