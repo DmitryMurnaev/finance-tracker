@@ -90,7 +90,7 @@ const Plans = () => {
     return (
         <div className="p-4">
             <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold">Планы</h1>
+                <h1 className="text-2xl font-bold dark:text-gray-100">Планы</h1>
                 <button
                     onClick={handleAddClick}
                     className="bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition"

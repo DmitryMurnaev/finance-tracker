@@ -11,36 +11,36 @@ const TransactionTypeMenu = ({ onSelectType, onClose }) => {
                         onClick={() => onSelectType('expense')}
                         className="flex flex-col items-center group"
                     >
-                        <div className="w-16 h-16 rounded-full bg-red-100 group-hover:bg-red-200 flex items-center justify-center mb-2 transition">
-                            <ArrowDown size={32} className="text-red-600" />
+                        <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900 group-hover:bg-red-200 dark:group-hover:bg-red-800 flex items-center justify-center mb-2 transition">
+                            <ArrowDown size={32} className="text-red-600 dark:text-red-300" />
                         </div>
-                        <span className="text-sm font-semibold text-white drop-shadow-lg">Расход</span>
+                        <span className="text-sm font-semibold text-white dark:text-gray-200 drop-shadow-lg">Расход</span>
                     </button>
                     <button
                         onClick={() => onSelectType('income')}
                         className="flex flex-col items-center group"
                     >
-                        <div className="w-16 h-16 rounded-full bg-green-100 group-hover:bg-green-200 flex items-center justify-center mb-2 transition">
-                            <ArrowUp size={32} className="text-green-600" />
+                        <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900 group-hover:bg-green-200 dark:group-hover:bg-green-800 flex items-center justify-center mb-2 transition">
+                            <ArrowUp size={32} className="text-green-600 dark:text-green-300" />
                         </div>
-                        <span className="text-sm font-semibold text-white drop-shadow-lg">Доход</span>
+                        <span className="text-sm font-semibold text-white dark:text-gray-200 drop-shadow-lg">Доход</span>
                     </button>
                     <button
                         onClick={() => onSelectType('transfer')}
                         className="flex flex-col items-center group"
                     >
-                        <div className="w-16 h-16 rounded-full bg-blue-100 group-hover:bg-blue-200 flex items-center justify-center mb-2 transition">
-                            <Repeat size={32} className="text-blue-600" />
+                        <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900 group-hover:bg-blue-200 dark:group-hover:bg-blue-800 flex items-center justify-center mb-2 transition">
+                            <Repeat size={32} className="text-blue-600 dark:text-blue-300" />
                         </div>
-                        <span className="text-sm font-semibold text-white drop-shadow-lg">Перевод</span>
+                        <span className="text-sm font-semibold text-white dark:text-gray-200 drop-shadow-lg">Перевод</span>
                     </button>
                 </div>
                 <div className="flex justify-center -mt-2">
                     <button
                         onClick={onClose}
-                        className="w-14.5 h-14.5 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-gray-100 transition-transform duration-300 rotate-0 active:rotate-90"
+                        className="w-14.5 h-14.5 rounded-full bg-white dark:bg-gray-800 shadow-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-transform duration-300 rotate-0 active:rotate-90"
                     >
-                        <X size={28} className="text-gray-600"/>
+                        <X size={28} className="text-gray-600 dark:text-gray-300"/>
                     </button>
                 </div>
             </div>

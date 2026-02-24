@@ -17,6 +17,7 @@ import AppLayout from './components/Layout/AppLayout';
 import IndexRedirect from './pages/IndexRedirect';
 import OfflineDetector from './components/UI/OfflineDetector';
 import { CurrencyProvider } from "./context/CurrencyContext.jsx";
+import { ThemeProvider } from './context/ThemeContext';
 
 function App() {
     const [activeTab, setActiveTab] = useState('home'); // ✅ состояние для вкладок
@@ -38,6 +39,7 @@ function App() {
     return (
         <AuthProvider>
             <ModalProvider>
+                <ThemeProvider>
                 <CurrencyProvider>
                 <Routes>
                     {showWelcome ? (
@@ -66,6 +68,7 @@ function App() {
                 </Routes>
                 <OfflineDetector/>
                 </CurrencyProvider>
+                </ThemeProvider>
             </ModalProvider>
         </AuthProvider>
     );

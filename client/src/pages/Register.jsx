@@ -1,4 +1,3 @@
-// client/src/pages/Register.jsx
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
@@ -12,7 +11,7 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [name, setName] = useState('');
-    const [currency, setCurrency] = useState('RUB'); // Добавлено
+    const [agreed, setAgreed] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -32,6 +31,7 @@ const Register = () => {
 
         setLoading(true);
         try {
+            // Берём валюту из localStorage (установленную в онбординге)
             const preferredCurrency = localStorage.getItem('preferredCurrency') || 'RUB';
             await register(email, password, name.trim() || undefined, preferredCurrency);
             navigate('/');
@@ -43,47 +43,44 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-            <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
-                <h2 className="text-2xl font-bold text-center mb-6">Регистрация</h2>
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+            <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
+                <h2 className="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-gray-100">Регистрация</h2>
 
                 {error && (
-                    <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg">
+                    <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm rounded-lg">
                         {error}
                     </div>
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Имя */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Имя (необязательно)
                         </label>
                         <input
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200"
                         />
                     </div>
 
-                    {/* Email */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Email
                         </label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200"
                             required
                         />
                     </div>
 
-                    {/* Пароль */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Пароль
                         </label>
                         <PasswordInput
@@ -94,9 +91,8 @@ const Register = () => {
                         />
                     </div>
 
-                    {/* Подтверждение пароля */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Подтвердите пароль
                         </label>
                         <PasswordInput
@@ -107,34 +103,37 @@ const Register = () => {
                         />
                     </div>
 
-                    {/* Выбор валюты */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Основная валюта
+                    <div className="flex items-start gap-2">
+                        <input
+                            type="checkbox"
+                            id="agree"
+                            checked={agreed}
+                            onChange={(e) => setAgreed(e.target.checked)}
+                            className="mt-1 accent-blue-500 dark:accent-blue-400"
+                        />
+                        <label htmlFor="agree" className="text-sm text-gray-600 dark:text-gray-400">
+                            Я принимаю{' '}
+                            <Link to="/privacy" target="_blank" className="text-blue-600 dark:text-blue-400 hover:underline">
+                                Политику конфиденциальности
+                            </Link>{' '}
+                            и{' '}
+                            <Link to="/terms" target="_blank" className="text-blue-600 dark:text-blue-400 hover:underline">
+                                Пользовательское соглашение
+                            </Link>
                         </label>
-                        <select
-                            value={currency}
-                            onChange={(e) => setCurrency(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="RUB">🇷🇺 Российский рубль (RUB)</option>
-                            <option value="USD">🇺🇸 Доллар США (USD)</option>
-                            <option value="EUR">🇪🇺 Евро (EUR)</option>
-                        </select>
                     </div>
 
-                    {/* Кнопка */}
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || !agreed}
                         className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50"
                     >
                         {loading ? 'Регистрация...' : 'Зарегистрироваться'}
                     </button>
 
-                    <p className="text-center text-sm text-gray-600">
+                    <p className="text-center text-sm text-gray-600 dark:text-gray-400">
                         Уже есть аккаунт?{' '}
-                        <Link to="/login" className="text-blue-600 hover:text-blue-500">
+                        <Link to="/login" className="text-blue-600 dark:text-blue-400 hover:text-blue-500">
                             Войти
                         </Link>
                     </p>

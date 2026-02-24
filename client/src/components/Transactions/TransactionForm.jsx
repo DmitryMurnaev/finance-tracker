@@ -210,11 +210,11 @@ const TransactionForm = ({
       <div className="fixed inset-0 z-60">
         <div className="fixed inset-0 bg-black/50" onClick={handleClose} />
         <div className="fixed bottom-0 left-0 right-0 md:bottom-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2">
-          <div className="bg-white rounded-t-3xl md:rounded-2xl w-full max-w-md md:max-w-lg mx-auto flex flex-col max-h-[90vh] overflow-x-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-t-3xl md:rounded-2xl w-full max-w-md md:max-w-lg mx-auto flex flex-col max-h-[90vh] overflow-x-hidden">
             {/* Заголовок */}
-            <div className="bg-white border-b border-gray-100 p-4 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-900 truncate">{modalTitle}</h2>
-              <button onClick={handleClose} className="p-2 text-gray-500 hover:text-gray-700 flex-shrink-0" disabled={isSubmitting}>
+            <div className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 p-4 flex justify-between items-center">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 truncate">{modalTitle}</h2>
+              <button onClick={handleClose} className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-300 flex-shrink-0" disabled={isSubmitting}>
                 <X size={24} />
               </button>
             </div>
@@ -222,19 +222,16 @@ const TransactionForm = ({
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4">
               {/* Сумма */}
               <div className="mb-4">
-                <label className="block text-gray-700 mb-2 font-medium">Сумма (₽)</label>
+                <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Сумма (₽)</label>
                 <input
                     type="text"
                     value={amount}
                     onChange={(e) => {
                       const value = e.target.value;
-                      // Разрешаем только цифры и одну точку
-                      if (/^\d*\.?\d*$/.test(value) || value === '') {
-                        setAmount(value);
-                      }
+                      if (/^\d*\.?\d*$/.test(value) || value === '') setAmount(value);
                     }}
                     placeholder="0"
-                    className="w-full text-3xl font-bold border-0 focus:outline-none p-0 bg-transparent"
+                    className="w-full text-3xl font-bold border-0 focus:outline-none p-0 bg-transparent dark:text-gray-200"
                     disabled={isSubmitting}
                     inputMode="decimal"
                 />
@@ -244,13 +241,13 @@ const TransactionForm = ({
 
               {/* Описание */}
               <div className="mb-4">
-              <label className="block text-gray-700 mb-2 font-medium">Описание</label>
+                <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Описание</label>
                 <input
                     type="text"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Краткое описание"
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200"
                     disabled={isSubmitting}
                     maxLength={50}
                 />
@@ -260,7 +257,7 @@ const TransactionForm = ({
               {mode === 'transfer' ? (
                   <>
                     <div className="mb-4">
-                      <label className="block text-gray-700 mb-2 font-medium">Счёт списания</label>
+                      <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Счёт списания</label>
                       {loadingAccounts ? (
                           <div className="h-12 bg-gray-200 animate-pulse rounded-lg"></div>
                       ) : (
@@ -288,7 +285,7 @@ const TransactionForm = ({
                       )}
                     </div>
                     <div className="mb-4">
-                      <label className="block text-gray-700 mb-2 font-medium">Счёт пополнения</label>
+                      <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Счёт пополнения</label>
                       {loadingAccounts ? (
                           <div className="h-12 bg-gray-200 animate-pulse rounded-lg"></div>
                       ) : (
@@ -320,7 +317,7 @@ const TransactionForm = ({
                   <>
                     {/* Выбор счёта */}
                     <div className="mb-4">
-                      <label className="block text-gray-700 mb-2 font-medium">Счёт</label>
+                      <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Счёт</label>
                       {loadingAccounts ? (
                           <div className="flex gap-2 overflow-x-auto pl-2 py-2">
                             {[...Array(5)].map((_, i) => (
@@ -354,7 +351,7 @@ const TransactionForm = ({
 
                     {/* Категории */}
                     <div className="mb-4">
-                      <label className="block text-gray-700 mb-2 font-medium">Категория</label>
+                      <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Категория</label>
                       {loadingCategories ? (
                           <div className="flex gap-2 overflow-x-auto pl-2 py-2">
                             {[...Array(6)].map((_, i) => (
@@ -378,13 +375,12 @@ const TransactionForm = ({
 
               {/* Дата */}
               <div className="mb-4">
-                <label className="block text-gray-700 mb-2 font-medium">Дата</label>
+                <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Дата</label>
                 <input
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
-                    style={{ boxSizing: 'border-box', width: '100%' }}
+                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-sm dark:bg-gray-700 dark:text-gray-200"
                     disabled={isSubmitting}
                     max={new Date().toISOString().split('T')[0]}
                 />
@@ -398,13 +394,13 @@ const TransactionForm = ({
             </form>
 
             {/* Фиксированные кнопки */}
-            <div className="p-4 border-t border-gray-100">
+            <div className="p-4 border-t border-gray-100 dark:border-gray-700">
               <div className="flex gap-3">
                 <button
                     type="button"
                     onClick={handleClose}
                     disabled={isSubmitting}
-                    className="flex-1 bg-gray-100 text-gray-700 py-4 rounded-xl font-bold text-lg hover:bg-gray-200"
+                    className="flex-1 bg-gray-100 bg-transparent text-gray-700 py-4 rounded-xl font-bold text-lg hover:bg-gray-200"
                 >
                   Отмена
                 </button>

@@ -227,11 +227,13 @@ function Home({ isMenuOpen, onCloseMenu }) { // ✅ принимаем проп�
 
                 {activeTab === 'home' ? (
                     <>
-                        <div className="bg-white rounded-xl shadow border border-gray-100 p-3 sm:p-4 mb-4">
-                            <div className="flex flex-col min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between gap-3">
+                        <div
+                            className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-100 dark:border-gray-700 p-3 sm:p-4 mb-4">
+                            <div
+                                className="flex flex-col min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between gap-3">
                                 <div className="flex items-center gap-1">
-                                    <HistoryIcon size={20} className="text-gray-600" />
-                                    <h2 className="font-semibold text-sm sm:text-base">
+                                    <HistoryIcon size={20} className="text-gray-600 dark:text-gray-400"/>
+                                    <h2 className="font-semibold text-sm sm:text-base text-gray-800 dark:text-gray-200">
                                         Последние операции
                                     </h2>
                                 </div>
@@ -253,7 +255,7 @@ function Home({ isMenuOpen, onCloseMenu }) { // ✅ принимаем проп�
                         />
                     </>
                 ) : (
-                    <Statistics transactions={transactions} />
+                    <Statistics transactions={transactions}/>
                 )}
             </div>
 

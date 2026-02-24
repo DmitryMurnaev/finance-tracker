@@ -31,27 +31,20 @@ const Support = () => {
     return (
         <div className="p-4">
             <div className="flex items-center gap-2 mb-4">
-                <button onClick={() => navigate(-1)} className="p-2 hover:bg-gray-100 rounded-lg">
-                    <ArrowLeft size={20} />
+                <button onClick={() => navigate(-1)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                    <ArrowLeft size={20} className="text-gray-600 dark:text-gray-400" />
                 </button>
-                <h1 className="text-2xl font-bold">Поддержка</h1>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Поддержка</h1>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Тема обращения
                     </label>
                     <select
                         value={topic}
                         onChange={(e) => setTopic(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-base appearance-none"
-                        style={{
-                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20' stroke='%236B7280'%3E%3Cpath strokeLinecap='round' strokeLinejoin='round' strokeWidth='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
-                            backgroundPosition: 'right 0.75rem center',
-                            backgroundRepeat: 'no-repeat',
-                            backgroundSize: '1.5em 1.5em',
-                            paddingRight: '2.5rem'
-                        }}
+                        className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200"
                     >
                         <option value="question">❓ Вопрос</option>
                         <option value="problem">⚠️ Техническая проблема</option>
@@ -61,7 +54,7 @@ const Support = () => {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Сообщение
                     </label>
                     <textarea
@@ -69,13 +62,13 @@ const Support = () => {
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder="Опишите ваш вопрос или проблему..."
                         rows="5"
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                        className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200"
                         required
                     />
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Контакт для связи (необязательно)
                     </label>
                     <input
@@ -83,9 +76,9 @@ const Support = () => {
                         value={contact}
                         onChange={(e) => setContact(e.target.value)}
                         placeholder="Email, Telegram или телефон"
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                        className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         Если не указать, ответ придёт на ваш email в системе.
                     </p>
                 </div>

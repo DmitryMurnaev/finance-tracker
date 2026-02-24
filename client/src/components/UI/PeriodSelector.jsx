@@ -20,7 +20,7 @@ const PeriodSelector = ({ periods, selectedPeriod, onChange }) => {
     };
 
     const getShortLabel = (p) => {
-        if (p === 'all') return '📅 Всё время'; // короче!
+        if (p === 'all') return '📅 Всё время';
         const [y, m] = p.split('-');
         return new Date(y, m - 1).toLocaleDateString('ru-RU', { year: 'numeric', month: 'short' });
     };
@@ -29,20 +29,19 @@ const PeriodSelector = ({ periods, selectedPeriod, onChange }) => {
         <div className="relative" ref={ref}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white border border-gray-300 rounded-lg text-xs sm:text-sm flex items-center justify-between gap-1 sm:gap-2 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                className="px-3 py-1.5 sm:px-4 sm:py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-xs sm:text-sm flex items-center justify-between gap-1 sm:gap-2 hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors text-gray-700 dark:text-gray-300"
             >
-                {/* На мобильных (до 640px) — короткий текст, на десктопе — полный */}
                 <span className="hidden sm:inline">{getFullLabel(selectedPeriod)}</span>
                 <span className="inline sm:hidden">{getShortLabel(selectedPeriod)}</span>
-                <ChevronDown size={14} className={`sm:size-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown size={14} className={`sm:size-4 text-gray-500 dark:text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isOpen && (
-                <div className="absolute z-30 mt-1 w-full sm:w-64 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                <div className="absolute z-30 mt-1 w-full sm:w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                     <button
                         onClick={() => { onChange('all'); setIsOpen(false); }}
-                        className={`w-full px-4 py-2 text-left text-xs sm:text-sm hover:bg-gray-50 ${
-                            selectedPeriod === 'all' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'
+                        className={`w-full px-4 py-2 text-left text-xs sm:text-sm hover:bg-gray-50 dark:hover:bg-gray-700 ${
+                            selectedPeriod === 'all' ? 'bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300 font-medium' : 'text-gray-700 dark:text-gray-300'
                         }`}
                     >
                         <span className="sm:hidden">📅 Всё время</span>
@@ -52,16 +51,16 @@ const PeriodSelector = ({ periods, selectedPeriod, onChange }) => {
                         <button
                             key={p}
                             onClick={() => { onChange(p); setIsOpen(false); }}
-                            className={`w-full px-4 py-2 text-left text-xs sm:text-sm hover:bg-gray-50 ${
-                                selectedPeriod === p ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700'
+                            className={`w-full px-4 py-2 text-left text-xs sm:text-sm hover:bg-gray-50 dark:hover:bg-gray-700 ${
+                                selectedPeriod === p ? 'bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300 font-medium' : 'text-gray-700 dark:text-gray-300'
                             }`}
                         >
-              <span className="sm:hidden">
-                {new Date(p + '-01').toLocaleDateString('ru-RU', { year: 'numeric', month: 'short' })}
-              </span>
+                            <span className="sm:hidden">
+                                {new Date(p + '-01').toLocaleDateString('ru-RU', { year: 'numeric', month: 'short' })}
+                            </span>
                             <span className="hidden sm:inline">
-                {new Date(p + '-01').toLocaleDateString('ru-RU', { year: 'numeric', month: 'long' })}
-              </span>
+                                {new Date(p + '-01').toLocaleDateString('ru-RU', { year: 'numeric', month: 'long' })}
+                            </span>
                         </button>
                     ))}
                 </div>

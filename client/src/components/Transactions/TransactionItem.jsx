@@ -17,22 +17,22 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
         : 'Дата не указана';
 
     return (
-        <div className="flex items-center justify-between p-3 sm:p-4 bg-white rounded-xl shadow-sm mb-2 hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm mb-2 hover:shadow-md transition-shadow border border-gray-100 dark:border-gray-700">
             <div className="flex items-center min-w-0 flex-1">
                 <div
-                    className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mr-3 sm:mr-4 ${config.color}`}
+                    className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mr-3 sm:mr-4 ${config.color} dark:bg-opacity-80`}
                 >
                     <span className="text-xl sm:text-2xl">{config.icon}</span>
                 </div>
                 <div className="min-w-0 flex-1">
-                    <h4 className="font-medium text-gray-800 text-sm sm:text-base truncate">
+                    <h4 className="font-medium text-gray-800 dark:text-gray-200 text-sm sm:text-base truncate">
                         {transaction.description || 'Без описания'}
                     </h4>
                     <div className="flex items-center gap-2 mt-0.5 sm:mt-1 flex-wrap">
-                        <span className={`px-2 py-0.5 rounded-full text-xs ${config.color} flex-shrink-0`}>
+                        <span className={`px-2 py-0.5 rounded-full text-xs ${config.color} dark:bg-opacity-80 flex-shrink-0 dark:text-gray-800`}>
                             {config.name}
                         </span>
-                        <span className="text-gray-500 text-xs sm:text-sm flex-shrink-0">{formattedDate}</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm flex-shrink-0">{formattedDate}</span>
                     </div>
                 </div>
             </div>
@@ -40,7 +40,7 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
             <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-2">
                 <span
                     className={`text-sm sm:text-lg font-bold whitespace-nowrap ${
-                        isExpense ? 'text-red-600' : 'text-green-600'
+                        isExpense ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
                     }`}
                 >
                     {isExpense ? '-' : '+'} {formatCurrency(transaction.amount)}
@@ -48,14 +48,14 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
                 <div className="flex gap-1">
                     <button
                         onClick={() => onEdit(transaction)}
-                        className="p-1 sm:p-2 text-gray-400 hover:text-blue-600 transition-colors flex-shrink-0"
+                        className="p-1 sm:p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex-shrink-0"
                         title="Редактировать"
                     >
                         <Pencil size={18} />
                     </button>
                     <button
                         onClick={() => onDelete(transaction.id)}
-                        className="p-1 sm:p-2 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
+                        className="p-1 sm:p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors flex-shrink-0"
                         aria-label="Удалить операцию"
                     >
                         <Trash2 size={16} className="sm:w-4 sm:h-4" />

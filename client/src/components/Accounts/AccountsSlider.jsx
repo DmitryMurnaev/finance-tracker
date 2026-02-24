@@ -26,8 +26,8 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
 
     if (!accounts.length) {
         return (
-            <div className="mb-6 text-center p-8 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border border-gray-200">
-                <p className="text-gray-600 text-lg mb-4">У вас ещё нет счетов</p>
+            <div className="mb-6 text-center p-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-2xl border border-gray-200 dark:border-gray-600">
+                <p className="text-gray-600 dark:text-gray-300 text-lg mb-4">У вас ещё нет счетов</p>
                 <button
                     onClick={onAddClick}
                     className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-xl font-medium hover:bg-blue-600 transition-all shadow-md hover:shadow-lg"
@@ -42,10 +42,10 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
     return (
         <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold text-gray-800">Ваши счета</h2>
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Ваши счета</h2>
                 <button
                     onClick={onAddClick}
-                    className="inline-flex items-center gap-1 px-4 py-2 bg-blue-50 text-blue-600 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors"
+                    className="inline-flex items-center gap-1 px-4 py-2 bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full text-sm font-medium hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
                 >
                     <Plus size={18} />
                     Новый счёт
@@ -53,22 +53,22 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
             </div>
 
             <div className="relative group">
-                {/* Левая стрелка – теперь не перекрывает карточку */}
                 <button
                     onClick={() => scroll('left')}
-                    className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full shadow-md items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-white transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                    className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full shadow-md items-center justify-center text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-gray-700 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
                 >
                     <ChevronLeft size={24} />
                 </button>
 
                 <div
                     ref={sliderRef}
-                    className="flex overflow-x-auto dd:justify-between gap-4 pb-4 scrollbar-hide scroll-smooth snap-x snap-mandatory"
+                    className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide scroll-smooth snap-x snap-mandatory"
                     style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}
                 >
                     {accounts.map((account) => {
                         const icon = getIconById(account.icon_id);
                         const color = getColorById(account.color_id);
+                        // цвета карточки берутся из конфига, они не зависят от темы
                         return (
                             <div
                                 key={account.id}
@@ -90,16 +90,14 @@ const AccountsSlider = ({ accounts, onAddClick, onEditAccount, onDeleteAccount }
                 </div>
 
                 {showHint && (
-                    <div
-                        className="md:hidden absolute right-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-lg animate-pulse">
-                        <Hand className="text-blue-500" size={24} />
+                    <div className="md:hidden absolute right-2 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-800 rounded-full p-2 shadow-lg animate-pulse">
+                        <Hand className="text-blue-500 dark:text-blue-400" size={24} />
                     </div>
                 )}
 
-                {/* Правая стрелка */}
                 <button
                     onClick={() => scroll('right')}
-                    className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full shadow-md items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-white transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+                    className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full shadow-md items-center justify-center text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-gray-700 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
                 >
                     <ChevronRight size={24} />
                 </button>

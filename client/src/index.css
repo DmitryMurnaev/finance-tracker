@@ -2,6 +2,10 @@
 
 /* Можно добавить кастомные стили если нужно */
 
+* {
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
 html, body {
     overflow-x: hidden;
     width: 100%;
@@ -63,3 +67,68 @@ input[type="date"] {
 .animate-slide-up {
     animation: slide-up 0.3s ease-out;
 }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Базовые переменные (светлая тема) */
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --bg-tertiary: #f3f4f6;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --text-tertiary: #9ca3af;
+    --border-light: #e5e7eb;
+    --card-bg: #ffffff;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    --nav-bg: rgba(255,255,255,0.8);
+    --nav-border: rgba(0,0,0,0.05);
+    --income-color: #22c55e;
+    --expense-color: #ef4444;
+    --primary: #3b82f6;
+    --primary-light: #93c5fd;
+    --primary-dark: #2563eb;
+}
+
+/* Тёмная тема */
+.dark {
+    --bg-primary: #1f2937;
+    --bg-secondary: #111827;
+    --bg-tertiary: #374151;
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+    --text-tertiary: #9ca3af;
+    --border-light: #4b5563;
+    --card-bg: #374151;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    --nav-bg: rgba(31,41,55,0.8);
+    --nav-border: rgba(255,255,255,0.05);
+    --income-color: #4ade80;
+    --expense-color: #f87171;
+    --primary: #60a5fa;
+    --primary-light: #93c5fd;
+    --primary-dark: #3b82f6;
+}
+
+/* Глобальные классы для использования переменных */
+.bg-primary {
+    background-color: var(--bg-primary);
+}
+.bg-secondary {
+    background-color: var(--bg-secondary);
+}
+.text-primary {
+    color: var(--text-primary);
+}
+.text-secondary {
+    color: var(--text-secondary);
+}
+.border-color {
+    border-color: var(--border-color);
+}
+.card-bg {
+    background-color: var(--card-bg);
+}
+/* и т.д. */

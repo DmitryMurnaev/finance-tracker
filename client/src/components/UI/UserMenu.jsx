@@ -23,17 +23,17 @@ const UserMenu = () => {
         <div className="relative">
             <button
                 onClick={() => setOpen(!open)}
-                className="flex items-center gap-2 p-1.5 rounded-full hover:bg-gray-100 transition"
+                className="flex items-center gap-2 p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition"
             >
                 <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium text-sm">
                     {getInitials()}
                 </div>
-                <span className="hidden sm:inline text-sm font-medium text-gray-700">
+                <span className="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-300">
                     {user?.name || user?.email?.split('@')[0]}
                 </span>
                 <ChevronDown
                     size={16}
-                    className={`text-gray-500 transition-transform ${open ? 'rotate-180' : ''}`}
+                    className={`text-gray-500 dark:text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`}
                 />
             </button>
 
@@ -43,21 +43,21 @@ const UserMenu = () => {
                         className="fixed inset-0 z-40"
                         onClick={() => setOpen(false)}
                     />
-                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg py-2 z-50 animate-fadeIn">
-                        <div className="px-4 py-2 border-b border-gray-100">
-                            <p className="text-sm font-medium text-gray-900">
+                    <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg py-2 z-50 animate-fadeIn border border-gray-100 dark:border-gray-700">
+                        <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {user?.name || 'Пользователь'}
                             </p>
-                            <p className="text-xs text-gray-500 truncate">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                                 {user?.email}
                             </p>
                         </div>
                         <Link
                             to="/profile"
-                            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full"
+                            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 w-full"
                             onClick={() => setOpen(false)}
                         >
-                            <User size={16} className="text-gray-500" />
+                            <User size={16} className="text-gray-500 dark:text-gray-400" />
                             Профиль
                         </Link>
                         <button
@@ -65,7 +65,7 @@ const UserMenu = () => {
                                 logout();
                                 setOpen(false);
                             }}
-                            className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
+                            className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/50 w-full text-left"
                         >
                             <LogOut size={16} />
                             Выйти

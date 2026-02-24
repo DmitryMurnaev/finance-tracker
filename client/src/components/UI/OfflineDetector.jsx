@@ -19,7 +19,7 @@ const OfflineDetector = () => {
     if (!isOffline) return null;
 
     return (
-        <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-white px-4 py-2 rounded-full shadow-lg z-50 animate-slide-up">
+        <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-white px-4 py-2 rounded-full shadow-lg z-50 animate-slide-up dark:bg-yellow-600">
             ⚠️ Нет подключения к интернету
         </div>
     );

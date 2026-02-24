@@ -1,11 +1,11 @@
 import { Wallet, TrendingUp, Plus } from 'lucide-react';
 
 const DesktopNavigation = ({ activeTab, setActiveTab, onAddClick, isMenuOpen = false}) => (
-    <nav className="grid grid-cols-3 bg-white border-t border-gray-200 px-4 pt-3 pb-3">
+    <nav className="grid grid-cols-3 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 pt-3 pb-3">
         <div className="flex justify-center">
             <button
                 onClick={() => setActiveTab('home')}
-                className={`flex flex-col items-center ${activeTab === 'home' ? 'text-blue-500' : 'text-gray-400'}`}
+                className={`flex flex-col items-center ${activeTab === 'home' ? 'text-blue-500' : 'text-gray-400 dark:text-gray-500'}`}
             >
                 <Wallet size={24} />
                 <span className="text-xs mt-1">Главная</span>
@@ -24,7 +24,7 @@ const DesktopNavigation = ({ activeTab, setActiveTab, onAddClick, isMenuOpen = f
         <div className="flex justify-center">
             <button
                 onClick={() => setActiveTab('stats')}
-                className={`flex flex-col items-center ${activeTab === 'stats' ? 'text-blue-500' : 'text-gray-400'}`}
+                className={`flex flex-col items-center ${activeTab === 'stats' ? 'text-blue-500' : 'text-gray-400 dark:text-gray-500'}`}
             >
                 <TrendingUp size={24} />
                 <span className="text-xs mt-1">Статистика</span>
