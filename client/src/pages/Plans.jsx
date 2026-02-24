@@ -100,7 +100,7 @@ const Plans = () => {
             </div>
 
             {loading ? (
-                <div className="text-center py-10">Загрузка...</div>
+                <div className="text-center py-10 dark:text-gray-100">Загрузка...</div>
             ) : plans.length === 0 ? (
                 <div className="text-center py-10 text-gray-500">
                     <p className="mb-4">У вас ещё нет целей</p>
