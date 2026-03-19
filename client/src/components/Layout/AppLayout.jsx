@@ -7,7 +7,7 @@ const AppLayout = ({ activeTab, setActiveTab }) => {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-32">
-            <Outlet context={{ activeTab, setActiveTab, showTypeMenu, setShowTypeMenu }} />
+            <Outlet context={{activeTab, setActiveTab, showTypeMenu, setShowTypeMenu}}/>
             <GlassNavigation
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
