@@ -5,6 +5,7 @@ import { getCategoryConfig } from '../../config/categoryConfig';
 import { getIconById, getColorById } from '../../config/accountsConfig';
 import CategoryCarousel from './CategoryCarousel';
 import { useModal } from '../../context/ModalContext';
+import DatePicker from './DatePicker';
 
 const TransactionForm = ({
                            isOpen,
@@ -340,13 +341,10 @@ const TransactionForm = ({
                 {/* Дата */}
                 <div className="mb-4">
                   <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Дата</label>
-                  <input
-                      type="date"
+                  <DatePicker
                       value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-sm dark:bg-gray-700 dark:text-gray-200"
+                      onChange={setDate}
                       disabled={isSubmitting}
-                      max={new Date().toISOString().split('T')[0]}
                   />
                 </div>
 

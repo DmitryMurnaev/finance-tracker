@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { planIconOptions, planColorOptions } from '../../config/plansConfig';
+import DatePicker from './DatePicker';
 
 const PlanForm = ({ isOpen, onClose, onSave, editingPlan }) => {
     const [name, setName] = useState('');
@@ -141,18 +142,18 @@ const PlanForm = ({ isOpen, onClose, onSave, editingPlan }) => {
                             </div>
 
                             <div className="mb-4">
-                                <label className="block mb-1 font-medium text-gray-700 dark:text-gray-300">Дедлайн (необязательно)</label>
-                                <input
-                                    type="date"
+                                <label className="block mb-1 font-medium text-gray-700 dark:text-gray-300">Дедлайн
+                                    (необязательно)</label>
+                                <DatePicker
                                     value={deadline}
-                                    onChange={(e) => setDeadline(e.target.value)}
-                                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200"
+                                    onChange={setDeadline}
                                     disabled={isSubmitting}
                                 />
                             </div>
 
                             {error && (
-                                <div className="mb-4 p-3 bg-red-50 dark:bg-red-900 text-red-700 dark:text-red-200 rounded-lg">
+                                <div
+                                    className="mb-4 p-3 bg-red-50 dark:bg-red-900 text-red-700 dark:text-red-200 rounded-lg">
                                     {error}
                                 </div>
                             )}
