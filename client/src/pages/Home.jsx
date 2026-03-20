@@ -181,7 +181,7 @@ function Home({ isMenuOpen, onCloseMenu }) { // ✅ принимаем проп�
 
     const handleTypeSelect = (type) => {
         setSelectedType(type);
-        setShowTypeMenu(false);
+        setShowTypeMenu(false);  // ← закрываем меню
         setIsFormOpen(true);
     };
 
