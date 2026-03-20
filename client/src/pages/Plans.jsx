@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Plus } from 'lucide-react';
 import { planAPI } from '../services/api';
 import PlanCard from '../components/Plans/PlanCard';
 import PlanForm from '../components/Plans/PlanForm';
@@ -89,9 +88,7 @@ const Plans = () => {
 
     return (
         <div className="p-4">
-            <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold dark:text-gray-100">Планы</h1>
-            </div>
+            <h1 className="text-2xl font-bold dark:text-gray-100 mb-4">Планы</h1>
 
             {loading ? (
                 <div className="text-center py-10 dark:text-gray-100">Загрузка...</div>
