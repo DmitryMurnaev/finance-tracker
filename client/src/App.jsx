@@ -37,9 +37,9 @@ function App() {
     console.log('showWelcome:', showWelcome);
 
     return (
+        <ThemeProvider>
         <AuthProvider>
             <ModalProvider>
-                <ThemeProvider>
                 <CurrencyProvider>
                 <Routes>
                     {showWelcome ? (
@@ -68,9 +68,10 @@ function App() {
                 </Routes>
                 <OfflineDetector/>
                 </CurrencyProvider>
-                </ThemeProvider>
+
             </ModalProvider>
         </AuthProvider>
+</ThemeProvider>
     );
 }
 
