@@ -1,30 +1,41 @@
 import { useEffect, useRef } from 'react';
 import { Calendar } from 'lucide-react';
-import { Datepicker } from 'flowbite';
 
 const FlowbiteDatePicker = ({ value, onChange, disabled = false, placeholder = "Выберите дату" }) => {
     const inputRef = useRef(null);
     const datepickerInstance = useRef(null);
 
     useEffect(() => {
-        if (inputRef.current && !datepickerInstance.current) {
+        // Ждём загрузки DOM
+        const initDatepicker = async () => {
+            if (!inputRef.current || datepickerInstance.current) return;
+
             try {
+                // Динамический импорт Flowbite
+                const { Datepicker } = await import('flowbite');
+
+                // Инициализируем datepicker
                 datepickerInstance.current = new Datepicker(inputRef.current, {
                     format: 'dd.mm.yyyy',
                     autohide: true,
                     orientation: 'bottom',
                     buttons: true,
                     autoSelectToday: 0,
+                    title: 'Выберите дату',
                     onHide: () => {
                         if (inputRef.current && onChange) {
                             onChange(inputRef.current.value);
                         }
                     }
                 });
+
+                console.log('Datepicker инициализирован');
             } catch (error) {
                 console.error('Ошибка инициализации Datepicker:', error);
             }
-        }
+        };
+
+        initDatepicker();
 
         return () => {
             if (datepickerInstance.current) {
@@ -34,6 +45,7 @@ const FlowbiteDatePicker = ({ value, onChange, disabled = false, placeholder = "
         };
     }, []);
 
+    // Обновляем значение при изменении извне
     useEffect(() => {
         if (inputRef.current && value !== inputRef.current.value) {
             inputRef.current.value = value || '';
@@ -51,7 +63,7 @@ const FlowbiteDatePicker = ({ value, onChange, disabled = false, placeholder = "
                 defaultValue={value || ''}
                 disabled={disabled}
                 placeholder={placeholder}
-                className="w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200"
+                className="w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200 cursor-pointer"
             />
         </div>
     );
