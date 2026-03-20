@@ -15,6 +15,14 @@ const Plans = () => {
 
     useEffect(() => {
         fetchPlans();
+
+        // Слушаем глобальное событие для открытия формы из нижнего меню
+        const handleOpenForm = () => {
+            handleAddClick();
+        };
+
+        window.addEventListener('openPlanForm', handleOpenForm);
+        return () => window.removeEventListener('openPlanForm', handleOpenForm);
     }, []);
 
     const fetchPlans = async () => {

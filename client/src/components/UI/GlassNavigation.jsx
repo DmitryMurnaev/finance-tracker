@@ -60,22 +60,30 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
     };
 
     const handlePlusClick = () => {
+        const currentPath = location.pathname;
+
         // Если мы на странице планов — открываем форму создания плана
-        if (location.pathname === '/plans') {
-            // Находим кнопку "Добавить план" в DOM и кликаем по ней
+        if (currentPath === '/plans') {
+            // Ищем кнопку создания плана через data-атрибут
             const addPlanButton = document.querySelector('[data-add-plan-button]');
             if (addPlanButton) {
                 addPlanButton.click();
+            } else {
+                // Запасной вариант: вызываем handleAddClick через глобальное событие
+                window.dispatchEvent(new CustomEvent('openPlanForm'));
             }
-        } else if (location.pathname === '/home') {
-            // На главной — открываем меню выбора типа транзакции
+        }
+        // Если на главной — открываем меню транзакций
+        else if (currentPath === '/home') {
             setShowTypeMenu(true);
-        } else {
-            // На других страницах — перенаправляем на главную и открываем меню
+        }
+        // Если на других страницах — перенаправляем на главную и открываем меню
+        else {
             navigate('/home');
+            // Небольшая задержка, чтобы успела произойти навигация
             setTimeout(() => {
                 setShowTypeMenu(true);
-            }, 100);
+            }, 150);
         }
     };
 
