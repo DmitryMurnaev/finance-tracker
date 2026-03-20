@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { planIconOptions, planColorOptions } from '../../config/plansConfig';
-import DatePicker from '../UI/DatePicker';
+import FlowbiteDatePicker from '../UI/FlowbiteDatePicker';
 
 const PlanForm = ({ isOpen, onClose, onSave, editingPlan }) => {
     const [name, setName] = useState('');
@@ -144,10 +144,11 @@ const PlanForm = ({ isOpen, onClose, onSave, editingPlan }) => {
                             <div className="mb-4">
                                 <label className="block mb-1 font-medium text-gray-700 dark:text-gray-300">Дедлайн
                                     (необязательно)</label>
-                                <DatePicker
+                                <FlowbiteDatePicker
                                     value={deadline}
                                     onChange={setDeadline}
                                     disabled={isSubmitting}
+                                    placeholder="Выберите дату"
                                 />
                             </div>
 
