@@ -29,11 +29,9 @@ const TransactionForm = ({
   const [loadingAccounts, setLoadingAccounts] = useState(false);
   const [accountId, setAccountId] = useState(null);
 
-  // Для перевода
   const [fromAccountId, setFromAccountId] = useState(null);
   const [toAccountId, setToAccountId] = useState(null);
 
-  // Загрузка данных при открытии
   useEffect(() => {
     if (isOpen) {
       const fetchData = async () => {
@@ -187,175 +185,178 @@ const TransactionForm = ({
       <div className="fixed inset-0 z-60">
         <div className="fixed inset-0 bg-black/50" onClick={handleClose} />
         <div className="fixed bottom-0 left-0 right-0 md:bottom-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2">
-          <div className="bg-white dark:bg-gray-800 rounded-t-3xl md:rounded-2xl w-full max-w-md mx-auto flex flex-col max-h-[90vh] overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-t-3xl md:rounded-2xl w-full max-w-md mx-auto flex flex-col max-h-[85vh] md:max-h-[90vh] overflow-hidden">
             {/* Заголовок */}
-            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 p-4 flex justify-between items-center">
+            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 p-4 flex justify-between items-center z-10">
               <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 truncate">{modalTitle}</h2>
               <button onClick={handleClose} className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-300 flex-shrink-0" disabled={isSubmitting}>
                 <X size={24} />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4">
-              {/* Сумма */}
-              <div className="mb-4">
-                <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Сумма (₽)</label>
-                <input
-                    type="text"
-                    value={amount}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (/^\d*\.?\d*$/.test(value) || value === '') setAmount(value);
-                    }}
-                    placeholder="0"
-                    className="w-full text-3xl font-bold border-0 focus:outline-none p-0 bg-transparent dark:text-gray-200"
-                    disabled={isSubmitting}
-                    inputMode="decimal"
-                />
-                <div className="h-1 bg-gray-200 rounded-full mt-1"></div>
-              </div>
+            {/* Контент с прокруткой */}
+            <div className="flex-1 overflow-y-auto p-4">
+              <form onSubmit={handleSubmit}>
+                {/* Сумма */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Сумма (₽)</label>
+                  <input
+                      type="text"
+                      value={amount}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (/^\d*\.?\d*$/.test(value) || value === '') setAmount(value);
+                      }}
+                      placeholder="0"
+                      className="w-full text-3xl font-bold border-0 focus:outline-none p-0 bg-transparent dark:text-gray-200"
+                      disabled={isSubmitting}
+                      inputMode="decimal"
+                  />
+                  <div className="h-1 bg-gray-200 rounded-full mt-1"></div>
+                </div>
 
-              {/* Описание */}
-              <div className="mb-4">
-                <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Описание</label>
-                <input
-                    type="text"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Краткое описание"
-                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200"
-                    disabled={isSubmitting}
-                    maxLength={50}
-                />
-              </div>
+                {/* Описание */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Описание</label>
+                  <input
+                      type="text"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Краткое описание"
+                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-gray-200"
+                      disabled={isSubmitting}
+                      maxLength={50}
+                  />
+                </div>
 
-              {/* Для перевода */}
-              {mode === 'transfer' ? (
-                  <>
-                    <div className="mb-4">
-                      <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Счёт списания</label>
-                      {loadingAccounts ? (
-                          <div className="h-12 bg-gray-200 animate-pulse rounded-lg"></div>
-                      ) : (
-                          <div className="flex overflow-x-auto gap-2 py-2 scrollbar-hide">
-                            {accounts.map((acc) => {
-                              const icon = getIconById(acc.icon_id);
-                              const color = getColorById(acc.color_id);
-                              return (
-                                  <button
-                                      key={acc.id}
-                                      type="button"
-                                      onClick={() => setFromAccountId(acc.id)}
-                                      className={`flex-shrink-0 p-2 rounded-lg flex items-center gap-1 ${fromAccountId === acc.id ? `ring-2 ring-blue-500 ${color.bg}` : color.bg}`}
-                                  >
-                                    <span className="text-xl">{icon.emoji}</span>
-                                    <span className={`text-sm font-medium whitespace-nowrap ${color.text}`}>{acc.name}</span>
-                                  </button>
-                              );
-                            })}
-                          </div>
-                      )}
+                {/* Для перевода */}
+                {mode === 'transfer' ? (
+                    <>
+                      <div className="mb-4">
+                        <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Счёт списания</label>
+                        {loadingAccounts ? (
+                            <div className="h-12 bg-gray-200 animate-pulse rounded-lg"></div>
+                        ) : (
+                            <div className="flex overflow-x-auto gap-2 py-2 scrollbar-hide">
+                              {accounts.map((acc) => {
+                                const icon = getIconById(acc.icon_id);
+                                const color = getColorById(acc.color_id);
+                                return (
+                                    <button
+                                        key={acc.id}
+                                        type="button"
+                                        onClick={() => setFromAccountId(acc.id)}
+                                        className={`flex-shrink-0 p-2 rounded-lg flex items-center gap-1 ${fromAccountId === acc.id ? `ring-2 ring-blue-500 ${color.bg}` : color.bg}`}
+                                    >
+                                      <span className="text-xl">{icon.emoji}</span>
+                                      <span className={`text-sm font-medium whitespace-nowrap ${color.text}`}>{acc.name}</span>
+                                    </button>
+                                );
+                              })}
+                            </div>
+                        )}
+                      </div>
+                      <div className="mb-4">
+                        <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Счёт пополнения</label>
+                        {loadingAccounts ? (
+                            <div className="h-12 bg-gray-200 animate-pulse rounded-lg"></div>
+                        ) : (
+                            <div className="flex overflow-x-auto gap-2 py-2 scrollbar-hide">
+                              {accounts.map((acc) => {
+                                const icon = getIconById(acc.icon_id);
+                                const color = getColorById(acc.color_id);
+                                return (
+                                    <button
+                                        key={acc.id}
+                                        type="button"
+                                        onClick={() => setToAccountId(acc.id)}
+                                        className={`flex-shrink-0 p-2 rounded-lg flex items-center gap-1 ${toAccountId === acc.id ? `ring-2 ring-blue-500 ${color.bg}` : color.bg}`}
+                                    >
+                                      <span className="text-xl">{icon.emoji}</span>
+                                      <span className={`text-sm font-medium whitespace-nowrap ${color.text}`}>{acc.name}</span>
+                                    </button>
+                                );
+                              })}
+                            </div>
+                        )}
+                      </div>
+                    </>
+                ) : (
+                    <>
+                      {/* Выбор счёта */}
+                      <div className="mb-4">
+                        <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Счёт</label>
+                        {loadingAccounts ? (
+                            <div className="flex gap-2 overflow-x-auto py-2">
+                              {[...Array(5)].map((_, i) => (
+                                  <div key={i} className="flex-shrink-0 w-24 h-12 bg-gray-200 animate-pulse rounded-lg"></div>
+                              ))}
+                            </div>
+                        ) : (
+                            <div className="flex overflow-x-auto gap-2 py-2 scrollbar-hide">
+                              {accounts.map((acc) => {
+                                const icon = getIconById(acc.icon_id);
+                                const color = getColorById(acc.color_id);
+                                return (
+                                    <button
+                                        key={acc.id}
+                                        type="button"
+                                        onClick={() => setAccountId(acc.id)}
+                                        className={`flex-shrink-0 p-2 rounded-lg flex items-center gap-1 ${accountId === acc.id ? `ring-2 ring-blue-500 ${color.bg}` : color.bg}`}
+                                    >
+                                      <span className="text-xl">{icon.emoji}</span>
+                                      <span className={`text-sm font-medium whitespace-nowrap ${color.text}`}>{acc.name}</span>
+                                    </button>
+                                );
+                              })}
+                            </div>
+                        )}
+                      </div>
+
+                      {/* Категории */}
+                      <div className="mb-4">
+                        <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Категория</label>
+                        {loadingCategories ? (
+                            <div className="flex gap-2 overflow-x-auto py-2">
+                              {[...Array(6)].map((_, i) => (
+                                  <div key={i} className="flex-shrink-0 w-20 h-20 bg-gray-200 animate-pulse rounded-xl"></div>
+                              ))}
+                            </div>
+                        ) : filteredCategories.length === 0 ? (
+                            <div className="text-center py-4 text-gray-500 bg-gray-50 rounded-lg">
+                              Нет категорий. Сначала создайте категорию.
+                            </div>
+                        ) : (
+                            <CategoryCarousel
+                                categories={filteredCategories}
+                                selectedCategoryId={categoryId}
+                                onSelect={setCategoryId}
+                            />
+                        )}
+                      </div>
+                    </>
+                )}
+
+                {/* Дата */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Дата</label>
+                  <input
+                      type="date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-sm dark:bg-gray-700 dark:text-gray-200"
+                      disabled={isSubmitting}
+                      max={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+
+                {error && (
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+                      {error}
                     </div>
-                    <div className="mb-4">
-                      <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Счёт пополнения</label>
-                      {loadingAccounts ? (
-                          <div className="h-12 bg-gray-200 animate-pulse rounded-lg"></div>
-                      ) : (
-                          <div className="flex overflow-x-auto gap-2 py-2 scrollbar-hide">
-                            {accounts.map((acc) => {
-                              const icon = getIconById(acc.icon_id);
-                              const color = getColorById(acc.color_id);
-                              return (
-                                  <button
-                                      key={acc.id}
-                                      type="button"
-                                      onClick={() => setToAccountId(acc.id)}
-                                      className={`flex-shrink-0 p-2 rounded-lg flex items-center gap-1 ${toAccountId === acc.id ? `ring-2 ring-blue-500 ${color.bg}` : color.bg}`}
-                                  >
-                                    <span className="text-xl">{icon.emoji}</span>
-                                    <span className={`text-sm font-medium whitespace-nowrap ${color.text}`}>{acc.name}</span>
-                                  </button>
-                              );
-                            })}
-                          </div>
-                      )}
-                    </div>
-                  </>
-              ) : (
-                  <>
-                    {/* Выбор счёта */}
-                    <div className="mb-4">
-                      <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Счёт</label>
-                      {loadingAccounts ? (
-                          <div className="flex gap-2 overflow-x-auto py-2">
-                            {[...Array(5)].map((_, i) => (
-                                <div key={i} className="flex-shrink-0 w-24 h-12 bg-gray-200 animate-pulse rounded-lg"></div>
-                            ))}
-                          </div>
-                      ) : (
-                          <div className="flex overflow-x-auto gap-2 py-2 scrollbar-hide">
-                            {accounts.map((acc) => {
-                              const icon = getIconById(acc.icon_id);
-                              const color = getColorById(acc.color_id);
-                              return (
-                                  <button
-                                      key={acc.id}
-                                      type="button"
-                                      onClick={() => setAccountId(acc.id)}
-                                      className={`flex-shrink-0 p-2 rounded-lg flex items-center gap-1 ${accountId === acc.id ? `ring-2 ring-blue-500 ${color.bg}` : color.bg}`}
-                                  >
-                                    <span className="text-xl">{icon.emoji}</span>
-                                    <span className={`text-sm font-medium whitespace-nowrap ${color.text}`}>{acc.name}</span>
-                                  </button>
-                              );
-                            })}
-                          </div>
-                      )}
-                    </div>
-
-                    {/* Категории */}
-                    <div className="mb-4">
-                      <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Категория</label>
-                      {loadingCategories ? (
-                          <div className="flex gap-2 overflow-x-auto py-2">
-                            {[...Array(6)].map((_, i) => (
-                                <div key={i} className="flex-shrink-0 w-20 h-20 bg-gray-200 animate-pulse rounded-xl"></div>
-                            ))}
-                          </div>
-                      ) : filteredCategories.length === 0 ? (
-                          <div className="text-center py-4 text-gray-500 bg-gray-50 rounded-lg">
-                            Нет категорий. Сначала создайте категорию.
-                          </div>
-                      ) : (
-                          <CategoryCarousel
-                              categories={filteredCategories}
-                              selectedCategoryId={categoryId}
-                              onSelect={setCategoryId}
-                          />
-                      )}
-                    </div>
-                  </>
-              )}
-
-              {/* Дата - исправлено для мобильных */}
-              <div className="mb-4">
-                <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Дата</label>
-                <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-sm dark:bg-gray-700 dark:text-gray-200"
-                    disabled={isSubmitting}
-                    max={new Date().toISOString().split('T')[0]}
-                />
-              </div>
-
-              {error && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-                    {error}
-                  </div>
-              )}
-            </form>
+                )}
+              </form>
+            </div>
 
             {/* Фиксированные кнопки */}
             <div className="sticky bottom-0 bg-white dark:bg-gray-800 p-4 border-t border-gray-100 dark:border-gray-700">
@@ -364,7 +365,7 @@ const TransactionForm = ({
                     type="button"
                     onClick={handleClose}
                     disabled={isSubmitting}
-                    className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-4 rounded-xl font-bold text-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+                    className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-3 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition"
                 >
                   Отмена
                 </button>
@@ -372,7 +373,7 @@ const TransactionForm = ({
                     type="button"
                     onClick={handleSubmit}
                     disabled={isSubmitting || !dataReady}
-                    className={`flex-1 py-4 rounded-xl font-bold text-lg transition ${dataReady && !isSubmitting
+                    className={`flex-1 py-3 rounded-xl font-medium transition ${dataReady && !isSubmitting
                         ? 'bg-blue-500 text-white hover:bg-blue-600'
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
