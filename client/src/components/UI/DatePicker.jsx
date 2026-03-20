@@ -5,6 +5,7 @@ const DatePicker = ({ value, onChange, disabled = false, placeholder = "Выбе
     const [isOpen, setIsOpen] = useState(false);
     const [tempDate, setTempDate] = useState(value || '');
     const pickerRef = useRef(null);
+    const calendarRef = useRef(null);
 
     const formatDisplayDate = (dateString) => {
         if (!dateString) return placeholder;
@@ -25,6 +26,19 @@ const DatePicker = ({ value, onChange, disabled = false, placeholder = "Выбе
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    // Автоскролл к календарю при открытии
+    useEffect(() => {
+        if (isOpen && calendarRef.current) {
+            // Небольшая задержка, чтобы DOM успел обновиться
+            setTimeout(() => {
+                calendarRef.current.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }, 100);
+        }
+    }, [isOpen]);
 
     const handleConfirm = () => {
         onChange(tempDate);
@@ -104,7 +118,10 @@ const DatePicker = ({ value, onChange, disabled = false, placeholder = "Выбе
 
             {/* Календарь */}
             {isOpen && (
-                <div className="absolute z-50 mt-2 left-0 right-0 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700">
+                <div
+                    ref={calendarRef}
+                    className="absolute z-[9999] mt-2 left-0 right-0 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700"
+                >
                     <div className="p-4">
                         {/* Навигация */}
                         <div className="flex justify-between items-center mb-4">
