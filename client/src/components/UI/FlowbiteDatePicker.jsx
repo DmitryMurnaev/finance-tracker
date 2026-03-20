@@ -1,37 +1,30 @@
 import { useEffect, useRef } from 'react';
 import { Calendar } from 'lucide-react';
+import { Datepicker } from 'flowbite';
 
 const FlowbiteDatePicker = ({ value, onChange, disabled = false, placeholder = "Выберите дату" }) => {
     const inputRef = useRef(null);
     const datepickerInstance = useRef(null);
 
     useEffect(() => {
-        // Динамический импорт Flowbite
-        const initDatepicker = async () => {
-            if (inputRef.current && !datepickerInstance.current) {
-                try {
-                    const { Datepicker } = await import('flowbite');
-
-                    datepickerInstance.current = new Datepicker(inputRef.current, {
-                        format: 'dd.mm.yyyy',
-                        autohide: true,
-                        orientation: 'bottom',
-                        buttons: true,
-                        autoSelectToday: 0,
-                        onHide: () => {
-                            // Обновляем значение после выбора
-                            if (inputRef.current && onChange) {
-                                onChange(inputRef.current.value);
-                            }
+        if (inputRef.current && !datepickerInstance.current) {
+            try {
+                datepickerInstance.current = new Datepicker(inputRef.current, {
+                    format: 'dd.mm.yyyy',
+                    autohide: true,
+                    orientation: 'bottom',
+                    buttons: true,
+                    autoSelectToday: 0,
+                    onHide: () => {
+                        if (inputRef.current && onChange) {
+                            onChange(inputRef.current.value);
                         }
-                    });
-                } catch (error) {
-                    console.error('Ошибка инициализации Datepicker:', error);
-                }
+                    }
+                });
+            } catch (error) {
+                console.error('Ошибка инициализации Datepicker:', error);
             }
-        };
-
-        initDatepicker();
+        }
 
         return () => {
             if (datepickerInstance.current) {
@@ -41,7 +34,6 @@ const FlowbiteDatePicker = ({ value, onChange, disabled = false, placeholder = "
         };
     }, []);
 
-    // Обновляем значение при изменении извне
     useEffect(() => {
         if (inputRef.current && value !== inputRef.current.value) {
             inputRef.current.value = value || '';
