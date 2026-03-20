@@ -62,14 +62,12 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
     const handlePlusClick = () => {
         const currentPath = location.pathname;
 
-        // Если мы на странице планов — открываем форму создания плана
+        // Если на странице планов — открываем форму создания плана
         if (currentPath === '/plans') {
-            // Ищем кнопку создания плана через data-атрибут
             const addPlanButton = document.querySelector('[data-add-plan-button]');
             if (addPlanButton) {
                 addPlanButton.click();
             } else {
-                // Запасной вариант: вызываем handleAddClick через глобальное событие
                 window.dispatchEvent(new CustomEvent('openPlanForm'));
             }
         }
@@ -77,10 +75,17 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
         else if (currentPath === '/home') {
             setShowTypeMenu(true);
         }
-        // Если на других страницах — перенаправляем на главную и открываем меню
-        else {
+        // Если на странице аналитики (stats) или других страницах
+        else if (currentPath === '/more' || currentPath === '/profile' || currentPath === '/support' || currentPath === '/privacy') {
+            // Перенаправляем на главную и открываем меню
             navigate('/home');
-            // Небольшая задержка, чтобы успела произойти навигация
+            setTimeout(() => {
+                setShowTypeMenu(true);
+            }, 150);
+        }
+        else {
+            // Для всех остальных (включая аналитику) — просто перенаправляем на главную
+            navigate('/home');
             setTimeout(() => {
                 setShowTypeMenu(true);
             }, 150);
