@@ -3,7 +3,6 @@ import { X } from 'lucide-react';
 import { categoryAPI, accountAPI } from '../../services/api';
 import { getCategoryConfig } from '../../config/categoryConfig';
 import { getIconById, getColorById } from '../../config/accountsConfig';
-import NumericKeyboard from './NumericKeyboard';
 import CategoryCarousel from './CategoryCarousel';
 import { useModal } from '../../context/ModalContext';
 
@@ -48,18 +47,14 @@ const TransactionForm = ({
           setCategories(categoriesData);
           setAccounts(accountsData);
 
-          // Автовыбор, если не редактируем
           if (!editingTransaction) {
-            // Счёт
             if (!accountId && accountsData.length > 0) {
               setAccountId(accountsData[0].id);
             }
-            // Категория
             if (!categoryId && mode !== 'transfer') {
               const defaultCat = categoriesData.find(c => c.type === type || c.type === 'both');
               if (defaultCat) setCategoryId(defaultCat.id);
             }
-            // Для перевода
             if (mode === 'transfer' && accountsData.length > 0) {
               setFromAccountId(accountsData[0].id);
               setToAccountId(accountsData[1]?.id || accountsData[0].id);
@@ -74,7 +69,6 @@ const TransactionForm = ({
       };
       fetchData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, mode, type, editingTransaction]);
 
   useEffect(() => {
@@ -85,7 +79,6 @@ const TransactionForm = ({
     }
   }, [isOpen]);
 
-  // Заполнение при редактировании
   useEffect(() => {
     if (editingTransaction) {
       setAmount(editingTransaction.amount.toString());
@@ -106,16 +99,9 @@ const TransactionForm = ({
     }
   }, [editingTransaction, mode, isOpen]);
 
-  useEffect(() => {
-    console.log('Accounts loaded:', accounts);
-    console.log('Categories loaded:', categories);
-    console.log('accountId:', accountId, 'categoryId:', categoryId);
-  }, [accounts, categories, accountId, categoryId]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('handleSubmit called', { amount, categoryId, accountId, dataReady });
     setError('');
     setIsSubmitting(true);
 
@@ -193,26 +179,17 @@ const TransactionForm = ({
       cat => cat.type === type || cat.type === 'both'
   );
 
-  // Флаг готовности данных (для блокировки кнопки)
   const dataReady = mode === 'transfer'
       ? fromAccountId && toAccountId
       : categoryId && accountId;
-
-
-  // useEffect(() => {
-  //   console.log('dataReady:', dataReady, 'accountId:', accountId, 'categoryId:', categoryId);
-  // }, [dataReady, accountId, categoryId]);
-
-  console.log('Button disabled:', isSubmitting || !dataReady);
-  console.log('isSubmitting:', isSubmitting, 'dataReady:', dataReady);
 
   return (
       <div className="fixed inset-0 z-60">
         <div className="fixed inset-0 bg-black/50" onClick={handleClose} />
         <div className="fixed bottom-0 left-0 right-0 md:bottom-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2">
-          <div className="bg-white dark:bg-gray-800 rounded-t-3xl md:rounded-2xl w-full max-w-md md:max-w-lg mx-auto flex flex-col max-h-[90vh] overflow-x-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-t-3xl md:rounded-2xl w-full max-w-md mx-auto flex flex-col max-h-[90vh] overflow-hidden">
             {/* Заголовок */}
-            <div className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 p-4 flex justify-between items-center">
+            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 p-4 flex justify-between items-center">
               <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 truncate">{modalTitle}</h2>
               <button onClick={handleClose} className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-300 flex-shrink-0" disabled={isSubmitting}>
                 <X size={24} />
@@ -236,7 +213,6 @@ const TransactionForm = ({
                     inputMode="decimal"
                 />
                 <div className="h-1 bg-gray-200 rounded-full mt-1"></div>
-                {/* Клавиатура полностью удалена */}
               </div>
 
               {/* Описание */}
@@ -261,7 +237,7 @@ const TransactionForm = ({
                       {loadingAccounts ? (
                           <div className="h-12 bg-gray-200 animate-pulse rounded-lg"></div>
                       ) : (
-                          <div className="flex overflow-x-auto gap-2 pl-2 py-2 scrollbar-hide flex-nowrap">
+                          <div className="flex overflow-x-auto gap-2 py-2 scrollbar-hide">
                             {accounts.map((acc) => {
                               const icon = getIconById(acc.icon_id);
                               const color = getColorById(acc.color_id);
@@ -270,14 +246,10 @@ const TransactionForm = ({
                                       key={acc.id}
                                       type="button"
                                       onClick={() => setFromAccountId(acc.id)}
-                                      className={`flex-shrink-0 p-2 rounded-lg flex items-center gap-1 ${
-                                          fromAccountId === acc.id ? `ring-2 ring-blue-500 ${color.bg}` : color.bg
-                                      }`}
+                                      className={`flex-shrink-0 p-2 rounded-lg flex items-center gap-1 ${fromAccountId === acc.id ? `ring-2 ring-blue-500 ${color.bg}` : color.bg}`}
                                   >
                                     <span className="text-xl">{icon.emoji}</span>
-                                    <span className={`text-sm font-medium whitespace-nowrap ${color.text}`}>
-                                                            {acc.name}
-                                                        </span>
+                                    <span className={`text-sm font-medium whitespace-nowrap ${color.text}`}>{acc.name}</span>
                                   </button>
                               );
                             })}
@@ -289,7 +261,7 @@ const TransactionForm = ({
                       {loadingAccounts ? (
                           <div className="h-12 bg-gray-200 animate-pulse rounded-lg"></div>
                       ) : (
-                          <div className="flex overflow-x-auto gap-2 pl-2 py-2 scrollbar-hide flex-nowrap">
+                          <div className="flex overflow-x-auto gap-2 py-2 scrollbar-hide">
                             {accounts.map((acc) => {
                               const icon = getIconById(acc.icon_id);
                               const color = getColorById(acc.color_id);
@@ -298,14 +270,10 @@ const TransactionForm = ({
                                       key={acc.id}
                                       type="button"
                                       onClick={() => setToAccountId(acc.id)}
-                                      className={`flex-shrink-0 p-2 rounded-lg flex items-center gap-1 ${
-                                          toAccountId === acc.id ? `ring-2 ring-blue-500 ${color.bg}` : color.bg
-                                      }`}
+                                      className={`flex-shrink-0 p-2 rounded-lg flex items-center gap-1 ${toAccountId === acc.id ? `ring-2 ring-blue-500 ${color.bg}` : color.bg}`}
                                   >
                                     <span className="text-xl">{icon.emoji}</span>
-                                    <span className={`text-sm font-medium whitespace-nowrap ${color.text}`}>
-                                                            {acc.name}
-                                                        </span>
+                                    <span className={`text-sm font-medium whitespace-nowrap ${color.text}`}>{acc.name}</span>
                                   </button>
                               );
                             })}
@@ -319,13 +287,13 @@ const TransactionForm = ({
                     <div className="mb-4">
                       <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Счёт</label>
                       {loadingAccounts ? (
-                          <div className="flex gap-2 overflow-x-auto pl-2 py-2">
+                          <div className="flex gap-2 overflow-x-auto py-2">
                             {[...Array(5)].map((_, i) => (
                                 <div key={i} className="flex-shrink-0 w-24 h-12 bg-gray-200 animate-pulse rounded-lg"></div>
                             ))}
                           </div>
                       ) : (
-                          <div className="flex gap-2 overflow-x-auto pl-2 py-2 scrollbar-hide flex-nowrap">
+                          <div className="flex overflow-x-auto gap-2 py-2 scrollbar-hide">
                             {accounts.map((acc) => {
                               const icon = getIconById(acc.icon_id);
                               const color = getColorById(acc.color_id);
@@ -334,14 +302,10 @@ const TransactionForm = ({
                                       key={acc.id}
                                       type="button"
                                       onClick={() => setAccountId(acc.id)}
-                                      className={`flex-shrink-0 p-2 rounded-lg flex items-center gap-1 ${
-                                          accountId === acc.id ? `ring-2 ring-blue-500 ${color.bg}` : color.bg
-                                      }`}
+                                      className={`flex-shrink-0 p-2 rounded-lg flex items-center gap-1 ${accountId === acc.id ? `ring-2 ring-blue-500 ${color.bg}` : color.bg}`}
                                   >
                                     <span className="text-xl">{icon.emoji}</span>
-                                    <span className={`text-sm font-medium whitespace-nowrap ${color.text}`}>
-                                                            {acc.name}
-                                                        </span>
+                                    <span className={`text-sm font-medium whitespace-nowrap ${color.text}`}>{acc.name}</span>
                                   </button>
                               );
                             })}
@@ -353,7 +317,7 @@ const TransactionForm = ({
                     <div className="mb-4">
                       <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Категория</label>
                       {loadingCategories ? (
-                          <div className="flex gap-2 overflow-x-auto pl-2 py-2">
+                          <div className="flex gap-2 overflow-x-auto py-2">
                             {[...Array(6)].map((_, i) => (
                                 <div key={i} className="flex-shrink-0 w-20 h-20 bg-gray-200 animate-pulse rounded-xl"></div>
                             ))}
@@ -373,7 +337,7 @@ const TransactionForm = ({
                   </>
               )}
 
-              {/* Дата */}
+              {/* Дата - исправлено для мобильных */}
               <div className="mb-4">
                 <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Дата</label>
                 <input
@@ -394,13 +358,13 @@ const TransactionForm = ({
             </form>
 
             {/* Фиксированные кнопки */}
-            <div className="p-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="sticky bottom-0 bg-white dark:bg-gray-800 p-4 border-t border-gray-100 dark:border-gray-700">
               <div className="flex gap-3">
                 <button
                     type="button"
                     onClick={handleClose}
                     disabled={isSubmitting}
-                    className="flex-1 bg-gray-100 bg-transparent text-gray-700 py-4 rounded-xl font-bold text-lg hover:bg-gray-200"
+                    className="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-4 rounded-xl font-bold text-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition"
                 >
                   Отмена
                 </button>
@@ -408,10 +372,9 @@ const TransactionForm = ({
                     type="button"
                     onClick={handleSubmit}
                     disabled={isSubmitting || !dataReady}
-                    className={`flex-1 py-4 rounded-xl font-bold text-lg transition ${
-                        dataReady && !isSubmitting
-                            ? 'bg-blue-500 text-white hover:bg-blue-600'
-                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    className={`flex-1 py-4 rounded-xl font-bold text-lg transition ${dataReady && !isSubmitting
+                        ? 'bg-blue-500 text-white hover:bg-blue-600'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     }`}
                 >
                   {submitButtonText}
