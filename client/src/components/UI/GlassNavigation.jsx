@@ -25,6 +25,7 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
         const path = location.pathname;
         if (path === '/plans') setActiveTab('plans');
         else if (path === '/more') setActiveTab('more');
+        else if (path === '/home') setActiveTab('home');
     }, [location.pathname, setActiveTab]);
 
     useEffect(() => {
@@ -58,6 +59,26 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
         navigate(item.path);
     };
 
+    const handlePlusClick = () => {
+        // Если мы на странице планов — открываем форму создания плана
+        if (location.pathname === '/plans') {
+            // Находим кнопку "Добавить план" в DOM и кликаем по ней
+            const addPlanButton = document.querySelector('[data-add-plan-button]');
+            if (addPlanButton) {
+                addPlanButton.click();
+            }
+        } else if (location.pathname === '/home') {
+            // На главной — открываем меню выбора типа транзакции
+            setShowTypeMenu(true);
+        } else {
+            // На других страницах — перенаправляем на главную и открываем меню
+            navigate('/home');
+            setTimeout(() => {
+                setShowTypeMenu(true);
+            }, 100);
+        }
+    };
+
     return (
         <div className="fixed bottom-4 left-0 right-0 flex justify-center z-50 pointer-events-none px-4">
             <div
@@ -88,7 +109,7 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
 
                 <div className="flex items-center justify-center w-16">
                     <button
-                        onClick={() => setShowTypeMenu(true)}
+                        onClick={handlePlusClick}
                         className="relative flex flex-col items-center -mt-8 z-20"
                     >
                         <div className={`bg-blue-500 text-white rounded-full p-4 shadow-lg shadow-blue-500/30 transition-transform duration-300 ${showTypeMenu ? 'rotate-45' : 'rotate-0'}`}>

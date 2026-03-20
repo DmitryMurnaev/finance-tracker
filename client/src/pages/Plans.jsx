@@ -93,9 +93,10 @@ const Plans = () => {
                 <h1 className="text-2xl font-bold dark:text-gray-100">Планы</h1>
                 <button
                     onClick={handleAddClick}
+                    data-add-plan-button
                     className="bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition"
                 >
-                    <Plus size={24} />
+                    <Plus size={24}/>
                 </button>
             </div>
 
