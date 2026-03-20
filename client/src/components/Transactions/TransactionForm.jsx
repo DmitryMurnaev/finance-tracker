@@ -5,7 +5,7 @@ import { getCategoryConfig } from '../../config/categoryConfig';
 import { getIconById, getColorById } from '../../config/accountsConfig';
 import CategoryCarousel from './CategoryCarousel';
 import { useModal } from '../../context/ModalContext';
-import FlowbiteDatePicker from '../UI/FlowbiteDatePicker';
+import DatePicker from '../UI/DatePicker';
 
 const TransactionForm = ({
                            isOpen,
@@ -341,7 +341,7 @@ const TransactionForm = ({
                 {/* Дата */}
                 <div className="mb-4">
                   <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">Дата</label>
-                  <FlowbiteDatePicker
+                  <DatePicker
                       value={date}
                       onChange={setDate}
                       disabled={isSubmitting}

@@ -1,14 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { Calendar } from 'lucide-react';
 
-const DatePicker = ({ value, onChange, label, disabled = false }) => {
+const DatePicker = ({ value, onChange, disabled = false, placeholder = "Выберите дату" }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [tempDate, setTempDate] = useState(value || '');
     const pickerRef = useRef(null);
 
-    // Форматирование даты для отображения
     const formatDisplayDate = (dateString) => {
-        if (!dateString) return 'Выберите дату';
+        if (!dateString) return placeholder;
         const date = new Date(dateString);
         return date.toLocaleDateString('ru-RU', {
             day: 'numeric',
@@ -17,7 +16,6 @@ const DatePicker = ({ value, onChange, label, disabled = false }) => {
         });
     };
 
-    // Закрытие при клике вне
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (pickerRef.current && !pickerRef.current.contains(event.target)) {
@@ -79,16 +77,18 @@ const DatePicker = ({ value, onChange, label, disabled = false }) => {
     };
 
     const selectDate = (day) => {
-        const newDate = new Date(tempDate ? new Date(tempDate) : new Date());
+        const newDate = tempDate ? new Date(tempDate) : new Date();
         newDate.setDate(day);
         setTempDate(newDate.toISOString().split('T')[0]);
     };
 
     const { days, year, monthName } = generateCalendar();
     const weekDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    const currentMonth = tempDate ? new Date(tempDate).getMonth() + 1 : new Date().getMonth() + 1;
+    const currentYear = tempDate ? new Date(tempDate).getFullYear() : new Date().getFullYear();
 
     return (
-        <div className="relative" ref={pickerRef}>
+        <div className="relative w-full" ref={pickerRef}>
             {/* Кнопка выбора даты */}
             <button
                 type="button"
@@ -104,14 +104,14 @@ const DatePicker = ({ value, onChange, label, disabled = false }) => {
 
             {/* Календарь */}
             {isOpen && (
-                <div className="absolute bottom-full mb-2 left-0 right-0 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 z-50">
+                <div className="absolute z-50 mt-2 left-0 right-0 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700">
                     <div className="p-4">
                         {/* Навигация */}
                         <div className="flex justify-between items-center mb-4">
                             <button
                                 type="button"
                                 onClick={() => changeMonth(-1)}
-                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-gray-600 dark:text-gray-300"
                             >
                                 ←
                             </button>
@@ -121,7 +121,7 @@ const DatePicker = ({ value, onChange, label, disabled = false }) => {
                             <button
                                 type="button"
                                 onClick={() => changeMonth(1)}
-                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-gray-600 dark:text-gray-300"
                             >
                                 →
                             </button>
@@ -140,24 +140,27 @@ const DatePicker = ({ value, onChange, label, disabled = false }) => {
                         <div className="space-y-1">
                             {days.map((week, weekIndex) => (
                                 <div key={weekIndex} className="grid grid-cols-7 gap-1">
-                                    {week.map((day, dayIndex) => (
-                                        <button
-                                            key={dayIndex}
-                                            type="button"
-                                            onClick={() => day && selectDate(day)}
-                                            disabled={!day}
-                                            className={`
-                                                text-center py-2 rounded-lg text-sm
-                                                ${!day ? 'invisible' : ''}
-                                                ${day && tempDate === `${year}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-                                                ? 'bg-blue-500 text-white'
-                                                : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-                                            }
-                                            `}
-                                        >
-                                            {day}
-                                        </button>
-                                    ))}
+                                    {week.map((day, dayIndex) => {
+                                        const isSelected = day && tempDate === `${year}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                                        return (
+                                            <button
+                                                key={dayIndex}
+                                                type="button"
+                                                onClick={() => day && selectDate(day)}
+                                                disabled={!day}
+                                                className={`
+                                                    text-center py-2 rounded-lg text-sm
+                                                    ${!day ? 'invisible' : ''}
+                                                    ${isSelected
+                                                    ? 'bg-blue-500 text-white'
+                                                    : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+                                                }
+                                                `}
+                                            >
+                                                {day}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             ))}
                         </div>
