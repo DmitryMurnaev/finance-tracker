@@ -9,14 +9,13 @@ const PlanCard = ({ plan, onEdit, onDelete, onContribute }) => {
     const progress = (plan.current_amount / plan.target_amount) * 100;
     const remaining = plan.target_amount - plan.current_amount;
 
-    // Функция для определения цвета текста в зависимости от фона
+    // Функция для определения цвета текста
     const getTextColor = (bgClass) => {
         if (bgClass.includes('bg-yellow-100') ||
             bgClass.includes('bg-gray-100') ||
             bgClass.includes('bg-blue-100') ||
             bgClass.includes('bg-green-100') ||
             bgClass.includes('bg-red-100') ||
-            bgClass.includes('bg-purple-100') ||
             bgClass.includes('bg-pink-100')) {
             return 'text-gray-800';
         }
