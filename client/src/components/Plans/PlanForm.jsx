@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { planIconOptions, planColorOptions } from '../../config/plansConfig';
-import DatePicker from './DatePicker';
+import DatePicker from '../UI/DatePicker';
 
 const PlanForm = ({ isOpen, onClose, onSave, editingPlan }) => {
     const [name, setName] = useState('');

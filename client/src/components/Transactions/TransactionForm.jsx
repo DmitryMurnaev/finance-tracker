@@ -5,7 +5,7 @@ import { getCategoryConfig } from '../../config/categoryConfig';
 import { getIconById, getColorById } from '../../config/accountsConfig';
 import CategoryCarousel from './CategoryCarousel';
 import { useModal } from '../../context/ModalContext';
-import DatePicker from './DatePicker';
+import DatePicker from '../UI/DatePicker';
 
 const TransactionForm = ({
                            isOpen,
