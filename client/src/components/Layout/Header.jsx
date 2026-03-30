@@ -18,9 +18,6 @@ const Header = () => {
                 >
                     Финикон
                 </h1>
-                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                    Учёт доходов и расходов
-                </p>
             </div>
         </header>
     );
