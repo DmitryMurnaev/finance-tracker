@@ -7,14 +7,14 @@ const Header = () => {
     return (
         <header className="flex items-center gap-3 mb-6">
             <img
-                src={isDark ? '/logo-dark.svg' : '/logo-light.svg'}
+                src={isDark ? '/icons/logo-dark.svg' : '/icons/logo-light.svg'}
                 alt="Финикон"
                 className="h-10 w-auto"
             />
             <div>
                 <h1
-                    className="text-2xl font-bold"
-                    style={{ color: isDark ? '#F9FAFB' : '#3B82F6' }}
+                    className="text-4xl font-bold"
+                    style={{ color: isDark ? '#2679FF' : '#3B82F6' }}
                 >
                     Финикон
                 </h1>
