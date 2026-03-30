@@ -1,7 +1,7 @@
 {
-  "name": "Финансовый трекер",
-  "short_name": "FinTracker",
-  "description": "Учёт доходов и расходов",
+  "name": "Финикон",
+  "short_name": "Финикон",
+  "description": "Финикон",
   "theme_color": "#3b82f6",
   "background_color": "#f9fafb",
   "display": "standalone",
