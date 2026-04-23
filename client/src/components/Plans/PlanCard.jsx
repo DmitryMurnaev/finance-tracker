@@ -34,14 +34,14 @@ const PlanCard = ({ plan, onEdit, onDelete, onContribute }) => {
                     <span className="text-3xl">{icon.emoji}</span>
                     <span className={`font-bold text-lg ${textColor}`}>{plan.name}</span>
                 </div>
-                <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                    <button onClick={() => onContribute(plan)} className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300">
+                <div className="flex gap-2 relative z-10" onClick={(e) => e.stopPropagation()}>
+                    <button type="button" onClick={() => onContribute(plan)} className="p-1 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300">
                         <TrendingUp size={20} />
                     </button>
-                    <button onClick={() => onEdit(plan)} className="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400">
+                    <button type="button" onClick={() => onEdit(plan)} className="p-1 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400">
                         <Pencil size={20} />
                     </button>
-                    <button onClick={() => onDelete(plan.id)} className="text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400">
+                    <button type="button" onClick={() => onDelete(plan.id)} className="p-1 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400">
                         <Trash2 size={20} />
                     </button>
                 </div>
