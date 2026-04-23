@@ -27,7 +27,7 @@ const PlanCard = ({ plan, onEdit, onDelete, onContribute }) => {
     return (
         <div
             onClick={() => onContribute(plan)}
-            className={`p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 ${color.bg} dark:bg-opacity-90 cursor-pointer transition-transform hover:scale-[1.02] active:scale-[0.98]`}
+            className={`p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 ${color.bg} dark:bg-opacity-90 cursor-pointer`}
         >
             <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
