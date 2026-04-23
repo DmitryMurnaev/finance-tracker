@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { planIconOptions, planColorOptions } from '../../config/plansConfig';
 import DatePicker from '../UI/DatePicker';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const PlanForm = ({ isOpen, onClose, onSave, editingPlan }) => {
+    const { formatCurrency } = useCurrency();
     const [name, setName] = useState('');
     const [targetAmount, setTargetAmount] = useState('');
     const [iconId, setIconId] = useState(1);
@@ -11,6 +13,13 @@ const PlanForm = ({ isOpen, onClose, onSave, editingPlan }) => {
     const [deadline, setDeadline] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
+
+    // Get currency symbol for label
+    const getCurrencyLabel = () => {
+        const curr = typeof window !== 'undefined' ? localStorage.getItem('userPreferredCurrency') : 'RUB';
+        const symbols = { RUB: '₽', USD: '$', EUR: '€' };
+        return symbols[curr] || '₽';
+    };
 
     useEffect(() => {
         if (editingPlan) {
@@ -87,7 +96,7 @@ const PlanForm = ({ isOpen, onClose, onSave, editingPlan }) => {
                                 />
                             </div>
                             <div className="mb-4">
-                                <label className="block mb-1 font-medium text-gray-700 dark:text-gray-300">Целевая сумма (₽)</label>
+                                <label className="block mb-1 font-medium text-gray-700 dark:text-gray-300">Целевая сумма ({getCurrencyLabel()})</label>
                                 <input
                                     type="number"
                                     value={targetAmount}

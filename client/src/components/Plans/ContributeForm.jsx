@@ -3,9 +3,11 @@ import { X } from 'lucide-react';
 import { accountAPI } from '../../services/api';
 import { getPlanIconById, getPlanColorById } from '../../config/plansConfig';
 import { useModal } from '../../context/ModalContext';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const ContributeForm = ({ isOpen, onClose, onContribute, plan }) => {
     const { showToast } = useModal();
+    const { formatCurrency } = useCurrency();
     const [amount, setAmount] = useState('');
     const [accountId, setAccountId] = useState(null);
     const [description, setDescription] = useState('');
@@ -39,7 +41,7 @@ const ContributeForm = ({ isOpen, onClose, onContribute, plan }) => {
             if (!amount || amount <= 0) throw new Error('Введите корректную сумму');
             if (!accountId) throw new Error('Выберите счёт');
 
-            await onContribute(parseFloat(amount), accountId, description.trim() || 'Пополнение плана');
+            await onContribute(parseFloat(amount), accountId, description.trim() || 'Пополнение цели');
             showToast({ message: 'Средства внесены', type: 'success' });
             onClose();
         } catch (err) {
@@ -59,7 +61,7 @@ const ContributeForm = ({ isOpen, onClose, onContribute, plan }) => {
             <div className="fixed inset-0 bg-black/50" onClick={onClose} />
             <div className="relative bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md mx-auto flex flex-col shadow-xl dark:shadow-gray-900 max-h-[90vh] overflow-y-auto">
                 <div className="sticky top-0 bg-white dark:bg-gray-800 z-10 flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-700">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Внести в план</h2>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Внести в цель</h2>
                     <button onClick={onClose} className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
                         <X size={24} />
                     </button>
@@ -70,12 +72,12 @@ const ContributeForm = ({ isOpen, onClose, onContribute, plan }) => {
                         <div>
                             <div className={`font-bold ${color.text}`}>{plan.name}</div>
                             <div className={`text-sm ${color.text}`}>
-                                {plan.current_amount.toLocaleString('ru-RU')} ₽ из {plan.target_amount.toLocaleString('ru-RU')} ₽
+                                {formatCurrency(plan.current_amount)} из {formatCurrency(plan.target_amount)}
                             </div>
                         </div>
                     </div>
                     <div className="mb-4">
-                        <label className="block mb-1 font-medium text-gray-700 dark:text-gray-300">Сумма (₽)</label>
+                        <label className="block mb-1 font-medium text-gray-700 dark:text-gray-300">Сумма</label>
                         <input
                             type="number"
                             value={amount}
@@ -101,7 +103,7 @@ const ContributeForm = ({ isOpen, onClose, onContribute, plan }) => {
                             >
                                 {accounts.map(acc => (
                                     <option key={acc.id} value={acc.id}>
-                                        {acc.name} (баланс: {acc.balance.toLocaleString('ru-RU')} ₽)
+                                        {acc.name} (баланс: {formatCurrency(acc.balance)})
                                     </option>
                                 ))}
                             </select>

@@ -10,7 +10,7 @@ const GlassNavigation = ({ activeTab, setActiveTab, showTypeMenu, setShowTypeMen
 
     const leftItems = useMemo(() => [
         { id: 'home', icon: Home, label: 'Главная', path: '/home' },
-        { id: 'plans', icon: Target, label: 'Планы', path: '/plans' },
+        { id: 'plans', icon: Target, label: 'Цели', path: '/plans' },
     ], []);
 
     const rightItems = useMemo(() => [

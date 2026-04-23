@@ -31,8 +31,8 @@ const Plans = () => {
             const data = await planAPI.getPlans();
             setPlans(data);
         } catch (err) {
-            console.error('Ошибка загрузки планов', err);
-            showToast({ message: 'Не удалось загрузить планы', type: 'error' });
+            console.error('Ошибка загрузки целей', err);
+            showToast({ message: 'Не удалось загрузить цели', type: 'error' });
         } finally {
             setLoading(false);
         }
@@ -96,7 +96,7 @@ const Plans = () => {
 
     return (
         <div className="p-4">
-            <h1 className="text-2xl font-bold dark:text-gray-100 mb-4">Планы</h1>
+            <h1 className="text-2xl font-bold dark:text-gray-100 mb-4">Цели</h1>
 
             {loading ? (
                 <div className="text-center py-10 dark:text-gray-100">Загрузка...</div>
