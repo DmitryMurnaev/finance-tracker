@@ -1,7 +1,7 @@
 {
-  "name": "finance-tracker-fullstack",
+  "name": "finikon-fullstack",
   "version": "1.0.0",
-  "description": "Full-stack finance tracking application",
+  "description": "Приложение для учёта личных финансов Финикон",
   "scripts": {
     "client": "cd client && npm run dev",
     "server": "cd server && npm run dev",

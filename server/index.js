@@ -9,7 +9,7 @@ const accountsRoutes = require('./routes/accounts')
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-console.log('🚀 Finance Tracker API с авторизацией запущен');
+console.log('🚀 Финикон API запущен');
 
 // Разрешенные домены
 const allowedOrigins = [

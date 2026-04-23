@@ -12,7 +12,7 @@
     "nodemon": "^3.0.2"
   },
   "main": "index.js",
-  "name": "finance-tracker-api",
+  "name": "finikon-api",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js"
